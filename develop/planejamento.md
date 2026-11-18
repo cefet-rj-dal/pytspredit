@@ -161,8 +161,15 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
 - Incremental, um passo por vez; você confere o `examples/` processado antes de escalar.
 - Verde sempre (`ruff` + `pytest` + build dos exemplos).
 - Decisões sempre registradas aqui.
-- Trabalho em **branch**; push para você revisar no GitHub. Sem merge/commit na `main`
-  sem você pedir.
+- **Branch por milestone** (como no pydaltoolbox); **exemplos sempre commitados** e
+  empurrados; eu te passo os **links do GitHub** de cada exemplo para você conferir.
+  O PR você abre pelo link (sem `gh` aqui). Sem merge/commit na `main` sem você pedir.
+- **Comparação R vs Python a cada passo (obrigatório):** para cada componente
+  portado, rodar o equivalente no `tspredit` (R 4.5.0 disponível) e no `pytspredit`
+  sobre o mesmo dado (`tsd`) e **conferir que os resultados batem** (dim/colunas/
+  valores em dados; métricas MSE/sMAPE/R2 em modelos). Divergência esperada só onde
+  o backend difere (ex.: RNG do MLP/RF) — nesses casos, documentar a tolerância. Isso
+  dá segurança a cada etapa. (Já feito no núcleo: `ts_data` idêntico ao R.)
 
 ## 7. Pendências / decisões em aberto
 - [ ] Backend do ELM: implementação própria leve (random hidden + solução fechada) — confirmar na Fase 4a.
