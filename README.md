@@ -1,5 +1,7 @@
 # pytspredit
 
+[![PyPI version](https://img.shields.io/pypi/v/pytspredit.svg)](https://pypi.org/project/pytspredit/)
+[![Python versions](https://img.shields.io/pypi/pyversions/pytspredit.svg)](https://pypi.org/project/pytspredit/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Python port of the R [tspredit](https://github.com/cefet-rj-dal/tspredit) — **time series
@@ -19,11 +21,12 @@ It is part of the DAL Python family:
 
 ## Installation
 
-Once released:
-
 ```bash
 pip install pytspredit
 ```
+
+> **Beta:** the current release (`0.1.0`) is in a testing phase on the way to `1.0.0`.
+> Feedback and issues are very welcome.
 
 For a local, editable clone (contributing or running the examples):
 
@@ -55,7 +58,7 @@ print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
 
 ## Status
 
-**v1 feature-complete (pre-release).** The port follows the method validated for
+**v1 published (`0.1.0`, beta).** The port follows the method validated for
 `pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
 the shared `tsd` series. Implemented:
 
