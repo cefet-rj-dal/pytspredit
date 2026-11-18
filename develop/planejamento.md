@@ -121,8 +121,13 @@ filtros + augmentation como *fast-follow* `0.2.0` (poucos dias depois).
 | ✅ M0 | Scaffolding | feito |
 | ✅ M1 | Núcleo de dados | feito |
 | ✅ **M2** | Substrato de modelagem | `TsReg` + `TsRegSW` (com `steps_ahead`) + **normalizações (5)** + `TsLagmap` (**12 estratégias**) — **paridade R vs Py verificada** (norms ≤1e-13, 12 lagmaps idênticos, evaluate idêntico) |
-| 🔜 **M3** | Regressores | `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` + `TsArima`, `TsArimax` |
-| **M4** | Tuning + fecho → 🚀 publica | `TsTune`, `TsIntegtune` + revisão API/README + build/twine/install limpo + **upload `0.1.0`** |
+| ✅ **M3** | Regressores | `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` + `TsArima` (univariado) — **paridade R vs Py end-to-end verificada** (ver abaixo). *(`TsArimax` é multivariado → Bloco B.)* |
+| 🔜 **M4** | Tuning + fecho → 🚀 publica | `TsTune`, `TsIntegtune` + revisão API/README + build/twine/install limpo + **upload `0.1.0`** |
+
+**Paridade M3 (tsd, previsão 5 passos, R vs Python):** knn `max|Δ|=4.7e-9` (exato) ·
+elm `4.8e-9` (exato, equivale a OLS) · svm `2.5e-4` · arima `6.0e-4` · rf `3.6e-2` ·
+mlp `2.2e-2`. Determinísticos (knn, elm) batem; svm/arima quase exatos; rf/mlp dentro
+da tolerância de RNG do backend (esperado).
 
 → Filtros (13) e augmentation (8) viram **`0.2.0`** (uma milestone cada, dias depois).
 
@@ -151,7 +156,7 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
 - 🔭 **Multivariado:** `ts_data_mv`, `ts_reg_mv`, `ts_regsw_mv`, `ts_lm_mv`, `ts_var`, `ts_plot_mv`.
 - 🔭 **Filtros avançados:** `ts_fil_emd`/`remd` (PyEMD), `wavelet` (PyWavelets),
   `gabor`, `fft`, state-space avançado (KFAS).
-- 🔭 **ARIMA avançado:** `ts_darima` (distributed ARIMA), `ts_warma`, `ts_deterministic`.
+- 🔭 **ARIMA avançado / MV:** `ts_arimax` (multivariado, xreg), `ts_darima` (distributed ARIMA), `ts_warma`, `ts_deterministic`.
 - 🔭 **Benchmark + datasets grandes:** `tspredbench*`, EUNITE/NN3/NN5/M4/… (`.RData`).
 - 🔭 **Gráficos:** `ts_plot_mv` e afins (matplotlib).
 
@@ -172,7 +177,13 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
   dá segurança a cada etapa. (Já feito no núcleo: `ts_data` idêntico ao R.)
 
 ## 7. Pendências / decisões em aberto
-- [ ] Backend do ELM (M3): implementação própria leve (random hidden + solução fechada).
+- [x] Backend do ELM (M3): implementação própria (random hidden uniform_positive + pinv,
+      sem bias). Com `actfun="purelin"` e `nhid >= nº de lags` equivale a OLS → bate com
+      o R independente do RNG. Com `nhid` menor, projeção aleatória (diverge por RNG).
+- [x] `TsArima` sobre statsmodels: ordem manual `(p,d,q)` fiel; `auto` via busca AICc
+      (aproxima `forecast::auto.arima`, pode não reproduzir a ordem exata). Backend MLE
+      difere do `forecast` → previsões próximas, não bit-idênticas.
+- Nota: `TsArimax` é multivariado (xreg) → movido para o Bloco B junto da família MV.
 - [x] `ts_norm_an` portado e com paridade R vs Py (os 4 operadores). Nota: o default
       `outliers_boxplot` é aplicado sobre os dados já transformados (como no R) — crítico
       no `divide` (recorta explosões de divisão por média ~0).

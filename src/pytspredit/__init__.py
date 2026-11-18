@@ -9,6 +9,7 @@ scikit-learn / numpy / pandas / statsmodels with thin adapters.
 from __future__ import annotations
 
 from . import datasets
+from .arima import TsArima
 from .lagmap import TsLagmap
 from .norm import (
     TsNormAn,
@@ -17,6 +18,7 @@ from .norm import (
     TsNormNone,
     TsNormSwminmax,
 )
+from .regressors import TsElm, TsKnn, TsMlp, TsRf, TsSvm
 from .ts_reg import TsReg, TsRegSW, mse_ts, r2_ts, smape_ts
 from .tsdata import (
     TsProjection,
@@ -31,7 +33,11 @@ from .tsdata import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "TsArima",
+    "TsElm",
+    "TsKnn",
     "TsLagmap",
+    "TsMlp",
     "TsNormAn",
     "TsNormDiff",
     "TsNormGminmax",
@@ -40,7 +46,9 @@ __all__ = [
     "TsProjection",
     "TsReg",
     "TsRegSW",
+    "TsRf",
     "TsSample",
+    "TsSvm",
     "adjust_ts_data",
     "datasets",
     "mse_ts",
