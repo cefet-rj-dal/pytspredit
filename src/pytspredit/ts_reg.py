@@ -159,7 +159,7 @@ class TsRegSW(TsReg):
             y = self._do_predict(self._as_matrix(xt))
             row = adjust_ts_data(self.preprocess.inverse_transform(xt))
             y = _vec(self.preprocess.inverse_transform(xt, _vec(y)))[0]
-            vals = row.to_numpy(dtype=float)
+            vals = np.array(row.to_numpy(dtype=float))  # ensure a writable copy
             vals[0, :-1] = vals[0, 1:]
             vals[0, -1] = y
             row = pd.DataFrame(vals, columns=cnames)

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from . import datasets
 from .arima import TsArima
+from .augment import TsAugNone
 from .lagmap import TsLagmap
 from .norm import (
     TsNormAn,
@@ -29,12 +30,15 @@ from .tsdata import (
     ts_projection,
     ts_sample,
 )
+from .tune import TsIntegtune, TsTune
 
 __version__ = "0.1.0"
 
 __all__ = [
     "TsArima",
+    "TsAugNone",
     "TsElm",
+    "TsIntegtune",
     "TsKnn",
     "TsLagmap",
     "TsMlp",
@@ -49,6 +53,7 @@ __all__ = [
     "TsRf",
     "TsSample",
     "TsSvm",
+    "TsTune",
     "adjust_ts_data",
     "datasets",
     "mse_ts",

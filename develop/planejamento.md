@@ -122,7 +122,7 @@ filtros + augmentation como *fast-follow* `0.2.0` (poucos dias depois).
 | ✅ M1 | Núcleo de dados | feito |
 | ✅ **M2** | Substrato de modelagem | `TsReg` + `TsRegSW` (com `steps_ahead`) + **normalizações (5)** + `TsLagmap` (**12 estratégias**) — **paridade R vs Py verificada** (norms ≤1e-13, 12 lagmaps idênticos, evaluate idêntico) |
 | ✅ **M3** | Regressores | `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` + `TsArima` (univariado) — **paridade R vs Py end-to-end verificada** (ver abaixo). *(`TsArimax` é multivariado → Bloco B.)* |
-| 🔜 **M4** | Tuning + fecho → 🚀 publica | `TsTune`, `TsIntegtune` + revisão API/README + build/twine/install limpo + **upload `0.1.0`** |
+| ✅ **M4** | Tuning + fecho → 🚀 publica | `TsTune`, `TsIntegtune` (+ `TsAugNone` identidade) + README v1 + build/`twine check` OK + install em venv limpo. **Falta só o `twine upload` (Eduardo autoriza).** |
 
 **Paridade M3 (tsd, previsão 5 passos, R vs Python):** knn `max|Δ|=4.7e-9` (exato) ·
 elm `4.8e-9` (exato, equivale a OLS) · svm `2.5e-4` · arima `6.0e-4` · rf `3.6e-2` ·
@@ -184,6 +184,11 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
       (aproxima `forecast::auto.arima`, pode não reproduzir a ordem exata). Backend MLE
       difere do `forecast` → previsões próximas, não bit-idênticas.
 - Nota: `TsArimax` é multivariado (xreg) → movido para o Bloco B junto da família MV.
+- [x] **Fecho M4:** build + `twine check` OK; sdist exclui `develop/notebooks/examples/tests/tools`
+      e inclui `tsd.csv`; **install em venv limpo OK** (numpy 2.5.5 / pandas 3.1.1 do PyPI).
+      O teste de venv limpo pegou um bug real: `row.to_numpy()` vem **read-only** no numpy novo;
+      corrigido com cópia explícita no `predict` multi-step do `TsRegSW`. 28 símbolos públicos.
+      **Pronto para publicar — falta só o `twine upload` (Eduardo autoriza/roda).**
 - [x] `ts_norm_an` portado e com paridade R vs Py (os 4 operadores). Nota: o default
       `outliers_boxplot` é aplicado sobre os dados já transformados (como no R) — crítico
       no `divide` (recorta explosões de divisão por média ~0).

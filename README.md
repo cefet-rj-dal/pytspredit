@@ -34,36 +34,49 @@ pip install -e ".[dev,docs]"
 pytest
 ```
 
-## Sliding windows in a nutshell
+## A forecast in a nutshell
 
 ```python
 import pytspredit as ts
 
-series = ts.datasets.tsd()["y"]       # synthetic sine example series
-
-windows = ts.ts_data(series, sw=10)   # sliding windows: columns t9 ... t0
-samp = ts.ts_sample(windows, test_size=5)       # temporal train/test split
-io_train = ts.ts_projection(samp.train)         # -> (input X, output t0)
+series = ts.datasets.tsd()["y"]                  # example series
+windows = ts.ts_data(series, sw=10)              # sliding windows: columns t9 ... t0
+samp = ts.ts_sample(windows, test_size=5)        # temporal train/test split
+io_train = ts.ts_projection(samp.train)          # -> (input X, output t0)
 io_test = ts.ts_projection(samp.test)
 
-io_train.input.head()
-```
+# a kNN regressor with min-max normalization and PACF-based lag selection
+model = ts.TsKnn(ts.TsNormGminmax(), input_size=4, input_map=ts.TsLagmap("pacf"), k=3)
+model.fit(io_train.input, io_train.output)
 
-Regressors, normalizations, filters, augmentation and tuning build on top of this core
-(see the roadmap).
+forecast = model.predict(io_test.input.iloc[[0]], steps_ahead=5)   # 5 steps ahead
+print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
+```
 
 ## Status
 
-🚧 **In development.** The port follows the method validated for `pydaltoolbox`
-(already on PyPI). Done so far:
+**v1 feature-complete (pre-release).** The port follows the method validated for
+`pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
+the shared `tsd` series. Implemented:
 
 - **Core data structures:** `ts_data` (sliding windows), `ts_projection`, `ts_sample`,
-  `adjust_ts_data`, `ts_head`, and `datasets.tsd()` (numerically identical to the R
-  original).
+  `adjust_ts_data`, `ts_head`, `datasets.tsd()` (numerically identical to R).
+- **Regression base:** `TsReg` (MSE / sMAPE / R2 evaluation) and `TsRegSW`
+  (preprocess + lag map + backend; one-step and iterative multi-step forecasting).
+- **Normalizations:** `TsNormNone`, `TsNormGminmax`, `TsNormSwminmax`, `TsNormDiff`,
+  `TsNormAn` (adaptive; 4 operators) — all invertible.
+- **Lag mapping:** `TsLagmap` with 12 strategies (recent, even, geom, acf, pacf, peaks,
+  seasonal, acf/pacf-seasonal, blocks, mutual information, mRMR).
+- **Regressors:** `TsKnn`, `TsElm`, `TsRf`, `TsSvm`, `TsMlp` (sliding-window) and
+  `TsArima` (univariate ARIMA).
+- **Tuning:** `TsTune` and `TsIntegtune` (integrated tuning of input size,
+  preprocessing and model hyperparameters).
 
-Coming next: regression base + regressors, normalizations, lag-mapping strategies,
-ARIMA, filters, augmentation and tuning. The full kickoff brief and roadmap are in
-[develop/PROMPT.md](develop/PROMPT.md) and [develop/planejamento.md](develop/planejamento.md).
+Thin adapters over scikit-learn / numpy / pandas / statsmodels reproduce the R
+backends' defaults (e.g. SVM standardizes like `e1071`). Deferred to a later release
+(see [develop/planejamento.md](develop/planejamento.md)): the multivariate family
+(`ts_data_mv`, `ts_var`, `ts_arimax`), filters, the full augmentation family, and
+graphics.
 
 ## Documentation
 
