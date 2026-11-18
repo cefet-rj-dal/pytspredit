@@ -108,7 +108,7 @@ notebooks `tsdata/`. **Verificado R vs Python: dim/colunas/valores idênticos.**
 > **milestones** (não mais 10 fases com 10 pausas). Resta decidir **o escopo de
 > hoje** (ver §5.1) e a **cadência de revisão** (ver §5.2).
 
-### 5.1 Escopo do 0.1.0 de hoje — DECISÃO EM ABERTO
+### 5.1 Escopo do 0.1.0 de hoje — ✅ DECIDIDO: Trilha A (Enxuta) + pausar a cada milestone (M2→M3→M4)
 
 Duas trilhas. A recomendada é a **Enxuta**: entrega o *pipeline de previsão
 univariado completo* (o contrato central e o que o pyharbinger consome), e deixa
@@ -120,8 +120,8 @@ filtros + augmentation como *fast-follow* `0.2.0` (poucos dias depois).
 |---|---|---|
 | ✅ M0 | Scaffolding | feito |
 | ✅ M1 | Núcleo de dados | feito |
-| 🔜 **M2** | Substrato de modelagem | `TsReg` + `TsRegSW` (com `steps_ahead`) + **normalizações (5)** + `TsLagmap` (**12 estratégias**) |
-| **M3** | Regressores | `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` + `TsArima`, `TsArimax` |
+| ✅ **M2** | Substrato de modelagem | `TsReg` + `TsRegSW` (com `steps_ahead`) + **normalizações (5)** + `TsLagmap` (**12 estratégias**) — **paridade R vs Py verificada** (norms ≤1e-13, 12 lagmaps idênticos, evaluate idêntico) |
+| 🔜 **M3** | Regressores | `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` + `TsArima`, `TsArimax` |
 | **M4** | Tuning + fecho → 🚀 publica | `TsTune`, `TsIntegtune` + revisão API/README + build/twine/install limpo + **upload `0.1.0`** |
 
 → Filtros (13) e augmentation (8) viram **`0.2.0`** (uma milestone cada, dias depois).
@@ -172,5 +172,13 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
   dá segurança a cada etapa. (Já feito no núcleo: `ts_data` idêntico ao R.)
 
 ## 7. Pendências / decisões em aberto
-- [ ] Backend do ELM: implementação própria leve (random hidden + solução fechada) — confirmar na Fase 4a.
-- [ ] `ts_norm_an` (adaptive normalization): confirmar fórmula exata na Fase 3.
+- [ ] Backend do ELM (M3): implementação própria leve (random hidden + solução fechada).
+- [x] `ts_norm_an` portado e com paridade R vs Py (os 4 operadores). Nota: o default
+      `outliers_boxplot` é aplicado sobre os dados já transformados (como no R) — crítico
+      no `divide` (recorta explosões de divisão por média ~0).
+- **Tolerância documentada (seasonality):** as 3 estratégias sazonais com `seasonality`
+  explícito são idênticas ao R. Com `seasonality=None`, o R usa `forecast::findfrequency`
+  (busca espectral AR); no Python uso uma estimativa por periodograma — o período pode
+  divergir. Recomendação: passar `seasonality` quando quiser paridade exata.
+- **Correção intencional (`TsNormNone`):** no caminho `x`, retorno `x` inalterado (o R
+  retornava a matriz de janelas, o que quebraria o pipeline sliding-window).
