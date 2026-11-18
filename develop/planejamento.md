@@ -104,42 +104,50 @@ Legenda: ✅ feito · 🔜 próximo · ⬜ pendente (v1) · 🔭 Bloco B (pós-v
 `ts_head`, `datasets.tsd()` (CSV extraído do `.RData` — idêntico ao R). Testes +
 notebooks `tsdata/`. **Verificado R vs Python: dim/colunas/valores idênticos.**
 
-#### 🔜 Fase 2 — Base de regressão + 1º regressor
-- [ ] `TsReg` (sobre `Predictor`; `evaluate` MSE/sMAPE/R2; baseline predict = t0)
-- [ ] `TsRegSW` (preprocess + input_map + backend; `predict` com `steps_ahead`)
-- [ ] `TsLagmap` (começar por `"recent"`; demais estratégias na Fase 4b)
-- [ ] 1º regressor ponta-a-ponta (`TsKnn` ou `TsLm`)
-- Exemplos: `prediction/`.
+> **Meta: publicar `0.1.0` HOJE.** Para caber em um dia, consolidei o roadmap em
+> **milestones** (não mais 10 fases com 10 pausas). Resta decidir **o escopo de
+> hoje** (ver §5.1) e a **cadência de revisão** (ver §5.2).
 
-#### ⬜ Fase 3 — Normalizações
-`TsNormNone`, `TsNormGminmax`, `TsNormSwminmax`, `TsNormDiff`, `TsNormAn`
-(todas com `inverse_transform`). Exemplos: `normalization/`.
+### 5.1 Escopo do 0.1.0 de hoje — DECISÃO EM ABERTO
 
-#### ⬜ Fase 4 — Regressores ML completos + lag maps
-- [ ] **4a** `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` (fiéis aos defaults do R)
-- [ ] **4b** `TsLagmap` completo: as 12 estratégias (`tslagutils`)
-- Exemplos: `prediction/` (um por regressor), `lagmapping/`.
+Duas trilhas. A recomendada é a **Enxuta**: entrega o *pipeline de previsão
+univariado completo* (o contrato central e o que o pyharbinger consome), e deixa
+filtros + augmentation como *fast-follow* `0.2.0` (poucos dias depois).
 
-#### ⬜ Fase 5 — Modelos estatísticos (statsmodels)
-`TsArima`, `TsArimax` (univariados). Exemplos: `prediction/`.
+**TRILHA A — Enxuta (recomendada p/ hoje): 3 milestones restantes**
 
-#### ⬜ Fase 6 — Filtros simples
-`TsFilMa`, `TsFilEma`, `TsFilSes`, `TsFilQes`, `TsFilKalman`, `TsFilLowess`,
-`TsFilSpline`, `TsFilWinsor`, `TsFilHp`, `TsFilSeasAdj`, `TsFilRecursive`,
-`TsFilSmooth`, `TsFilNone`. Exemplos: `filter/`.
+| # | Milestone | Conteúdo |
+|---|---|---|
+| ✅ M0 | Scaffolding | feito |
+| ✅ M1 | Núcleo de dados | feito |
+| 🔜 **M2** | Substrato de modelagem | `TsReg` + `TsRegSW` (com `steps_ahead`) + **normalizações (5)** + `TsLagmap` (**12 estratégias**) |
+| **M3** | Regressores | `TsKnn`, `TsMlp`, `TsRf`, `TsSvm`, `TsElm` + `TsArima`, `TsArimax` |
+| **M4** | Tuning + fecho → 🚀 publica | `TsTune`, `TsIntegtune` + revisão API/README + build/twine/install limpo + **upload `0.1.0`** |
 
-#### ⬜ Fase 7 — Augmentation
-`TsAugNone`, `TsAugJitter`, `TsAugFlip`, `TsAugStretch`, `TsAugShrink`,
-`TsAugWormhole`, `TsAugAwareness`, `TsAugAwaresmooth`. Exemplos: `augment/`.
+→ Filtros (13) e augmentation (8) viram **`0.2.0`** (uma milestone cada, dias depois).
 
-#### ⬜ Fase 8 — Tuning
-`TsTune`, `TsIntegtune` sobre `DalTune`. Exemplos: `tutorial/`.
+**TRILHA B — Completa hoje: 4 milestones restantes**
 
-#### ⬜ Fase 9 — Fechamento da v1 → 🚀 Publicação (`0.1.0`)
-Revisão de API pública, docstrings, `__all__`; suíte consolidada; README final;
-build + `twine check` + install em venv limpo. **Eduardo faz/autoriza o upload.**
+Igual à Enxuta, mas insere antes do fecho:
+
+| **M4** | Filtros + Augmentation | 13 filtros simples + 8 augmentations |
+| **M5** | Tuning + fecho → 🚀 publica | idem M4 da trilha A |
+
+> Risco da Trilha B: ~21 classes a mais com exemplo+teste+comparação R/Python no
+> mesmo dia. Factível, mas aperta e sobra menos revisão sua. Por isso recomendo a A.
+
+### 5.2 Cadência de revisão — DECISÃO EM ABERTO
+- **(i) Pausar a cada milestone** (você revisa M2, M3, M4 no GitHub) — mais controle.
+- **(ii) Correr direto até UMA revisão final** antes do `twine upload` — mais rápido;
+  você aprova o pacote inteiro de uma vez. **Recomendada para fechar hoje.**
+
+### 5.3 Convenção de exemplos (ajuste para caber hoje)
+Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** (ex.:
+`normalization/` num só `.md` com uma seção por norma; idem regressores), em vez de
+40 arquivos. Reduz o volume de docs sem perder o “didático por classe”.
 
 ### BLOCO B — pós-v1 (lib extra/nicho ou complexidade)
+- 🔭 **Filtros/Augmentation** (se formos pela Trilha A → viram o `0.2.0`).
 - 🔭 **Multivariado:** `ts_data_mv`, `ts_reg_mv`, `ts_regsw_mv`, `ts_lm_mv`, `ts_var`, `ts_plot_mv`.
 - 🔭 **Filtros avançados:** `ts_fil_emd`/`remd` (PyEMD), `wavelet` (PyWavelets),
   `gabor`, `fft`, state-space avançado (KFAS).
