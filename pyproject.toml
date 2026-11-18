@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pytspredit"
+version = "0.1.0"
+description = "Time series prediction with tunable preprocessing (Python port of the R tspredit framework)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Eduardo Ogasawara", email = "eogasawara@ieee.org" },
+]
+keywords = ["time series", "forecasting", "machine learning", "experiment line", "scikit-learn"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy>=1.23",
+  "pandas>=1.5",
+  "scikit-learn>=1.2",
+  "statsmodels>=0.14",
+  "pydaltoolbox>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.1", "build", "twine"]
+docs = ["jupytext>=1.16", "nbconvert>=7", "nbclient>=0.9", "ipykernel>=6"]
+
+[project.urls]
+Homepage = "https://github.com/cefet-rj-dal/pytspredit"
+Repository = "https://github.com/cefet-rj-dal/pytspredit"
+"Bug Tracker" = "https://github.com/cefet-rj-dal/pytspredit/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pytspredit"]
+
+# The published source distribution ships only the package and essential metadata.
+# Development-only material (develop/, notebooks/, examples/, tests/, tools/) is kept
+# out of what users install.
+[tool.hatch.build.targets.sdist]
+include = ["src/pytspredit", "README.md", "LICENSE"]
+exclude = ["develop", "notebooks", "examples", "tests", "tools"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
