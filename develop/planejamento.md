@@ -202,6 +202,12 @@ links do GitHub, revisão do Eduardo, ff-merge.
   — usar `TsNormDiff` ou `input_size` menor. **Achado:** confirmou que o bug do R
   `ts_norm_none` corrompe darima/warma (default preprocess); o patch está no branch
   `fix-ts-norm-none-target-path` do `tspredit` (o Python já está correto).
+  **Correção da nota anterior:** NÃO há "tolerância de rank-deficiência". Contra o R
+  **corrigido**, Python e R batem a ~1e-9 **inclusive** no caso degenerado (seno puro,
+  posto 3) — ambos `[0.4121, 0.1739, -0.0752, -0.3195, -0.544]`. A divergência que eu
+  havia visto (R=[0.87]) era 100% consequência do bug do `ts_norm_none` (alvo corrompido),
+  não do ajuste linear. `_RLinear` reproduz o `lm` do R, descartando as mesmas colunas
+  colineares. Ação pendente: mergear o patch do R para o R-main também concordar.
 - **⬜ 0.3.0 — Augmentation** *(0 dep, nativo)*: `TsAugJitter`, `TsAugFlip`,
   `TsAugStretch`, `TsAugShrink`, `TsAugWormhole`, `TsAugAwareness`, `TsAugAwaresmooth`.
   Ativa de verdade o slot `augment` do `TsIntegtune`.
