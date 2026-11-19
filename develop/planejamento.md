@@ -203,9 +203,20 @@ statsmodels). Completa a família de preditores univariados do R.
 (PyWavelets). (Avaliar EMD nativo vs PyEMD; wavelet quase certamente PyWavelets.)
 
 #### ⬜ 0.7.0 — Benchmark + datasets (+ gráficos gerais)
-`TsPredBench` (harness) + datasets do R (`EUNITE*`, `NN3`, `NN5`, `M1/M3/M4`, `CATS`,
-`SantaFe*`, `ipeadata*`, etc.) extraídos do `.RData`. **Decisão em aberto:** shippar
-CSVs pequenos no pacote vs. extra `[bench]`/download (ver §7).
+Replica o padrão do R **miniatura-no-pacote + `loadfulldata` remoto** (confirmado lendo
+`tspredbench.R`/`tspredbench_loadfulldata.R` e inspecionando os `.RData`):
+- **Miniaturas** (EUNITE*, NN3, NN5, M1/M3/M4, CATS, SantaFe*, ipeadata*, FAOSTAT,
+  stocks, …) empacotadas pequenas (data.frames ~30 linhas; listas com 1 elemento),
+  convertidas do `.RData` via `Rscript` para formato neutro em `src/pytspredit/data/bench/`
+  (data.frame→CSV; lista de séries→JSON) + um `manifest.json` com `{nome: {url, kind}}`.
+- Cada miniatura guarda a **mesma `url`** que o R: `https://raw.githubusercontent.com/
+  cefet-rj-dal/tspredbench/.../tspredit/<NOME>.RData` (repo separado `tspredbench`).
+- `datasets.<nome>()` → miniatura (DataFrame ou dict de Series).
+- **`datasets.loadfulldata(nome|obj)`** → baixa o `.RData` completo da `url` e o carrega
+  em Python. Como o alvo é `.RData`, isso vai num **extra `[bench]`** com um leitor
+  RData puro-Python (`rdata`) — assim os MESMOS arquivos remotos do R são reusados, sem
+  precisar reprocessar/rehospedar. `tsd` continua embutido (sem url, didático).
+- `TsPredBench`: harness de avaliação (varre datasets × modelos, métricas sMAPE/MSE/R2).
 
 #### ⬜ 0.8.0 — Release candidate / hardening → 🚀 **1.0.0 (completa)**
 Varredura completa de paridade R vs Py; um exemplo por classe; revisão/congelamento
@@ -223,10 +234,11 @@ de API; performance; lacunas. Promove de **beta** para **1.0.0** e sai do estág
 | kalman | `KFAS` | statsmodels state space | — |
 | spline/gabor | smooth.spline/— | scipy | **scipy** (core, leve) |
 | lm_mv/var/arimax | —/—/forecast+xreg | sklearn / statsmodels | — |
-| emd/remd | `hht` | PyEMD | **extra `[emd]`** |
-| wavelet | `wavelets` | PyWavelets | **extra `[wavelet]`** |
+| emd/remd | `hht` | PyEMD | **extra `[emd]`** ✅ |
+| wavelet | `wavelets` | PyWavelets | **extra `[wavelet]`** ✅ |
 | plot_mv | graphics | matplotlib | **extra `[plot]`** |
-| bench/datasets | data | CSV no pacote ou extra | a decidir |
+| datasets (miniatura) | `.RData` em `data/` | CSV/JSON no pacote | — ✅ |
+| `loadfulldata` | download `.RData` | leitor `rdata` + download | **extra `[bench]`** ✅ |
 
 ---
 
@@ -246,18 +258,18 @@ de API; performance; lacunas. Promove de **beta** para **1.0.0** e sai do estág
 
 ## 7. Pendências / decisões em aberto
 
-### Decisões do roadmap 0.2.0→1.0.0 (confirmar com o Eduardo)
-- [ ] **`scipy` como dep core na 0.4.0** (para spline/gabor/signal). É leve e já vem
-      com sklearn/statsmodels — proposta: declarar explicitamente. OK?
-- [ ] **EMD: PyEMD (extra) vs implementação nativa.** EMD nativo é factível mas
-      delicado; proposta: extra `[emd]` com PyEMD (fiel ao `hht`). Wavelet → extra
-      `[wavelet]` (PyWavelets). Confirmar.
-- [ ] **Datasets de benchmark (0.7.0): shippar no pacote vs extra `[bench]`/download.**
-      São ~20 séries pequenas (total ~90KB). Proposta: shippar como CSVs em
-      `src/pytspredit/data/` (como o R faz), sem inflar demais. Confirmar.
-- [ ] **Agrupar filtros numa release (0.4.0) vs dividir.** Proposta: uma release
-      "Filtros" com sub-blocos 4a/4b (como fizemos fases internas). Confirmar granularidade.
-- [ ] Ordem 0.2.0 (modelos) antes de 0.3.0 (augmentation): confirmar preferência.
+### Decisões do roadmap 0.2.0→1.0.0
+- [x] **`scipy` como dep core na 0.4.0** (spline/gabor/signal). ✅ Eduardo OK (2026-11-19).
+- [x] **EMD/wavelet = extras opcionais** (`[emd]` PyEMD, `[wavelet]` PyWavelets), não nativo.
+      ✅ Eduardo OK (2026-11-19).
+- [x] **Datasets = miniatura-no-pacote + `loadfulldata` remoto, compatível com o R.**
+      ✅ Eduardo (2026-11-19): manter o padrão do R — miniatura embutida + `loadfulldata`
+      baixando o `.RData` completo das MESMAS urls do repo `tspredbench`. Ver §5.4/0.7.0.
+- [ ] **Sub-decisão (0.7.0):** formato das miniaturas (CSV p/ data.frame, JSON p/ listas)
+      e leitor RData (`rdata` puro-Python vs `pyreadr`). Resolver ao chegar na 0.7.0.
+- [ ] **Agrupar filtros numa release (0.4.0) com sub-blocos 4a/4b** vs dividir — confirmar
+      granularidade quando começarmos a 0.4.0.
+- [ ] Ordem 0.2.0 (modelos) → 0.3.0 (augmentation): confirmar preferência (proposta: modelos primeiro).
 
 ### Resolvidas
 - [x] Backend do ELM (M3): implementação própria (random hidden uniform_positive + pinv,
