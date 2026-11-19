@@ -200,9 +200,10 @@ links do GitHub, revisão do Eduardo, ff-merge.
 - **⬜ 0.4.0 — Filtros (baixa dep)** *(+`scipy` core)*: `TsFilMa/Ema/None/Winsor/
   Recursive/Fft/Smooth` (nativo) · `TsFilSes/Qes/Hp/Lowess/SeasAdj/Kalman` (statsmodels)
   · `TsFilSpline/Gabor` (scipy). Sub-blocos 4a/4b se ajudar.
-- **⬜ 0.5.0 — Multivariado + plot** *(+`matplotlib` core)*: `TsDataMv`, `TsRegMv`,
-  `TsRegswMv`, `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) · `TsArimax` (ARIMA+exog) ·
-  `TsPlotMv` (matplotlib).
+- **⬜ 0.5.0 — Multivariado + plot** *(+`matplotlib` core)*: `TsDataMv` +
+  `adjust_ts_data_mv`, `TsRegMv`, `TsRegswMv` + `ts_mv_spec` (spec `model/variables/
+  lags/transforms`), `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) · `TsArimax`
+  (ARIMA+exog) · `plot_ts_pred_mv` (matplotlib).
 - **⬜ 0.6.0 — Benchmark (parte leve)** *(0 dep nova)*: **miniaturas embarcadas**
   (CSV/JSON + `manifest.json` com urls, extraídas do `.RData` via `Rscript`) +
   `TsPredBench` (harness datasets×modelos). `datasets.<nome>()` devolve a miniatura.
@@ -224,6 +225,27 @@ nomeando o extra. Ordem/escopo a combinar com o Eduardo:
 #### Fechamento
 - **⬜ 1.0.0 — Paridade + estabilização:** varredura completa R vs Py, um exemplo por
   classe, matriz de paridade R↔Py, revisão/congelamento de API, docs. Sai de **beta**.
+
+### Cobertura — auditoria dos 69 símbolos do `NAMESPACE` (2026-11-19)
+Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
+- **Já na 0.1.0:** `ts_data`, `ts_projection`, `ts_sample`, `ts_head`, `adjust_ts_data`,
+  `MSE.ts`/`sMAPE.ts`/`R2.ts` (→ `mse_ts`/`smape_ts`/`r2_ts`), `ts_reg`, `ts_regsw`,
+  `ts_lagmap` (+`tslagutils`), `ts_norm_none/gminmax/swminmax/diff/an` (+`tsanutils`),
+  `ts_knn/elm/mlp/rf/svm`, `ts_arima`, `ts_tune`, `ts_integtune`, `ts_aug_none`.
+- **`do_fit`/`do_predict`** (genéricos de extensão do R) → já cobertos como os hooks
+  `_do_fit`/`_do_predict` do `TsRegSW` (0.1.0).
+- **0.2.0:** `ts_deterministic`, `ts_periodic`, `ts_persist`, `ts_darima`, `ts_warma`.
+- **0.3.0:** `ts_aug_jitter/flip/stretch/shrink/wormhole/awareness/awaresmooth`.
+- **0.4.0:** `ts_fil_ma/ema/none/winsor/recursive/fft/smooth/ses/qes/hp/lowess/seas_adj/
+  kalman/spline/gabor`.
+- **0.5.0:** `ts_data_mv`, `adjust_ts_data_mv`, `ts_reg_mv`, `ts_regsw_mv`, `ts_mv_spec`,
+  `ts_lm_mv`, `ts_var`, `ts_arimax`, `plot_ts_pred_mv`.
+- **0.6.0:** datasets (miniaturas) + harness `TsPredBench`.
+- **Ciclo 2:** `ts_fil_emd`/`ts_fil_remd` (0.7.0), `ts_fil_wavelet` (0.8.0),
+  `loadfulldata` (0.9.0).
+
+**Nenhum símbolo exportado ficou de fora.** (Correção desta auditoria: faltavam
+`ts_mv_spec`, `adjust_ts_data_mv` e o nome real `plot_ts_pred_mv` — agora na 0.5.0.)
 
 ### Tabela de decisão por componente (dep)
 | Grupo | Backend R | Decisão Python | Dep nova |
