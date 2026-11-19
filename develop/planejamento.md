@@ -151,14 +151,82 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
 `normalization/` num só `.md` com uma seção por norma; idem regressores), em vez de
 40 arquivos. Reduz o volume de docs sem perder o “didático por classe”.
 
-### BLOCO B — pós-v1 (lib extra/nicho ou complexidade)
-- 🔭 **Filtros/Augmentation** (se formos pela Trilha A → viram o `0.2.0`).
-- 🔭 **Multivariado:** `ts_data_mv`, `ts_reg_mv`, `ts_regsw_mv`, `ts_lm_mv`, `ts_var`, `ts_plot_mv`.
-- 🔭 **Filtros avançados:** `ts_fil_emd`/`remd` (PyEMD), `wavelet` (PyWavelets),
-  `gabor`, `fft`, state-space avançado (KFAS).
-- 🔭 **ARIMA avançado / MV:** `ts_arimax` (multivariado, xreg), `ts_darima` (distributed ARIMA), `ts_warma`, `ts_deterministic`.
-- 🔭 **Benchmark + datasets grandes:** `tspredbench*`, EUNITE/NN3/NN5/M4/… (`.RData`).
-- 🔭 **Gráficos:** `ts_plot_mv` e afins (matplotlib).
+## 5.4 Roadmap 0.2.0 → 1.0.0 (refinado) — cobertura de TODAS as classes R
+
+> Objetivo: introduzir os componentes **gradualmente**, uma release = um tema
+> coeso, **minimizando a entrada de dependências**. A 0.1.0 cobriu o pipeline de
+> previsão univariado; daqui até a 1.0.0 cobrimos **todo o `tspredit`**.
+
+### Política de dependências (o critério de decisão)
+1. **Nativo (numpy/pandas)** quando o algoritmo é simples/estável → sem dep nova.
+2. **Reutilizar deps já no core** (`scikit-learn`, `statsmodels`) quando cobrem
+   fielmente o backend R → custo zero.
+3. **Declarar dep leve e ubíqua** (`scipy`, já transitiva via sklearn/statsmodels)
+   quando necessário → custo baixo; vira dep core.
+4. **Deps pesadas/nicho → extras opcionais** (`pip install pytspredit[emd,wavelet,plot]`),
+   introduzidas tarde e isoladas, para o core ficar enxuto.
+5. Sempre **comparar R vs Python**; se a lib diverge do backend R, documentar a
+   tolerância ou implementar nativo para fidelidade.
+
+**Descobertas que barateiam o roadmap** (lendo os fontes R): `ts_darima` é um
+regressor **linear sobre janelas** (não ARIMA distribuído), `ts_warma` é lm + passos
+locais + `ndiffs`, `ts_deterministic` é regra pura, e o Kalman (`KFAS`) cabe em
+`statsmodels` state space. Logo, as **únicas deps novas** até a 1.0.0 são `scipy`
+(core, leve) e `PyEMD`/`PyWavelets`/`matplotlib` (**extras opcionais**).
+
+### Releases (cada uma: branch por milestone, paridade R vs Py, exemplos + links)
+
+#### 🔜 0.2.0 — Fechar o "zoo" de modelos univariados — *0 deps novas*
+`TsDeterministic` (+ `TsPeriodic`, `TsPersist`) nativo · `TsDarima` (lm sobre janelas,
+estende `TsRegSW`) · `TsWarma` (lm + normalização local por passos + `ndiffs` via
+statsmodels). Completa a família de preditores univariados do R.
+
+#### ⬜ 0.3.0 — Augmentation — *0 deps novas (nativo)*
+`TsAugJitter`, `TsAugFlip`, `TsAugStretch`, `TsAugShrink`, `TsAugWormhole`,
+`TsAugAwareness`, `TsAugAwaresmooth`. Ativa de verdade o slot `augment` do
+`TsIntegtune` (hoje só `TsAugNone`).
+
+#### ⬜ 0.4.0 — Filtros — *1 dep leve nova: `scipy` (core)*
+- **4a (nativo/statsmodels, 0 dep):** `TsFilMa`, `TsFilEma`, `TsFilNone`,
+  `TsFilWinsor`, `TsFilRecursive`, `TsFilFft`, `TsFilSmooth`, `TsFilSes`, `TsFilQes`,
+  `TsFilHp` (statsmodels hpfilter), `TsFilLowess` (statsmodels), `TsFilSeasAdj`
+  (statsmodels seasonal_decompose/STL).
+- **4b (scipy + state space):** `TsFilSpline` (scipy), `TsFilGabor` (scipy),
+  `TsFilKalman` (statsmodels state space). → adota `scipy` como dep core.
+
+#### ⬜ 0.5.0 — Multivariado — *0 deps core novas (plot como extra)*
+`TsDataMv`, `TsRegMv`, `TsRegswMv`, `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) ·
+`TsArimax` (statsmodels ARIMA + exog). `TsPlotMv` → extra `[plot]` (matplotlib).
+
+#### ⬜ 0.6.0 — Filtros de decomposição — *extras opcionais isolados*
+`TsFilEmd`, `TsFilRemd` → extra `[emd]` (PyEMD) · `TsFilWavelet` → extra `[wavelet]`
+(PyWavelets). (Avaliar EMD nativo vs PyEMD; wavelet quase certamente PyWavelets.)
+
+#### ⬜ 0.7.0 — Benchmark + datasets (+ gráficos gerais)
+`TsPredBench` (harness) + datasets do R (`EUNITE*`, `NN3`, `NN5`, `M1/M3/M4`, `CATS`,
+`SantaFe*`, `ipeadata*`, etc.) extraídos do `.RData`. **Decisão em aberto:** shippar
+CSVs pequenos no pacote vs. extra `[bench]`/download (ver §7).
+
+#### ⬜ 0.8.0 — Release candidate / hardening → 🚀 **1.0.0 (completa)**
+Varredura completa de paridade R vs Py; um exemplo por classe; revisão/congelamento
+de API; performance; lacunas. Promove de **beta** para **1.0.0** e sai do estágio alfa.
+
+### Tabela de decisão por componente (dep)
+| Grupo | Backend R | Decisão Python | Dep nova |
+|---|---|---|---|
+| augmentation (7) | nativo | numpy nativo | — |
+| deterministic/periodic/persist | nativo | nativo | — |
+| darima | `stats::lm` | sklearn/numpy lstsq | — |
+| warma | `lm` + `ndiffs` | lm + ndiffs (statsmodels) | — |
+| ma/ema/none/winsor/recursive/fft/smooth | nativo | numpy nativo | — |
+| ses/qes/hp/lowess/seas_adj | forecast/stats | statsmodels | — |
+| kalman | `KFAS` | statsmodels state space | — |
+| spline/gabor | smooth.spline/— | scipy | **scipy** (core, leve) |
+| lm_mv/var/arimax | —/—/forecast+xreg | sklearn / statsmodels | — |
+| emd/remd | `hht` | PyEMD | **extra `[emd]`** |
+| wavelet | `wavelets` | PyWavelets | **extra `[wavelet]`** |
+| plot_mv | graphics | matplotlib | **extra `[plot]`** |
+| bench/datasets | data | CSV no pacote ou extra | a decidir |
 
 ---
 
@@ -177,6 +245,21 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
   dá segurança a cada etapa. (Já feito no núcleo: `ts_data` idêntico ao R.)
 
 ## 7. Pendências / decisões em aberto
+
+### Decisões do roadmap 0.2.0→1.0.0 (confirmar com o Eduardo)
+- [ ] **`scipy` como dep core na 0.4.0** (para spline/gabor/signal). É leve e já vem
+      com sklearn/statsmodels — proposta: declarar explicitamente. OK?
+- [ ] **EMD: PyEMD (extra) vs implementação nativa.** EMD nativo é factível mas
+      delicado; proposta: extra `[emd]` com PyEMD (fiel ao `hht`). Wavelet → extra
+      `[wavelet]` (PyWavelets). Confirmar.
+- [ ] **Datasets de benchmark (0.7.0): shippar no pacote vs extra `[bench]`/download.**
+      São ~20 séries pequenas (total ~90KB). Proposta: shippar como CSVs em
+      `src/pytspredit/data/` (como o R faz), sem inflar demais. Confirmar.
+- [ ] **Agrupar filtros numa release (0.4.0) vs dividir.** Proposta: uma release
+      "Filtros" com sub-blocos 4a/4b (como fizemos fases internas). Confirmar granularidade.
+- [ ] Ordem 0.2.0 (modelos) antes de 0.3.0 (augmentation): confirmar preferência.
+
+### Resolvidas
 - [x] Backend do ELM (M3): implementação própria (random hidden uniform_positive + pinv,
       sem bias). Com `actfun="purelin"` e `nhid >= nº de lags` equivale a OLS → bate com
       o R independente do RNG. Com `nhid` menor, projeção aleatória (diverge por RNG).
