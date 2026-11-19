@@ -172,55 +172,58 @@ Mantemos **um exemplo por classe**, mas **agrupados por família num notebook** 
 regressor **linear sobre janelas** (não ARIMA distribuído), `ts_warma` é lm + passos
 locais + `ndiffs`, `ts_deterministic` é regra pura, e o Kalman (`KFAS`) cabe em
 `statsmodels` state space. Logo, as **únicas deps novas** até a 1.0.0 são `scipy`
-(core, leve) e `PyEMD`/`PyWavelets`/`matplotlib` (**extras opcionais**).
+e `matplotlib` (**core**, leves/ubíquas) e `PyEMD`/`PyWavelets`/leitor `rdata`
+(**extras opcionais**).
 
-### Releases (cada uma: branch por milestone, paridade R vs Py, exemplos + links)
+### Releases — DOIS CICLOS (decidido com o Eduardo, 2026-11-19)
 
-#### 🔜 0.2.0 — Fechar o "zoo" de modelos univariados — *0 deps novas*
-`TsDeterministic` (+ `TsPeriodic`, `TsPersist`) nativo · `TsDarima` (lm sobre janelas,
-estende `TsRegSW`) · `TsWarma` (lm + normalização local por passos + `ndiffs` via
-statsmodels). Completa a família de preditores univariados do R.
+Mesma estrutura do `pyharbinger`: duas rodadas sobre os **mesmos temas**.
+- **Ciclo 1 (baixa dependência):** varre *todos* os temas, mas só as classes **sem dep
+  pesada nova** (nativo / sklearn / statsmodels / `scipy` / `matplotlib`). Entrega quase
+  todo o `tspredit` com o core enxuto.
+- **Ciclo 2 (completo):** volta aos *mesmos temas* acrescentando as classes de **maior
+  dependência** — **uma família de dep por release**, cada uma como *extra* opcional.
+  **Eduardo refina o Ciclo 2 em detalhe comigo.**
 
-#### ⬜ 0.3.0 — Augmentation — *0 deps novas (nativo)*
-`TsAugJitter`, `TsAugFlip`, `TsAugStretch`, `TsAugShrink`, `TsAugWormhole`,
-`TsAugAwareness`, `TsAugAwaresmooth`. Ativa de verdade o slot `augment` do
-`TsIntegtune` (hoje só `TsAugNone`).
+Granularidade livre (muitos ciclos pequenos OK; pode chegar a ~20 releases até a 1.0.0).
+Cada release = branch por milestone, paridade R vs Py, testes + ruff + notebooks verdes,
+links do GitHub, revisão do Eduardo, ff-merge.
 
-#### ⬜ 0.4.0 — Filtros — *1 dep leve nova: `scipy` (core)*
-- **4a (nativo/statsmodels, 0 dep):** `TsFilMa`, `TsFilEma`, `TsFilNone`,
-  `TsFilWinsor`, `TsFilRecursive`, `TsFilFft`, `TsFilSmooth`, `TsFilSes`, `TsFilQes`,
-  `TsFilHp` (statsmodels hpfilter), `TsFilLowess` (statsmodels), `TsFilSeasAdj`
-  (statsmodels seasonal_decompose/STL).
-- **4b (scipy + state space):** `TsFilSpline` (scipy), `TsFilGabor` (scipy),
-  `TsFilKalman` (statsmodels state space). → adota `scipy` como dep core.
+#### Ciclo 1 — baixa dependência
 
-#### ⬜ 0.5.0 — Multivariado — *0 deps core novas (plot como extra)*
-`TsDataMv`, `TsRegMv`, `TsRegswMv`, `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) ·
-`TsArimax` (statsmodels ARIMA + exog). `TsPlotMv` → extra `[plot]` (matplotlib).
+- **🔜 0.2.0 — Zoo de modelos** *(0 dep nova)*: `TsDeterministic` (+`TsPeriodic`,
+  `TsPersist`) nativo · `TsDarima` (lm sobre janelas) · `TsWarma` (lm + passos locais +
+  `ndiffs` via statsmodels). Fecha os preditores univariados.
+- **⬜ 0.3.0 — Augmentation** *(0 dep, nativo)*: `TsAugJitter`, `TsAugFlip`,
+  `TsAugStretch`, `TsAugShrink`, `TsAugWormhole`, `TsAugAwareness`, `TsAugAwaresmooth`.
+  Ativa de verdade o slot `augment` do `TsIntegtune`.
+- **⬜ 0.4.0 — Filtros (baixa dep)** *(+`scipy` core)*: `TsFilMa/Ema/None/Winsor/
+  Recursive/Fft/Smooth` (nativo) · `TsFilSes/Qes/Hp/Lowess/SeasAdj/Kalman` (statsmodels)
+  · `TsFilSpline/Gabor` (scipy). Sub-blocos 4a/4b se ajudar.
+- **⬜ 0.5.0 — Multivariado + plot** *(+`matplotlib` core)*: `TsDataMv`, `TsRegMv`,
+  `TsRegswMv`, `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) · `TsArimax` (ARIMA+exog) ·
+  `TsPlotMv` (matplotlib).
+- **⬜ 0.6.0 — Benchmark (parte leve)** *(0 dep nova)*: **miniaturas embarcadas**
+  (CSV/JSON + `manifest.json` com urls, extraídas do `.RData` via `Rscript`) +
+  `TsPredBench` (harness datasets×modelos). `datasets.<nome>()` devolve a miniatura.
+  *(`loadfulldata` remoto → Ciclo 2.)*
 
-#### ⬜ 0.6.0 — Filtros de decomposição — *extras opcionais isolados*
-`TsFilEmd`, `TsFilRemd` → extra `[emd]` (PyEMD) · `TsFilWavelet` → extra `[wavelet]`
-(PyWavelets). (Avaliar EMD nativo vs PyEMD; wavelet quase certamente PyWavelets.)
+> Fim do Ciclo 1: todo o `tspredit` portado **exceto** EMD/wavelet e o `loadfulldata`
+> remoto (as únicas peças com dep pesada).
 
-#### ⬜ 0.7.0 — Benchmark + datasets (+ gráficos gerais)
-Replica o padrão do R **miniatura-no-pacote + `loadfulldata` remoto** (confirmado lendo
-`tspredbench.R`/`tspredbench_loadfulldata.R` e inspecionando os `.RData`):
-- **Miniaturas** (EUNITE*, NN3, NN5, M1/M3/M4, CATS, SantaFe*, ipeadata*, FAOSTAT,
-  stocks, …) empacotadas pequenas (data.frames ~30 linhas; listas com 1 elemento),
-  convertidas do `.RData` via `Rscript` para formato neutro em `src/pytspredit/data/bench/`
-  (data.frame→CSV; lista de séries→JSON) + um `manifest.json` com `{nome: {url, kind}}`.
-- Cada miniatura guarda a **mesma `url`** que o R: `https://raw.githubusercontent.com/
-  cefet-rj-dal/tspredbench/.../tspredit/<NOME>.RData` (repo separado `tspredbench`).
-- `datasets.<nome>()` → miniatura (DataFrame ou dict de Series).
-- **`datasets.loadfulldata(nome|obj)`** → baixa o `.RData` completo da `url` e o carrega
-  em Python. Como o alvo é `.RData`, isso vai num **extra `[bench]`** com um leitor
-  RData puro-Python (`rdata`) — assim os MESMOS arquivos remotos do R são reusados, sem
-  precisar reprocessar/rehospedar. `tsd` continua embutido (sem url, didático).
-- `TsPredBench`: harness de avaliação (varre datasets × modelos, métricas sMAPE/MSE/R2).
+#### Ciclo 2 — dependências pesadas (extras opcionais) — *esboço, Eduardo refina*
 
-#### ⬜ 0.8.0 — Release candidate / hardening → 🚀 **1.0.0 (completa)**
-Varredura completa de paridade R vs Py; um exemplo por classe; revisão/congelamento
-de API; performance; lacunas. Promove de **beta** para **1.0.0** e sai do estágio alfa.
+Uma família de dep por release; cada classe faz import preguiçoso + erro acionável
+nomeando o extra. Ordem/escopo a combinar com o Eduardo:
+- **⬜ 0.7.0 — Filtros de decomposição (EMD):** `TsFilEmd`, `TsFilRemd` → extra `[emd]` (PyEMD).
+- **⬜ 0.8.0 — Wavelet:** `TsFilWavelet` → extra `[wavelet]` (PyWavelets).
+- **⬜ 0.9.0 — Datasets completos:** `datasets.loadfulldata(nome)` → extra `[bench]`
+  (leitor RData puro-Python `rdata` + download das MESMAS urls remotas do repo
+  `tspredbench`, como o R). Ver a nota do padrão miniatura+`loadfulldata` acima.
+
+#### Fechamento
+- **⬜ 1.0.0 — Paridade + estabilização:** varredura completa R vs Py, um exemplo por
+  classe, matriz de paridade R↔Py, revisão/congelamento de API, docs. Sai de **beta**.
 
 ### Tabela de decisão por componente (dep)
 | Grupo | Backend R | Decisão Python | Dep nova |
@@ -236,9 +239,9 @@ de API; performance; lacunas. Promove de **beta** para **1.0.0** e sai do estág
 | lm_mv/var/arimax | —/—/forecast+xreg | sklearn / statsmodels | — |
 | emd/remd | `hht` | PyEMD | **extra `[emd]`** ✅ |
 | wavelet | `wavelets` | PyWavelets | **extra `[wavelet]`** ✅ |
-| plot_mv | graphics | matplotlib | **extra `[plot]`** |
-| datasets (miniatura) | `.RData` em `data/` | CSV/JSON no pacote | — ✅ |
-| `loadfulldata` | download `.RData` | leitor `rdata` + download | **extra `[bench]`** ✅ |
+| plot_mv | graphics | matplotlib | **matplotlib (core, leve)** — alinhado ao pyharbinger |
+| datasets (miniatura) | `.RData` em `data/` | CSV/JSON no pacote | — ✅ (Ciclo 1) |
+| `loadfulldata` | download `.RData` | leitor `rdata` + download | **extra `[bench]`** ✅ (Ciclo 2) |
 
 ---
 
@@ -259,17 +262,25 @@ de API; performance; lacunas. Promove de **beta** para **1.0.0** e sai do estág
 ## 7. Pendências / decisões em aberto
 
 ### Decisões do roadmap 0.2.0→1.0.0
+- [x] **Estrutura em DOIS CICLOS** (como no pyharbinger). ✅ Eduardo (2026-11-19):
+      Ciclo 1 = varrer todos os temas só com classes de **baixa dependência**; Ciclo 2 =
+      voltar aos mesmos temas com as classes de **maior dependência** (extras, uma família
+      por release). **Eduardo refina o Ciclo 2 comigo.** Granularidade livre (~20 releases OK).
+- [x] **`matplotlib` no core** (leve/ubíqua) → `TsPlotMv` entra no Ciclo 1 (0.5.0).
+      ✅ Eduardo (2026-11-19), alinhado à decisão (A) do pyharbinger.
 - [x] **`scipy` como dep core na 0.4.0** (spline/gabor/signal). ✅ Eduardo OK (2026-11-19).
 - [x] **EMD/wavelet = extras opcionais** (`[emd]` PyEMD, `[wavelet]` PyWavelets), não nativo.
       ✅ Eduardo OK (2026-11-19).
 - [x] **Datasets = miniatura-no-pacote + `loadfulldata` remoto, compatível com o R.**
       ✅ Eduardo (2026-11-19): manter o padrão do R — miniatura embutida + `loadfulldata`
       baixando o `.RData` completo das MESMAS urls do repo `tspredbench`. Ver §5.4/0.7.0.
-- [ ] **Sub-decisão (0.7.0):** formato das miniaturas (CSV p/ data.frame, JSON p/ listas)
-      e leitor RData (`rdata` puro-Python vs `pyreadr`). Resolver ao chegar na 0.7.0.
-- [ ] **Agrupar filtros numa release (0.4.0) com sub-blocos 4a/4b** vs dividir — confirmar
-      granularidade quando começarmos a 0.4.0.
-- [ ] Ordem 0.2.0 (modelos) → 0.3.0 (augmentation): confirmar preferência (proposta: modelos primeiro).
+- [x] Ordem do Ciclo 1 definida: 0.2 modelos → 0.3 augmentation → 0.4 filtros →
+      0.5 multivariado+plot → 0.6 benchmark (miniaturas). Ciclo 2 (0.7+) = deps pesadas.
+- [ ] **Sub-decisão (Ciclo 2, datasets):** formato das miniaturas (CSV p/ data.frame,
+      JSON p/ listas) e leitor RData (`rdata` puro-Python vs `pyreadr`). Resolver na 0.9.0.
+- [ ] **Granularidade dos filtros (0.4.0):** sub-blocos 4a/4b numa release vs dividir —
+      confirmar ao começar a 0.4.0.
+- [ ] **Ciclo 2 a refinar com o Eduardo** (ordem/escopo de emd/wavelet/bench).
 
 ### Resolvidas
 - [x] Backend do ELM (M3): implementação própria (random hidden uniform_positive + pinv,
