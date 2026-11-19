@@ -11,6 +11,8 @@ from __future__ import annotations
 from . import datasets
 from .arima import TsArima
 from .augment import TsAugNone
+from .darima_warma import TsDarima, TsWarma
+from .deterministic import TsDeterministic, TsPeriodic, TsPersist
 from .lagmap import TsLagmap
 from .norm import (
     TsNormAn,
@@ -32,11 +34,13 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "TsArima",
     "TsAugNone",
+    "TsDarima",
+    "TsDeterministic",
     "TsElm",
     "TsIntegtune",
     "TsKnn",
@@ -47,6 +51,8 @@ __all__ = [
     "TsNormGminmax",
     "TsNormNone",
     "TsNormSwminmax",
+    "TsPeriodic",
+    "TsPersist",
     "TsProjection",
     "TsReg",
     "TsRegSW",
@@ -54,6 +60,7 @@ __all__ = [
     "TsSample",
     "TsSvm",
     "TsTune",
+    "TsWarma",
     "adjust_ts_data",
     "datasets",
     "mse_ts",

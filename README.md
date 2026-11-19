@@ -58,7 +58,7 @@ print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
 
 ## Status
 
-**v1 published (`0.1.0`, beta).** The port follows the method validated for
+**Published (`0.2.0`, beta).** The port follows the method validated for
 `pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
 the shared `tsd` series. Implemented:
 
@@ -72,6 +72,8 @@ the shared `tsd` series. Implemented:
   seasonal, acf/pacf-seasonal, blocks, mutual information, mRMR).
 - **Regressors:** `TsKnn`, `TsElm`, `TsRf`, `TsSvm`, `TsMlp` (sliding-window) and
   `TsArima` (univariate ARIMA).
+- **Model zoo (0.2.0):** `TsDeterministic` (`TsPeriodic`, `TsPersist`), `TsDarima` and
+  `TsWarma` (window linear models) — no new dependencies.
 - **Tuning:** `TsTune` and `TsIntegtune` (integrated tuning of input size,
   preprocessing and model hyperparameters).
 

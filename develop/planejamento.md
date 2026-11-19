@@ -191,9 +191,17 @@ links do GitHub, revisão do Eduardo, ff-merge.
 
 #### Ciclo 1 — baixa dependência
 
-- **🔜 0.2.0 — Zoo de modelos** *(0 dep nova)*: `TsDeterministic` (+`TsPeriodic`,
-  `TsPersist`) nativo · `TsDarima` (lm sobre janelas) · `TsWarma` (lm + passos locais +
-  `ndiffs` via statsmodels). Fecha os preditores univariados.
+- **✅ 0.2.0 — Zoo de modelos** *(0 dep nova)* — **PUBLICADO**: `TsDeterministic`
+  (+`TsPeriodic`, `TsPersist`) nativo · `TsDarima` (lm sobre janelas) · `TsWarma`
+  (lm + passos locais + `ndiffs` via statsmodels KPSS). **Paridade R vs Py (branch R
+  corrigido): deterministic exato; darima/warma ≤4.8e-9** (diff e série logística
+  bem-condicionadas). `_RLinear` replica o `lm` do R (descarta colunas colineares em
+  vez de solução min-norm). **Tolerância documentada:** em design *exatamente*
+  rank-deficiente (série com recorrência linear exata, p.ex. seno puro, com
+  `input_size` acima do posto efetivo) R e Python escolhem soluções aliased diferentes
+  — usar `TsNormDiff` ou `input_size` menor. **Achado:** confirmou que o bug do R
+  `ts_norm_none` corrompe darima/warma (default preprocess); o patch está no branch
+  `fix-ts-norm-none-target-path` do `tspredit` (o Python já está correto).
 - **⬜ 0.3.0 — Augmentation** *(0 dep, nativo)*: `TsAugJitter`, `TsAugFlip`,
   `TsAugStretch`, `TsAugShrink`, `TsAugWormhole`, `TsAugAwareness`, `TsAugAwaresmooth`.
   Ativa de verdade o slot `augment` do `TsIntegtune`.
