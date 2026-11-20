@@ -10,7 +10,16 @@ from __future__ import annotations
 
 from . import datasets
 from .arima import TsArima
-from .augment import TsAugNone
+from .augment import (
+    TsAugAwareness,
+    TsAugAwaresmooth,
+    TsAugFlip,
+    TsAugJitter,
+    TsAugNone,
+    TsAugShrink,
+    TsAugStretch,
+    TsAugWormhole,
+)
 from .darima_warma import TsDarima, TsWarma
 from .deterministic import TsDeterministic, TsPeriodic, TsPersist
 from .lagmap import TsLagmap
@@ -34,11 +43,18 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "TsArima",
+    "TsAugAwareness",
+    "TsAugAwaresmooth",
+    "TsAugFlip",
+    "TsAugJitter",
     "TsAugNone",
+    "TsAugShrink",
+    "TsAugStretch",
+    "TsAugWormhole",
     "TsDarima",
     "TsDeterministic",
     "TsElm",

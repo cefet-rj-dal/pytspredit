@@ -208,9 +208,13 @@ links do GitHub, revisão do Eduardo, ff-merge.
   havia visto (R=[0.87]) era 100% consequência do bug do `ts_norm_none` (alvo corrompido),
   não do ajuste linear. `_RLinear` reproduz o `lm` do R, descartando as mesmas colunas
   colineares. Ação pendente: mergear o patch do R para o R-main também concordar.
-- **⬜ 0.3.0 — Augmentation** *(0 dep, nativo)*: `TsAugJitter`, `TsAugFlip`,
-  `TsAugStretch`, `TsAugShrink`, `TsAugWormhole`, `TsAugAwareness`, `TsAugAwaresmooth`.
-  Ativa de verdade o slot `augment` do `TsIntegtune`.
+- **✅ 0.3.0 — Augmentation** *(0 dep, nativo)* — **PUBLICADO**: `TsAugFlip`,
+  `TsAugStretch`, `TsAugShrink`, `TsAugWormhole` (determinísticos) + `TsAugJitter`,
+  `TsAugAwareness`, `TsAugAwaresmooth` (RNG). Ativa o slot `augment` do `TsIntegtune`.
+  **Paridade R vs Py:** determinísticos exatos (≤5e-15; wormhole 0.0); escala de ruído
+  do jitter idêntica (0.4395701). Tolerância: jitter/awareness/awaresmooth usam RNG
+  (rnorm/rexp/sample) → valores diferem do R (algoritmo + escala fiéis); `random_state`
+  para reprodutibilidade.
 - **⬜ 0.4.0 — Filtros (baixa dep)** *(+`scipy` core)*: `TsFilMa/Ema/None/Winsor/
   Recursive/Fft/Smooth` (nativo) · `TsFilSes/Qes/Hp/Lowess/SeasAdj/Kalman` (statsmodels)
   · `TsFilSpline/Gabor` (scipy). Sub-blocos 4a/4b se ajudar.
