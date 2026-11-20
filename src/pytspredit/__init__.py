@@ -22,6 +22,23 @@ from .augment import (
 )
 from .darima_warma import TsDarima, TsWarma
 from .deterministic import TsDeterministic, TsPeriodic, TsPersist
+from .filters import (
+    TsFilEma,
+    TsFilFft,
+    TsFilGabor,
+    TsFilHp,
+    TsFilKalman,
+    TsFilLowess,
+    TsFilMa,
+    TsFilNone,
+    TsFilQes,
+    TsFilRecursive,
+    TsFilSeasAdj,
+    TsFilSes,
+    TsFilSmooth,
+    TsFilSpline,
+    TsFilWinsor,
+)
 from .lagmap import TsLagmap
 from .norm import (
     TsNormAn,
@@ -43,7 +60,7 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "TsArima",
@@ -58,6 +75,21 @@ __all__ = [
     "TsDarima",
     "TsDeterministic",
     "TsElm",
+    "TsFilEma",
+    "TsFilFft",
+    "TsFilGabor",
+    "TsFilHp",
+    "TsFilKalman",
+    "TsFilLowess",
+    "TsFilMa",
+    "TsFilNone",
+    "TsFilQes",
+    "TsFilRecursive",
+    "TsFilSeasAdj",
+    "TsFilSes",
+    "TsFilSmooth",
+    "TsFilSpline",
+    "TsFilWinsor",
     "TsIntegtune",
     "TsKnn",
     "TsLagmap",

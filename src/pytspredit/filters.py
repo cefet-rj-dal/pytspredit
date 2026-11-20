@@ -1,0 +1,382 @@
+"""Time series filters (smoothing / denoising).
+
+Python counterpart of the R ``ts_fil_*`` files. A filter is a
+:class:`pydaltoolbox.DalTransform` that takes a 1-D series and returns a filtered
+1-D series of the same length.
+
+Parity with R:
+
+* **Exact (native / manual ports):** ``none``, ``ma``, ``ema``, ``winsor``,
+  ``recursive``, ``fft``, ``smooth``, ``hp`` (manual linear solve) and ``gabor``
+  (manual kernel + convolution).
+* **Backend-dependent (documented tolerance):** ``ses``/``qes`` (R
+  ``HoltWinters`` vs statsmodels), ``lowess``, ``seas_adj`` (STL), ``spline`` (R
+  ``smooth.spline`` vs scipy) and ``kalman`` (R ``KFAS`` vs a local-level Kalman
+  filter). Same spirit as the ARIMA/RF/MLP tolerances.
+"""
+from __future__ import annotations
+
+import warnings
+
+import numpy as np
+import pandas as pd
+from pydaltoolbox import DalTransform
+
+from .augment import _boxplot_outlier_idx
+from .tsdata import ts_data
+
+__all__ = [
+    "TsFilEma", "TsFilFft", "TsFilGabor", "TsFilHp", "TsFilKalman", "TsFilLowess",
+    "TsFilMa", "TsFilNone", "TsFilQes", "TsFilRecursive", "TsFilSeasAdj",
+    "TsFilSes", "TsFilSmooth", "TsFilSpline", "TsFilWinsor",
+]
+
+
+def _vec(data) -> np.ndarray:
+    if isinstance(data, (pd.Series, pd.DataFrame)):
+        return data.to_numpy(dtype=float).ravel()
+    return np.asarray(data, dtype=float).ravel()
+
+
+class _Filter(DalTransform):
+    def fit(self, data=None, **kwargs) -> _Filter:
+        return self
+
+
+class TsFilNone(_Filter):
+    """Identity filter (``ts_fil_none``)."""
+
+    def transform(self, data, **kwargs):
+        return data
+
+
+class TsFilMa(_Filter):
+    """Moving average (``ts_fil_ma``)."""
+
+    def __init__(self, ma: int = 3) -> None:
+        self.ma = ma
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        w = ts_data(_vec(data), self.ma).to_numpy(dtype=float)
+        return np.concatenate([np.full(self.ma - 1, np.nan), w.mean(axis=1)])
+
+
+class TsFilEma(_Filter):
+    """Exponential moving average (``ts_fil_ema``)."""
+
+    def __init__(self, ema: int = 3) -> None:
+        self.ema = ema
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        w = ts_data(_vec(data), self.ema).to_numpy(dtype=float)
+        n = self.ema
+        alfa = 1 - 2.0 / (n + 1)
+        weights = alfa ** np.arange(n - 1, -1, -1)  # newest -> 1
+        ema = (w * weights).sum(axis=1) / weights.sum()
+        return np.concatenate([np.full(self.ema - 1, np.nan), ema])
+
+
+class TsFilWinsor(_Filter):
+    """Winsorization to the 5th/95th percentiles (``ts_fil_winsor``)."""
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        x = _vec(data)
+        lo, hi = np.quantile(x, [0.05, 0.95])  # numpy default == R quantile type 7
+        return np.clip(x, lo, hi)
+
+
+class TsFilRecursive(_Filter):
+    """Recursive linear filter ``y[i] = x[i] + f*y[i-1]`` (``ts_fil_recursive``)."""
+
+    def __init__(self, filter: float) -> None:
+        self.filter = filter
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        x = _vec(data)
+        y = np.empty_like(x)
+        prev = 0.0
+        for i in range(len(x)):
+            prev = x[i] + self.filter * prev
+            y[i] = prev
+        return y
+
+
+class TsFilSmooth(_Filter):
+    """Robust progressive smoothing of outlier jumps (``ts_fil_smooth``)."""
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        s = _vec(data)
+        s = s[np.isfinite(s)]
+        while True:
+            diff = s[1:] - s[:-1]
+            out = _boxplot_outlier_idx(diff)
+            rj = out[(out > 1) & (out < len(s))]
+            s[rj - 1] = (s[rj - 2] + s[rj]) / 2
+            out2 = _boxplot_outlier_idx(s[1:] - s[:-1])
+            if len(out2) == 0 or len(out2) == len(out):
+                break
+        return s
+
+
+class TsFilHp(_Filter):
+    """Hodrick-Prescott filter, blended with the original (``ts_fil_hp``)."""
+
+    def __init__(self, lambda_: float = 100.0, preserve: float = 0.9) -> None:
+        if not 0 <= preserve <= 1:
+            raise ValueError("preserve must be in [0, 1].")
+        self.lambda_ = lambda_
+        self.preserve = preserve
+
+    def _trend(self, y: np.ndarray) -> np.ndarray:
+        n = len(y)
+        if n < 3:
+            return y
+        d2 = np.diff(np.eye(n), n=2, axis=0)      # second-difference matrix
+        penalty = self.lambda_ * (d2.T @ d2)
+        return np.linalg.solve(np.eye(n) + penalty, y)
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        y = _vec(data)
+        trend = self._trend(y)
+        return self.preserve * y + (1 - self.preserve) * trend
+
+
+class TsFilFft(_Filter):
+    """FFT low-pass smoothing with reflected padding + cosine roll-off (``ts_fil_fft``)."""
+
+    def __init__(self, threshold: float = 0.90, pad_pct: float = 0.25, taper_pct: float = 0.15) -> None:
+        if not (0 < threshold <= 1):
+            raise ValueError("Invalid threshold value")
+        if pad_pct < 0:
+            raise ValueError("Invalid pad_pct value")
+        if taper_pct < 0:
+            raise ValueError("Invalid taper_pct value")
+        self.threshold = threshold
+        self.pad_pct = pad_pct
+        self.taper_pct = taper_pct
+        self.cutindex = None
+        self.pad_len = None
+
+    def _pad_length(self, n: int) -> int:
+        return min(max(1, int(np.floor(n * self.pad_pct))), n - 1)
+
+    @staticmethod
+    def _reflect_pad(x: np.ndarray, pad_len: int) -> np.ndarray:
+        n = len(x)
+        left = 2 * x[0] - x[pad_len:0:-1]            # x[pad_len], ..., x[1]
+        right = 2 * x[n - 1] - x[n - 2:n - pad_len - 2:-1]  # x[n-2], ..., x[n-pad_len-1]
+        return np.concatenate([left, x, right])
+
+    def _cut_index(self, spectrum_half: np.ndarray) -> int:
+        if len(spectrum_half) <= 1:
+            return 1
+        ac = spectrum_half[1:]
+        total = ac.sum()
+        if total <= np.finfo(float).eps:
+            return 1
+        cum = np.cumsum(ac) / total
+        idx = np.argmax(cum >= self.threshold)
+        cut_ac = idx + 1 if cum[idx] >= self.threshold else len(ac)
+        return int(cut_ac + 1)
+
+    @staticmethod
+    def _lowpass_weights(n: int, half_len: int, cutindex: int, taper_pct: float) -> np.ndarray:
+        w = np.zeros(half_len)
+        taper = max(1, int(np.floor(cutindex * taper_pct)))
+        for k in range(1, half_len + 1):
+            if k <= cutindex:
+                w[k - 1] = 1.0
+            elif k <= cutindex + taper:
+                w[k - 1] = 0.5 * (1 + np.cos(np.pi * (k - cutindex) / taper))
+        full = np.zeros(n)
+        full[:half_len] = w
+        if n > 2:
+            full[half_len:n] = w[1:n - half_len + 1][::-1]
+        return full
+
+    def fit(self, data, **kwargs) -> TsFilFft:
+        x = _vec(data)
+        n = len(x)
+        if n < 4 or np.any(np.isnan(x)):
+            return self
+        pad_len = self._pad_length(n)
+        padded = self._reflect_pad(x, pad_len)
+        spec = np.abs(np.fft.fft(padded)) ** 2
+        half = int(np.floor(len(padded) / 2) + 1)
+        self.cutindex = self._cut_index(spec[:half])
+        self.pad_len = pad_len
+        return self
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        x = _vec(data)
+        n = len(x)
+        if n < 4 or np.any(np.isnan(x)):
+            return x
+        pad_len = self._pad_length(n) if self.pad_len is None else self.pad_len
+        padded = self._reflect_pad(x, pad_len)
+        n_pad = len(padded)
+        sig = np.fft.fft(padded)
+        half = int(np.floor(n_pad / 2) + 1)
+        cutindex = self.cutindex
+        if cutindex is None:
+            cutindex = self._cut_index((np.abs(sig) ** 2)[:half])
+        cutindex = min(max(1, cutindex), half)
+        weights = self._lowpass_weights(n_pad, half, cutindex, self.taper_pct)
+        recon = np.real(np.fft.ifft(sig * weights))
+        return recon[pad_len:pad_len + n]
+
+
+class TsFilGabor(_Filter):
+    """One-dimensional Gabor smoothing (``ts_fil_gabor``)."""
+
+    def __init__(self, window_size: float = 3, central_frequency: float = 0.1) -> None:
+        if window_size <= 0:
+            raise ValueError("Invalid window_size value")
+        if not (0 <= central_frequency <= 0.5):
+            raise ValueError("Invalid central_frequency value")
+        self.window_size = window_size
+        self.central_frequency = central_frequency
+
+    def _kernel(self, radius: int) -> np.ndarray:
+        t = np.arange(-radius, radius + 1)
+        env = np.exp(-(t ** 2) / (2 * self.window_size ** 2))
+        k = env * np.cos(2 * np.pi * self.central_frequency * t)
+        ksum = k.sum()
+        return k / ksum if abs(ksum) > np.finfo(float).eps else k
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        x = _vec(data)
+        n = len(x)
+        if n < 4 or np.sum(np.isfinite(x)) < 4:
+            return x
+        radius = min(max(1, int(np.ceil(3 * self.window_size))), n - 1)
+        kernel = self._kernel(radius)
+        left = x[radius:0:-1]                # rev(x[2:(radius+1)])
+        right = x[n - 2:n - radius - 2:-1]   # rev(x[(n-radius):(n-1)])
+        padded = np.concatenate([left, x, right])
+        # centered convolution (R stats::filter sides=2) == correlation with the kernel
+        conv = np.convolve(padded, kernel[::-1], mode="same")
+        return conv[radius:radius + n]
+
+
+class TsFilLowess(_Filter):
+    """LOWESS smoothing (``ts_fil_lowess``)."""
+
+    def __init__(self, f: float = 0.2) -> None:
+        self.f = f
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        from statsmodels.nonparametric.smoothers_lowess import lowess
+        y = _vec(data)
+        x = np.arange(1, len(y) + 1)
+        delta = 0.01 * (len(y) - 1)  # R lowess default delta
+        return lowess(y, x, frac=self.f, it=3, delta=delta, return_sorted=False)
+
+
+class _HoltWinters(_Filter):
+    beta = False
+
+    def __init__(self, gamma: bool = False) -> None:
+        self.gamma = gamma
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        from statsmodels.tsa.holtwinters import ExponentialSmoothing
+        y = _vec(data)
+        trend = "add" if self.beta else None
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            fit = ExponentialSmoothing(y, trend=trend, seasonal=None,
+                                       initialization_method="estimated").fit()
+        fitted = np.asarray(fit.fittedvalues, dtype=float)
+        warmup = 2 if self.beta else 1  # mirror R HoltWinters warm-up length
+        out = np.full(len(y), np.nan)
+        out[warmup:] = fitted[warmup:]
+        return out
+
+
+class TsFilSes(_HoltWinters):
+    """Simple exponential smoothing (``ts_fil_ses``)."""
+
+    beta = False
+
+
+class TsFilQes(_HoltWinters):
+    """Double (trend) exponential smoothing (``ts_fil_qes``)."""
+
+    beta = True
+
+
+class TsFilSeasAdj(_Filter):
+    """Seasonal adjustment via STL (``ts_fil_seas_adj``)."""
+
+    def __init__(self, frequency: int | None = None) -> None:
+        self.frequency = frequency
+
+    @staticmethod
+    def _estimate_frequency(x: np.ndarray) -> int:
+        from statsmodels.tsa.stattools import acf
+        max_lag = len(x) // 3
+        if max_lag < 2:
+            return 1
+        vals = acf(x, nlags=max_lag, fft=False)[1:]
+        lag = int(np.argmax(vals))
+        if vals[lag] <= 0.3:
+            return 1
+        return lag + 1
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        from statsmodels.tsa.seasonal import STL
+        x = _vec(data)
+        freq = self.frequency if self.frequency is not None else self._estimate_frequency(x)
+        if freq < 2 or len(x) < 2 * freq:
+            return x
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            res = STL(x, period=freq, robust=True).fit()
+        return x - np.asarray(res.seasonal, dtype=float)
+
+
+class TsFilSpline(_Filter):
+    """Cubic smoothing spline (``ts_fil_spline``)."""
+
+    def __init__(self, spar: float | None = None) -> None:
+        self.spar = spar
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        from scipy.interpolate import make_smoothing_spline
+        x = _vec(data)
+        n = len(x)
+        if n < 4 or np.sum(np.isfinite(x)) < 4:
+            return x
+        t = np.arange(1, n + 1, dtype=float)
+        valid = np.isfinite(x)
+        try:
+            lam = None if self.spar is None else float(self.spar)
+            spline = make_smoothing_spline(t[valid], x[valid], lam=lam)
+            result = spline(t)
+        except Exception:  # noqa: BLE001 - fall back to the raw series on failure
+            return x
+        result[~np.isfinite(result)] = x[~np.isfinite(result)]
+        return result
+
+
+class TsFilKalman(_Filter):
+    """Local-level Kalman filter smoothing (``ts_fil_kalman``; R uses KFAS)."""
+
+    def __init__(self, H: float = 0.1, Q: float = 1.0) -> None:
+        self.H = H
+        self.Q = Q
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        y = _vec(data)
+        n = len(y)
+        att = np.empty(n)
+        a, p = 0.0, 1e7  # diffuse initialization (as KFAS)
+        for i in range(n):
+            p_pred = p + self.Q
+            f = p_pred + self.H
+            k = p_pred / f
+            a = a + k * (y[i] - a)
+            p = p_pred * (1 - k)
+            att[i] = a
+        return att

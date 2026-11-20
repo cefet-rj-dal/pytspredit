@@ -215,9 +215,14 @@ links do GitHub, revisão do Eduardo, ff-merge.
   do jitter idêntica (0.4395701). Tolerância: jitter/awareness/awaresmooth usam RNG
   (rnorm/rexp/sample) → valores diferem do R (algoritmo + escala fiéis); `random_state`
   para reprodutibilidade.
-- **⬜ 0.4.0 — Filtros (baixa dep)** *(+`scipy` core)*: `TsFilMa/Ema/None/Winsor/
-  Recursive/Fft/Smooth` (nativo) · `TsFilSes/Qes/Hp/Lowess/SeasAdj/Kalman` (statsmodels)
-  · `TsFilSpline/Gabor` (scipy). Sub-blocos 4a/4b se ajudar.
+- **✅ 0.4.0 — Filtros (baixa dep)** *(+`scipy` core)* — **PUBLICADO**: 16 filtros.
+  **Paridade R vs Py:** 9 EXATOS (~5e-9): `none/ma/ema/winsor/recursive/fft/smooth`,
+  `hp` (solve manual) e `gabor` (kernel+convolução manual); `lowess` (statsmodels +
+  `delta=0.01*(n-1)`, it=3) e `kalman` (KF local-level com init difusa) também batem
+  (~5e-9); `ses` quase exato (8e-5). **Tolerância de backend (documentada):** `qes`
+  (HoltWinters-trend, ~0.13), `seas_adj` (STL R vs statsmodels, ~1.2), `spline`
+  (`smooth.spline` vs `scipy.make_smoothing_spline`, ~0.14) — mesma natureza das
+  tolerâncias de ARIMA/RF/MLP; parâmetros batem, backend difere.
 - **⬜ 0.5.0 — Multivariado + plot** *(+`matplotlib` core)*: `TsDataMv` +
   `adjust_ts_data_mv`, `TsRegMv`, `TsRegswMv` + `ts_mv_spec` (spec `model/variables/
   lags/transforms`), `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) · `TsArimax`

@@ -58,7 +58,7 @@ print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
 
 ## Status
 
-**Published (`0.3.0`, beta).** The port follows the method validated for
+**Published (`0.4.0`, beta).** The port follows the method validated for
 `pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
 the shared `tsd` series. Implemented:
 
@@ -77,6 +77,9 @@ the shared `tsd` series. Implemented:
 - **Augmentation (0.3.0):** `TsAugNone`, `TsAugFlip`, `TsAugStretch`, `TsAugShrink`,
   `TsAugJitter`, `TsAugWormhole`, `TsAugAwareness`, `TsAugAwaresmooth` (native) — plug
   into `TsIntegtune`'s augmentation slot.
+- **Filters (0.4.0):** `TsFilNone/Ma/Ema/Winsor/Recursive/Fft/Smooth/Hp/Gabor` (native,
+  R-exact) + `TsFilLowess/Ses/Qes/SeasAdj/Spline/Kalman` (statsmodels/scipy). Adds
+  `scipy` as a (lightweight) core dependency.
 - **Tuning:** `TsTune` and `TsIntegtune` (integrated tuning of input size,
   preprocessing and model hyperparameters).
 

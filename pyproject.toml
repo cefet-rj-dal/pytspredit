@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pytspredit"
-version = "0.3.0"
+version = "0.4.0"
 description = "Time series prediction with tunable preprocessing (Python port of the R tspredit framework)"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -24,6 +24,7 @@ dependencies = [
   "numpy>=1.23",
   "pandas>=1.5",
   "scikit-learn>=1.2",
+  "scipy>=1.10",
   "statsmodels>=0.14",
   "pydaltoolbox>=0.1.0",
 ]
