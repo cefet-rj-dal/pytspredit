@@ -60,6 +60,15 @@ documentando a tolerância. Gap grande → investigar antes.
 **Trade-off explícito:** isto flexiona o princípio "não reimplementar" acima —
 reimplementamos nos casos citados e seguimos embrulhando as libs canônicas.
 
+**⚠️ Não é regra cega — é planejamento de DISCUSSÃO (caso a caso).** A inversão
+*Python = releitura / R = backport* é a **tendência**, não um absoluto, e **não se
+aplica a tudo**. O alvo são **pacotes atípicos / de nicho** (sem equivalente mantido,
+que causam atrito de build, ou cuja auto-seleção impede a paridade) — **não** as libs
+canônicas e comuns. Quando já existe uma implementação **madura** de um dos lados e a
+**diferença é pequena**, mantém-se o que há — ex.: o **MLP do `scikit-learn` não vira
+back-implementation**, porque o R já tem um MLP nativo excelente e a diferença é
+pequena. Cada candidato é **decidido em conjunto**, caso a caso, nunca por automação.
+
 ---
 
 ## 2. Decisões travadas (2026-11-18)
