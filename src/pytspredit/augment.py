@@ -59,7 +59,11 @@ def _sd_within(x: np.ndarray) -> float:
 
 
 class TsAugNone(DalTransform):
-    """Identity augmentation (``ts_aug_none``): returns the windows unchanged."""
+    """Identity augmentation (``ts_aug_none``): returns the windows unchanged.
+
+    Porting:
+        Mirrors ``ts_aug_none.R``. Fidelity: exact.
+    """
 
     def fit(self, data=None, **kwargs) -> TsAugNone:
         return self
@@ -87,14 +91,30 @@ class _AugStack(DalTransform):
 
 
 class TsAugFlip(_AugStack):
-    """Mirror each window around its mean (``ts_aug_flip``)."""
+    """Mirror each window around its mean (``ts_aug_flip``).
+
+    References:
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_flip.R``. Fidelity: exact (deterministic; ~5e-15).
+    """
 
     def _augment(self, x: np.ndarray) -> np.ndarray:
         return 2 * _rowmean(x)[:, None] - x
 
 
 class TsAugStretch(_AugStack):
-    """Amplify within-window deviations by ``scale_factor`` (``ts_aug_stretch``)."""
+    """Amplify within-window deviations by ``scale_factor`` (``ts_aug_stretch``).
+
+    References:
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_stretch.R``. Fidelity: exact (deterministic).
+    """
 
     def __init__(self, scale_factor: float = 1.2) -> None:
         self.scale_factor = scale_factor
@@ -106,14 +126,34 @@ class TsAugStretch(_AugStack):
 
 
 class TsAugShrink(TsAugStretch):
-    """Shrink within-window deviations by ``scale_factor`` (``ts_aug_shrink``)."""
+    """Shrink within-window deviations by ``scale_factor`` (``ts_aug_shrink``).
+
+    References:
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_shrink.R``. Fidelity: exact (deterministic).
+    """
 
     def __init__(self, scale_factor: float = 0.8) -> None:
         super().__init__(scale_factor)
 
 
 class TsAugJitter(_AugStack):
-    """Add low-amplitude Gaussian noise (``ts_aug_jitter``); RNG-dependent."""
+    """Add low-amplitude Gaussian noise (``ts_aug_jitter``); RNG-dependent.
+
+    References:
+        - Um JT, et al. (2017). Data augmentation of wearable sensor data for
+          Parkinson's disease monitoring using convolutional neural networks. ICMI.
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_jitter.R``. Fidelity: approximate.
+        - Noise scale faithful (sd 0.4395701 matches R); values differ because the
+          RNG differs (pass ``random_state`` for reproducibility).
+    """
 
     def __init__(self, random_state: int | None = 0) -> None:
         self.random_state = random_state
@@ -133,7 +173,15 @@ class TsAugJitter(_AugStack):
 
 
 class TsAugWormhole(_AugStack):
-    """Replace lag terms with older values via combinatorial windows (``ts_aug_wormhole``)."""
+    """Replace lag terms with older values via combinatorial windows (``ts_aug_wormhole``).
+
+    References:
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_wormhole.R``. Fidelity: exact (deterministic; 0.0).
+    """
 
     def __init__(self) -> None:
         self.fold = 1
@@ -153,7 +201,17 @@ class TsAugWormhole(_AugStack):
 
 
 class TsAugAwareness(DalTransform):
-    """Recency-aware augmentation (``ts_aug_awareness``); RNG-dependent."""
+    """Recency-aware augmentation (``ts_aug_awareness``); RNG-dependent.
+
+    References:
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_awareness.R``. Fidelity: approximate.
+        - Algorithm + noise scale faithful; values differ because the RNG differs
+          (pass ``random_state`` for reproducibility).
+    """
 
     def __init__(self, factor: int = 1, random_state: int | None = 0) -> None:
         self.factor = factor
@@ -206,7 +264,16 @@ def _boxplot_outlier_idx(diff: np.ndarray) -> np.ndarray:
 
 
 class TsAugAwaresmooth(TsAugAwareness):
-    """Recency-aware augmentation with progressive smoothing (``ts_aug_awaresmooth``)."""
+    """Recency-aware augmentation with progressive smoothing (``ts_aug_awaresmooth``).
+
+    References:
+        - Wen Q, et al. (2021). Time Series Data Augmentation for Deep Learning:
+          A Survey. IJCAI.
+
+    Porting:
+        Mirrors ``ts_aug_awaresmooth.R``. Fidelity: approximate (RNG-dependent;
+        see :class:`TsAugAwareness`).
+    """
 
     @staticmethod
     def _progressive_smoothing(series: np.ndarray) -> np.ndarray:

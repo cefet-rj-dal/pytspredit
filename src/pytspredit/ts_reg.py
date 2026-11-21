@@ -63,7 +63,20 @@ def r2_ts(actual, prediction) -> float:
 
 
 class TsReg(Predictor):
-    """Base class for time series regression models (non-sliding-window)."""
+    """Base class for time series regression models (non-sliding-window).
+
+    Provides the forecasting ``evaluate`` (MSE / sMAPE / R2) and a baseline
+    ``predict`` returning the most recent lag (``t0``).
+
+    References:
+        - Makridakis S, Hibon M (2000). The M3-Competition: results, conclusions
+          and implications. International Journal of Forecasting, 16(4), 451-476.
+
+    Porting:
+        Mirrors ``ts_reg.R``. Fidelity: exact.
+        - ``sMAPE`` drops zero-denominator terms and divides by ``n``; ``R2``
+          returns ``nan`` for a constant target (as in R).
+    """
 
     def __init__(self) -> None:
         super().__init__()
@@ -104,6 +117,12 @@ class TsRegSW(TsReg):
         Number of lagged inputs fed to the backend.
     input_map:
         Lag-selection strategy (default :class:`~pytspredit.TsLagmap`).
+
+    Porting:
+        Mirrors ``ts_regsw.R``. Fidelity: exact.
+        - ``do_fit``/``do_predict`` R generics map to the ``_do_fit``/
+          ``_do_predict`` hooks; ``predict`` handles one-step and iterative
+          multi-step (``steps_ahead > 1``) forecasting.
     """
 
     def __init__(self, preprocess=None, input_size: int | None = None, input_map=None) -> None:

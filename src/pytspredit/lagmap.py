@@ -170,7 +170,27 @@ def _mutual_information(x, y, bins=8):
 
 
 class TsLagmap(DalBase):
-    """Lag-selection strategy for sliding-window predictors (``ts_lagmap``)."""
+    """Lag-selection strategy for sliding-window predictors (``ts_lagmap``).
+
+    References:
+        - Box GEP, Jenkins GM, Reinsel GC, Ljung GM (2015). Time Series Analysis:
+          Forecasting and Control, 5th ed. Wiley. (ACF/PACF lag structure)
+        - Peng H, Long F, Ding C (2005). Feature selection based on mutual
+          information criteria of max-dependency, max-relevance, and
+          min-redundancy. IEEE TPAMI, 27(8), 1226-1238.
+          doi:10.1109/TPAMI.2005.159 (mRMR)
+        - Leites J, Cerqueira V, Soares C (2024). Selecting time lags for time
+          series forecasting: an empirical study. arXiv:2405.11237.
+
+    Porting:
+        Mirrors ``ts_lagmap.R`` + ``tslagutils.R``. Fidelity: approximate.
+        - All 12 strategies verified against R (ACF/PACF via statsmodels
+          ``adjusted=False`` / ``method='ywm'``; MI/mRMR discretization via numpy
+          ``method='median_unbiased'`` == R quantile type 8).
+        - Seasonal auto-estimation (``seasonality=None``) uses a periodogram
+          estimate instead of R's ``forecast::findfrequency`` (AR spectral
+          search); pass an explicit ``seasonality`` for exact parity.
+    """
 
     def __init__(
         self,

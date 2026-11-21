@@ -112,7 +112,22 @@ def _inverse_safe(preprocess, data, x=None):
 
 
 class TsDarima(TsRegSW):
-    """Delegated-differencing linear regressor (``ts_darima``)."""
+    """Delegated-differencing linear regressor (``ts_darima``).
+
+    References:
+        - Box GEP, Jenkins GM, Reinsel GC, Ljung GM (2015). Time Series Analysis:
+          Forecasting and Control. Wiley.
+        - Hyndman RJ, Athanasopoulos G (2021). Forecasting: Principles and
+          Practice, 3rd ed. OTexts. https://otexts.com/fpp3/
+        - Ogasawara E, et al. (2010). Adaptive normalization: a novel data
+          normalization approach for non-stationary time series. IJCNN.
+
+    Porting:
+        Mirrors ``ts_darima.R``. Fidelity: exact.
+        - A window LINEAR model (not distributed ARIMA): differencing is delegated
+          to the preprocessor; the linear fit uses :class:`_RLinear` (R ``lm``
+          column-dropping), so it matches R to ~1e-9 on well-conditioned designs.
+    """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None, intercept=True) -> None:
         super().__init__(preprocess, input_size, input_map)
@@ -209,7 +224,24 @@ def _warma_inverse_y(y, means, scales, steps):
 
 
 class TsWarma(TsRegSW):
-    """Window ARMA-inspired linear regressor with local step normalization (``ts_warma``)."""
+    """Window ARMA-inspired linear regressor with local step normalization (``ts_warma``).
+
+    References:
+        - Box GEP, Jenkins GM, Reinsel GC, Ljung GM (2015). Time Series Analysis:
+          Forecasting and Control. Wiley.
+        - Hyndman RJ, Athanasopoulos G (2021). Forecasting: Principles and
+          Practice, 3rd ed. OTexts. https://otexts.com/fpp3/
+        - Ogasawara E, et al. (2010). Adaptive normalization: a novel data
+          normalization approach for non-stationary time series. IJCNN.
+
+    Porting:
+        Mirrors ``ts_warma.R``. Fidelity: approximate.
+        - ``lm`` + local per-window step normalization; ``steps=None`` picks the
+          smallest order reaching stationarity via ``ndiffs`` (KPSS, statsmodels),
+          mirroring ``forecast::ndiffs``. Linear fit via :class:`_RLinear` (exact);
+          the automatic ``steps`` may differ if the KPSS decision differs (pass an
+          explicit ``steps`` for guaranteed parity).
+    """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None,
                  steps=None, intercept=True) -> None:

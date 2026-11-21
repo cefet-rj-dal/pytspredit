@@ -58,7 +58,7 @@ print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
 
 ## Status
 
-**Published (`0.4.0`, beta).** The port follows the method validated for
+**Published (`0.5.0`, beta).** The port follows the method validated for
 `pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
 the shared `tsd` series. Implemented:
 
@@ -82,12 +82,20 @@ the shared `tsd` series. Implemented:
   `scipy` as a (lightweight) core dependency.
 - **Tuning:** `TsTune` and `TsIntegtune` (integrated tuning of input size,
   preprocessing and model hyperparameters).
+- **Multivariate (0.5.0):** `ts_data_mv` / `adjust_ts_data_mv` / `ts_mv_spec`,
+  the sliding-window orchestrator `TsRegswMv`, and the singular (aligned) branch
+  `TsLmMv` (linear regression), `TsVar` (vector autoregression) and `TsArimax`
+  (ARIMA with external regressors) — all target-centered. Plus `plot_ts_pred` /
+  `plot_ts_pred_mv` (matplotlib), adding `matplotlib` as a (lightweight) core
+  dependency.
 
-Thin adapters over scikit-learn / numpy / pandas / statsmodels reproduce the R
-backends' defaults (e.g. SVM standardizes like `e1071`). Deferred to a later release
-(see [develop/planejamento.md](develop/planejamento.md)): the multivariate family
-(`ts_data_mv`, `ts_var`, `ts_arimax`), filters, the full augmentation family, and
-graphics.
+Every class documents its academic references and its R-port fidelity
+(`References:` / `Porting:` in the docstrings), mirroring the roxygen `@references`
+and `@details` of the R package. Thin adapters over scikit-learn / numpy / pandas /
+statsmodels reproduce the R backends' defaults (e.g. SVM standardizes like
+`e1071`). Deferred to the next cycle (see
+[develop/planejamento.md](develop/planejamento.md)): benchmark datasets, and the
+heavy-dependency extras (EMD, wavelets, full remote datasets).
 
 ## Documentation
 

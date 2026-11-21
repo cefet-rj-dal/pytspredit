@@ -4,7 +4,41 @@
 > **pydaltoolbox** (já publicado no PyPI). Objetivo: você saber todos os passos,
 > o que já foi feito, o que vem, e por quê — sem surpresas.
 
-Última atualização: 2026-11-18
+Última atualização: 2026-11-21
+
+---
+
+## Convenção de documentação (Eduardo, 2026-11-21)
+
+**Toda classe Python deve trazer, no próprio docstring, (1) como o algoritmo
+funciona + base teórica e (2) as referências acadêmicas — espelhando os
+`@details` e `@references` do roxygen do pacote R.** Não basta descrever o
+comportamento ou as escolhas fiéis ao R; incluir uma seção `References:` com as
+citações copiadas do arquivo R correspondente. Vale para classes novas e para
+preencher as já existentes. (Mesma regra adotada no `pydaltoolbox`.)
+
+Além disso, **cada classe deve ter uma seção `Porting:` consistente e auditável**,
+registrando a fidelidade ao R:
+
+```
+Porting:
+    Mirrors ``<arquivo_r>.R``. Fidelity: exact|approximate|adapted.
+    - <cada adaptação/ajuste deliberado e o porquê>   # só quando approximate/adapted
+```
+
+**Apenas o nome do arquivo R** — sem número de versão e sem citar o pacote R (já se sabe
+de onde vem). Níveis de fidelidade: **exact** = comportamento igual ao R; **approximate**
+= mesmo algoritmo, mas diferenças numéricas menores (backend/solver/RNG diferente, ou
+aproxima um utilitário do R); **adapted** = mudança deliberada de comportamento,
+reimplementação nativa ou correção de bug do R. Consolidar nessa seção as notas de
+"Mirrors/replicates/approximates R" que hoje ficam soltas na prosa.
+
+> **✅ Varredura concluída na 0.5.0 (2026-11-21).** Todas as classes públicas agora
+> trazem `References:` (citações copiadas do `@references` do arquivo R correspondente,
+> com artefatos de encoding corrigidos) e `Porting:` (arquivo R + nível de fidelidade +
+> adaptações). Cobertos: `ts_reg`, `tsdata`, `datasets`, `norm` (5), `lagmap`,
+> `regressors` (5), `arima`, `deterministic` (3), `darima_warma` (2), `augment` (8),
+> `filters` (15), `tune` (2) e `multivariate` (0.5.0). Fica o padrão para as próximas releases.
 
 ---
 
@@ -265,10 +299,23 @@ links do GitHub, revisão do Eduardo, ff-merge.
   (HoltWinters-trend, ~0.13), `seas_adj` (STL R vs statsmodels, ~1.2), `spline`
   (`smooth.spline` vs `scipy.make_smoothing_spline`, ~0.14) — mesma natureza das
   tolerâncias de ARIMA/RF/MLP; parâmetros batem, backend difere.
-- **⬜ 0.5.0 — Multivariado + plot** *(+`matplotlib` core)*: `TsDataMv` +
-  `adjust_ts_data_mv`, `TsRegMv`, `TsRegswMv` + `ts_mv_spec` (spec `model/variables/
-  lags/transforms`), `TsLmMv` (sklearn) · `TsVar` (statsmodels VAR) · `TsArimax`
-  (ARIMA+exog) · `plot_ts_pred_mv` (matplotlib).
+- **✅ 0.5.0 — Multivariado + plot** *(+`matplotlib` core)* — **IMPLEMENTADO** (branch
+  `milestone-0.5.0-multivariate`, aguardando revisão/`twine` do Eduardo): `multivariate.py`
+  = `TsDataMv` (subclasse de `DataFrame` com metadados) + `ts_data_mv`/`adjust_ts_data_mv`
+  + `ts_mv_spec`/`TsMvSpec` + `TsRegswMv` (orquestrador sliding-window) + `TsRegMv` (base
+  singular aligned) + `TsLmMv` (reusa `_RLinear`=`lm` do R) + `TsVar` (OLS nativo + AICc) +
+  `TsArimax` (statsmodels ARIMA+exog) + `TsMvPrediction` (ndarray com `.system`). `plot.py`
+  = `plot_ts_pred` (port matplotlib do `grf_ts_pred` do daltoolbox, ausente no pydaltoolbox)
+  + `plot_ts_pred_mv`. **Paridade R vs Py (orquestração exata):** `TsVar` ~1e-6 (exato,
+  nativo) · `TsLmMv` (futuro conhecido) 4.97e-9 (exato, `_RLinear`=`lm`) · `TsRegswMv`
+  (alvo KNN + aux periódico) **idêntico a 8 casas** · `TsArimax` tolerância de backend
+  (~1.4e-1 com xreg, statsmodels vs `forecast::Arima`) · ELM/RF/MLP como alvo MV =
+  tolerância RNG/backend (documentada). **Achado reusável:** ELM-purelin só é OLS *exato*
+  (invariante a RNG) quando `nhid == nº de features` (W quadrado invertível); com
+  `nhid > features` a extrapolação multi-step depende da projeção aleatória (em R e Py).
+  **Dado dos exemplos R:** `x2 = stats::filter(y, rep(1/3,3), sides=1)` dá NA nos 2
+  primeiros (→ `y`); no Python usar `rolling(3)` (min_periods=3) + preencher NA com `y`
+  (não `rolling(min_periods=1)`). 140 testes, 68 símbolos, 12 notebooks verdes.
 - **⬜ 0.6.0 — Benchmark (parte leve)** *(0 dep nova)*: **miniaturas embarcadas**
   (CSV/JSON + `manifest.json` com urls, extraídas do `.RData` via `Rscript`) +
   `TsPredBench` (harness datasets×modelos). `datasets.<nome>()` devolve a miniatura.

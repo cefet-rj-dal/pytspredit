@@ -11,6 +11,15 @@ single ``t0`` column.
 We keep the representation a plain :class:`~pandas.DataFrame` (rather than a
 subclass) so downstream normalization and modeling code can do ordinary pandas
 arithmetic and indexing on it. Window size is simply ``ts.shape[1]``.
+
+References:
+    - Box GEP, Jenkins GM, Reinsel GC, Ljung GM (2015). Time Series Analysis:
+      Forecasting and Control, 5th ed. Wiley. (sliding-window / lag framing)
+
+Porting:
+    Mirrors ``ts_data.R`` and ``ts_projection.R``. Fidelity: exact.
+    - Column naming ``t{sw-1}..t0``, window building, projection and sampling
+      verified against R (dims/columns/values identical on ``tsd``).
 """
 from __future__ import annotations
 

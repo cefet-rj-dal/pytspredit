@@ -64,7 +64,22 @@ def _auto_order(series):
 
 
 class TsArima(TsReg):
-    """ARIMA(p, d, q) forecaster. Leave orders ``None`` for automatic selection."""
+    """ARIMA(p, d, q) forecaster. Leave orders ``None`` for automatic selection.
+
+    References:
+        - Box GEP, Jenkins GM, Reinsel GC, Ljung GM (2015). Time Series Analysis:
+          Forecasting and Control. Wiley.
+        - Hyndman RJ, Khandakar Y (2008). Automatic time series forecasting: the
+          forecast package for R. Journal of Statistical Software, 27(3), 1-22.
+          doi:10.18637/jss.v027.i03
+
+    Porting:
+        Mirrors ``ts_arima.R``. Fidelity: approximate.
+        - Built on ``statsmodels`` (R used ``forecast::Arima``/``auto.arima``):
+          explicit ``(p,d,q)`` matches exactly; the automatic AICc search
+          approximates ``auto.arima`` (different MLE backend), so forecasts are
+          close (~6e-4), not bit-identical.
+    """
 
     def __init__(self, p=None, d=None, q=None) -> None:
         super().__init__()

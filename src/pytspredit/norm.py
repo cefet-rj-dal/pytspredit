@@ -54,9 +54,14 @@ def _frame(values: np.ndarray, like) -> pd.DataFrame:
 class TsNormNone(DalTransform):
     """Identity normalization (``ts_norm_none``).
 
-    Leaves data unchanged but honours the pre/post-processing interface. Unlike
-    the R version, the ``x``-path returns ``x`` unchanged (rather than the window
-    matrix), so it composes correctly inside a sliding-window regressor.
+    Leaves data unchanged but honours the pre/post-processing interface.
+
+    Porting:
+        Mirrors ``ts_norm_none.R``. Fidelity: adapted.
+        - The ``x``-path returns ``x`` unchanged (R returned the window matrix, a
+          latent bug for the sliding-window pipeline); an identity
+          ``inverse_transform`` is provided. Matches the fix merged into
+          ``tspredit`` main (``transform.ts_norm_none`` now honours ``x=``).
     """
 
     def fit(self, data=None, **kwargs) -> TsNormNone:
@@ -85,6 +90,16 @@ class TsNormGminmax(_OutliersMixin, DalTransform):
 
     Maps the global training minimum to 0 and maximum to 1; the same scaling is
     inverted on predictions.
+
+    References:
+        - Ogasawara E, Murta L, Zimbrão G, Mattoso M (2009). Neural networks
+          cartridges for data mining on time series. IJCNN.
+          doi:10.1109/IJCNN.2009.5178615
+
+    Porting:
+        Mirrors ``ts_norm_gminmax.R``. Fidelity: exact.
+        - Optional outlier mitigation (``OutliersBoxplot``) runs on the
+          transformed data before estimating gmin/gmax, as in R.
     """
 
     def __init__(self, outliers="default") -> None:
@@ -113,7 +128,16 @@ class TsNormGminmax(_OutliersMixin, DalTransform):
 
 
 class TsNormSwminmax(_OutliersMixin, DalTransform):
-    """Sliding-window (per-row) min-max normalization (``ts_norm_swminmax``)."""
+    """Sliding-window (per-row) min-max normalization (``ts_norm_swminmax``).
+
+    References:
+        - Ogasawara E, Murta L, Zimbrão G, Mattoso M (2009). Neural networks
+          cartridges for data mining on time series. IJCNN.
+          doi:10.1109/IJCNN.2009.5178615
+
+    Porting:
+        Mirrors ``ts_norm_swminmax.R``. Fidelity: exact.
+    """
 
     def __init__(self, outliers="default") -> None:
         self.outliers = OutliersBoxplot() if outliers == "default" else outliers
@@ -148,6 +172,15 @@ class TsNormDiff(_OutliersMixin, DalTransform):
     Reduces the window width by one (``t9..t0`` -> consecutive differences), then
     scales the differenced windows with global min-max. The target is expressed
     as the difference from the most recent input lag.
+
+    References:
+        - Salles R, Assis L, Guedes G, Bezerra E, Porto F, Ogasawara E (2017).
+          A framework for benchmarking machine learning methods using linear
+          models for univariate time series prediction. IJCNN.
+          doi:10.1109/IJCNN.2017.7966139
+
+    Porting:
+        Mirrors ``ts_norm_diff.R``. Fidelity: exact.
     """
 
     def __init__(self, outliers="default") -> None:
@@ -230,7 +263,24 @@ class TsNormAn(DalTransform):
     Normalizes each window relative to an adaptive reference level (mean or EMA)
     and an optional local scale (sd or MAD), via one of four operators
     (``divide``, ``subtract``, ``softdivide``, ``asinh``), followed by global
-    min-max. Mirrors ``ts_norm_an.R`` + ``tsanutils.R``.
+    min-max.
+
+    References:
+        - Ogasawara E, Martinez LC, De Oliveira D, Zimbrão G, Pappa GL, Mattoso M
+          (2010). Adaptive Normalization: A novel data normalization approach for
+          non-stationary time series. IJCNN. doi:10.1109/IJCNN.2010.5596746
+        - Huber PJ (1964). Robust Estimation of a Location Parameter. Annals of
+          Mathematical Statistics, 35(1), 73-101. doi:10.1214/aoms/1177703732
+        - Burbidge JB, Magee L, Robb AL (1988). Alternative Transformations to
+          Handle Extreme Values of the Dependent Variable. JASA, 83(401), 123-127.
+        - Bellemare MF, Wichman CJ (2020). Elasticities and the Inverse
+          Hyperbolic Sine Transformation. Oxford Bulletin of Economics and
+          Statistics, 82(1), 50-61. doi:10.1111/obes.12325
+
+    Porting:
+        Mirrors ``ts_norm_an.R`` + ``tsanutils.R``. Fidelity: exact.
+        - All four operators verified against R; the default ``outliers_boxplot``
+          is applied to the transformed data (decisive for the ``divide`` case).
     """
 
     def __init__(

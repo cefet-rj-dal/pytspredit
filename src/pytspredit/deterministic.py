@@ -74,7 +74,19 @@ def _periodic_next(cycle: np.ndarray, context_size: int, history: np.ndarray) ->
 
 
 class TsDeterministic(TsReg):
-    """Rule-based univariate predictor (``ts_deterministic``)."""
+    """Rule-based univariate predictor (``ts_deterministic``).
+
+    References:
+        - Hyndman RJ, Athanasopoulos G (2021). Forecasting: Principles and
+          Practice, 3rd ed. OTexts. https://otexts.com/fpp3/ (naive/seasonal-naive
+          benchmarks).
+
+    Porting:
+        Mirrors ``ts_deterministic.R``. Fidelity: exact.
+        - Native rule-based forecasting (no learner); matches R exactly. The R
+          file carries no academic reference; the naive/seasonal-naive baselines
+          are standard forecasting benchmarks.
+    """
 
     def __init__(self, mode: str = "periodic", period=None, context_size=None) -> None:
         super().__init__()
@@ -153,14 +165,24 @@ class TsDeterministic(TsReg):
 
 
 class TsPeriodic(TsDeterministic):
-    """Periodic deterministic predictor (``ts_periodic``)."""
+    """Periodic deterministic predictor (``ts_periodic``).
+
+    Porting:
+        Mirrors ``ts_periodic.R`` (``ts_deterministic`` with ``mode='periodic'``).
+        Fidelity: exact.
+    """
 
     def __init__(self, period, context_size=None) -> None:
         super().__init__("periodic", period=period, context_size=context_size)
 
 
 class TsPersist(TsDeterministic):
-    """Persistence deterministic predictor (``ts_persist``)."""
+    """Persistence deterministic predictor (``ts_persist``).
+
+    Porting:
+        Mirrors ``ts_persist.R`` (``ts_deterministic`` with ``mode='persist'``).
+        Fidelity: exact.
+    """
 
     def __init__(self) -> None:
         super().__init__("persist")

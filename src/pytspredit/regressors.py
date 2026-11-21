@@ -44,7 +44,16 @@ def _y(y) -> np.ndarray:
 
 
 class TsKnn(TsRegSW):
-    """k-Nearest-Neighbors regression (``ts_knn``; FNN ``knn.reg``)."""
+    """k-Nearest-Neighbors regression (``ts_knn``; FNN ``knn.reg``).
+
+    References:
+        - Cover TM, Hart PE (1967). Nearest neighbor pattern classification.
+          IEEE Transactions on Information Theory, 13(1), 21-27.
+
+    Porting:
+        Mirrors ``ts_knn.R``. Fidelity: exact.
+        - Deterministic; matches R to ~1e-9 (wraps ``KNeighborsRegressor``).
+    """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None, k=None) -> None:
         super().__init__(preprocess, input_size, input_map)
@@ -61,7 +70,16 @@ class TsKnn(TsRegSW):
 
 
 class TsRf(TsRegSW):
-    """Random Forest regression (``ts_rf``; R ``randomForest``)."""
+    """Random Forest regression (``ts_rf``; R ``randomForest``).
+
+    References:
+        - Breiman L (2001). Random forests. Machine Learning, 45(1), 5-32.
+
+    Porting:
+        Mirrors ``ts_rf.R``. Fidelity: approximate.
+        - Wraps ``RandomForestRegressor``; forecasts differ from R within the
+          backend RNG tolerance (documented).
+    """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None,
                  nodesize=1, ntree=100, mtry=None, random_state=0) -> None:
@@ -91,6 +109,15 @@ class TsSvm(TsRegSW):
     """Support Vector Regression (``ts_svm``; e1071 ``svm``, epsilon-SVR).
 
     Mirrors ``e1071``'s ``scale=TRUE`` default by standardizing inputs and target.
+
+    References:
+        - Cortes C, Vapnik V (1995). Support-Vector Networks. Machine Learning,
+          20, 273-297.
+
+    Porting:
+        Mirrors ``ts_svm.R``. Fidelity: approximate.
+        - Wraps ``SVR`` with ``StandardScaler`` on X + ``TransformedTargetRegressor``
+          (mirrors ``e1071 scale=TRUE``); near-exact (~2.5e-4, LIBSVM backend).
     """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None,
@@ -119,7 +146,19 @@ class TsSvm(TsRegSW):
 
 
 class TsMlp(TsRegSW):
-    """Multilayer Perceptron regression (``ts_mlp``; R ``nnet``)."""
+    """Multilayer Perceptron regression (``ts_mlp``; R ``nnet``).
+
+    References:
+        - Rumelhart DE, Hinton GE, Williams RJ (1986). Learning representations
+          by back-propagating errors. Nature, 323, 533-536.
+        - Venables WN, Ripley BD (2002). Modern Applied Statistics with S,
+          4th ed. Springer. (the ``nnet`` package)
+
+    Porting:
+        Mirrors ``ts_mlp.R``. Fidelity: approximate.
+        - Wraps ``MLPRegressor``; forecasts differ from R within the backend RNG
+          tolerance (documented).
+    """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None,
                  size=None, decay=0.01, maxit=1000, random_state=0) -> None:
@@ -164,6 +203,18 @@ class TsElm(TsRegSW):
 
     Random hidden weights + closed-form (pseudo-inverse) output weights, no bias
     (matching ``init_weights='uniform_positive'``, ``bias=FALSE``).
+
+    References:
+        - Huang G-B, Zhu Q-Y, Siew C-K (2006). Extreme Learning Machine: Theory
+          and Applications. Neurocomputing, 70(1-3), 489-501.
+
+    Porting:
+        Mirrors ``ts_elm.R``. Fidelity: approximate.
+        - Native implementation (random projection + pseudo-inverse). With
+          ``actfun='purelin'`` and ``nhid`` equal to the number of inputs the
+          hidden map is an invertible square projection, so the fit reduces to
+          OLS and is RNG-invariant (matches R exactly); other ``nhid`` values use
+          a genuine random projection (backend-RNG tolerance on extrapolation).
     """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None,

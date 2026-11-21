@@ -44,14 +44,22 @@ class _Filter(DalTransform):
 
 
 class TsFilNone(_Filter):
-    """Identity filter (``ts_fil_none``)."""
+    """Identity filter (``ts_fil_none``).
+
+    Porting:
+        Mirrors ``ts_fil_none.R``. Fidelity: exact.
+    """
 
     def transform(self, data, **kwargs):
         return data
 
 
 class TsFilMa(_Filter):
-    """Moving average (``ts_fil_ma``)."""
+    """Moving average (``ts_fil_ma``).
+
+    Porting:
+        Mirrors ``ts_fil_ma.R``. Fidelity: exact (native, ~5e-9).
+    """
 
     def __init__(self, ma: int = 3) -> None:
         self.ma = ma
@@ -62,7 +70,15 @@ class TsFilMa(_Filter):
 
 
 class TsFilEma(_Filter):
-    """Exponential moving average (``ts_fil_ema``)."""
+    """Exponential moving average (``ts_fil_ema``).
+
+    References:
+        - Holt CC (1957). Forecasting trends and seasonals by exponentially
+          weighted moving averages. O.N.R. Research Memorandum.
+
+    Porting:
+        Mirrors ``ts_fil_ema.R``. Fidelity: exact (native, ~5e-9).
+    """
 
     def __init__(self, ema: int = 3) -> None:
         self.ema = ema
@@ -77,7 +93,15 @@ class TsFilEma(_Filter):
 
 
 class TsFilWinsor(_Filter):
-    """Winsorization to the 5th/95th percentiles (``ts_fil_winsor``)."""
+    """Winsorization to the 5th/95th percentiles (``ts_fil_winsor``).
+
+    References:
+        - Tukey JW (1962). The future of data analysis. Annals of Mathematical
+          Statistics, 33(1), 1-67. (Winsorization in robust summaries)
+
+    Porting:
+        Mirrors ``ts_fil_winsor.R``. Fidelity: exact (native, ~5e-9).
+    """
 
     def transform(self, data, **kwargs) -> np.ndarray:
         x = _vec(data)
@@ -86,7 +110,11 @@ class TsFilWinsor(_Filter):
 
 
 class TsFilRecursive(_Filter):
-    """Recursive linear filter ``y[i] = x[i] + f*y[i-1]`` (``ts_fil_recursive``)."""
+    """Recursive linear filter ``y[i] = x[i] + f*y[i-1]`` (``ts_fil_recursive``).
+
+    Porting:
+        Mirrors ``ts_fil_recursive.R``. Fidelity: exact (native, ~5e-9).
+    """
 
     def __init__(self, filter: float) -> None:
         self.filter = filter
@@ -102,7 +130,11 @@ class TsFilRecursive(_Filter):
 
 
 class TsFilSmooth(_Filter):
-    """Robust progressive smoothing of outlier jumps (``ts_fil_smooth``)."""
+    """Robust progressive smoothing of outlier jumps (``ts_fil_smooth``).
+
+    Porting:
+        Mirrors ``ts_fil_smooth.R``. Fidelity: exact (native, ~5e-9).
+    """
 
     def transform(self, data, **kwargs) -> np.ndarray:
         s = _vec(data)
@@ -119,7 +151,16 @@ class TsFilSmooth(_Filter):
 
 
 class TsFilHp(_Filter):
-    """Hodrick-Prescott filter, blended with the original (``ts_fil_hp``)."""
+    """Hodrick-Prescott filter, blended with the original (``ts_fil_hp``).
+
+    References:
+        - Hodrick RJ, Prescott EC (1997). Postwar U.S. business cycles: an
+          empirical investigation. Journal of Money, Credit and Banking, 29(1).
+
+    Porting:
+        Mirrors ``ts_fil_hp.R``. Fidelity: exact (manual HP linear solve, ~5e-9;
+        not statsmodels ``hpfilter``, for bit-level parity).
+    """
 
     def __init__(self, lambda_: float = 100.0, preserve: float = 0.9) -> None:
         if not 0 <= preserve <= 1:
@@ -142,7 +183,15 @@ class TsFilHp(_Filter):
 
 
 class TsFilFft(_Filter):
-    """FFT low-pass smoothing with reflected padding + cosine roll-off (``ts_fil_fft``)."""
+    """FFT low-pass smoothing with reflected padding + cosine roll-off (``ts_fil_fft``).
+
+    References:
+        - Cooley JW, Tukey JW (1965). An algorithm for the machine calculation of
+          complex Fourier series. Mathematics of Computation, 19, 297-301.
+
+    Porting:
+        Mirrors ``ts_fil_fft.R``. Fidelity: exact (native, ~5e-9).
+    """
 
     def __init__(self, threshold: float = 0.90, pad_pct: float = 0.25, taper_pct: float = 0.15) -> None:
         if not (0 < threshold <= 1):
@@ -227,7 +276,16 @@ class TsFilFft(_Filter):
 
 
 class TsFilGabor(_Filter):
-    """One-dimensional Gabor smoothing (``ts_fil_gabor``)."""
+    """One-dimensional Gabor smoothing (``ts_fil_gabor``).
+
+    References:
+        - Gabor D (1946). Theory of communication. Journal of the IEE - Part III,
+          93(26), 429-457.
+
+    Porting:
+        Mirrors ``ts_fil_gabor.R``. Fidelity: exact (manual kernel + convolution,
+        ~5e-9).
+    """
 
     def __init__(self, window_size: float = 3, central_frequency: float = 0.1) -> None:
         if window_size <= 0:
@@ -260,7 +318,17 @@ class TsFilGabor(_Filter):
 
 
 class TsFilLowess(_Filter):
-    """LOWESS smoothing (``ts_fil_lowess``)."""
+    """LOWESS smoothing (``ts_fil_lowess``).
+
+    References:
+        - Cleveland WS (1979). Robust locally weighted regression and smoothing
+          scatterplots. JASA, 74(368), 829-836.
+
+    Porting:
+        Mirrors ``ts_fil_lowess.R``. Fidelity: approximate.
+        - statsmodels ``lowess`` with ``delta=0.01*(n-1)``, ``it=3`` == R lowess
+          (~5e-9).
+    """
 
     def __init__(self, f: float = 0.2) -> None:
         self.f = f
@@ -295,19 +363,46 @@ class _HoltWinters(_Filter):
 
 
 class TsFilSes(_HoltWinters):
-    """Simple exponential smoothing (``ts_fil_ses``)."""
+    """Simple exponential smoothing (``ts_fil_ses``).
+
+    References:
+        - Brown RG (1959). Statistical Forecasting for Inventory Control.
+
+    Porting:
+        Mirrors ``ts_fil_ses.R``. Fidelity: approximate (statsmodels vs R
+        ``HoltWinters``; near-exact ~8e-5).
+    """
 
     beta = False
 
 
 class TsFilQes(_HoltWinters):
-    """Double (trend) exponential smoothing (``ts_fil_qes``)."""
+    """Double (trend) exponential smoothing (``ts_fil_qes``).
+
+    References:
+        - Winters PR (1960). Forecasting sales by exponentially weighted moving
+          averages. Management Science, 6(3), 324-342.
+
+    Porting:
+        Mirrors ``ts_fil_qes.R``. Fidelity: approximate (HoltWinters-trend backend
+        tolerance, ~0.13).
+    """
 
     beta = True
 
 
 class TsFilSeasAdj(_Filter):
-    """Seasonal adjustment via STL (``ts_fil_seas_adj``)."""
+    """Seasonal adjustment via STL (``ts_fil_seas_adj``).
+
+    References:
+        - Cleveland RB, Cleveland WS, McRae JE, Terpenning I (1990). STL: a
+          seasonal-trend decomposition procedure based on loess. Journal of
+          Official Statistics, 6(1), 3-73.
+
+    Porting:
+        Mirrors ``ts_fil_seas_adj.R``. Fidelity: approximate (R ``stl`` vs
+        statsmodels ``STL`` backend tolerance, ~1.2).
+    """
 
     def __init__(self, frequency: int | None = None) -> None:
         self.frequency = frequency
@@ -337,7 +432,16 @@ class TsFilSeasAdj(_Filter):
 
 
 class TsFilSpline(_Filter):
-    """Cubic smoothing spline (``ts_fil_spline``)."""
+    """Cubic smoothing spline (``ts_fil_spline``).
+
+    References:
+        - Craven P, Wahba G (1978). Smoothing noisy data with spline functions.
+          Numerische Mathematik, 31, 377-403.
+
+    Porting:
+        Mirrors ``ts_fil_spline.R``. Fidelity: approximate (R ``smooth.spline`` vs
+        scipy ``make_smoothing_spline`` backend tolerance, ~0.14).
+    """
 
     def __init__(self, spar: float | None = None) -> None:
         self.spar = spar
@@ -361,7 +465,16 @@ class TsFilSpline(_Filter):
 
 
 class TsFilKalman(_Filter):
-    """Local-level Kalman filter smoothing (``ts_fil_kalman``; R uses KFAS)."""
+    """Local-level Kalman filter smoothing (``ts_fil_kalman``; R uses KFAS).
+
+    References:
+        - Kalman RE (1960). A new approach to linear filtering and prediction
+          problems. Journal of Basic Engineering, 82(1), 35-45.
+
+    Porting:
+        Mirrors ``ts_fil_kalman.R``. Fidelity: approximate.
+        - Manual local-level KF (diffuse init P0=1e7) == R ``KFAS`` (~5e-9).
+    """
 
     def __init__(self, H: float = 0.1, Q: float = 1.0) -> None:
         self.H = H

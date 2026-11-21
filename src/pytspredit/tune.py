@@ -61,7 +61,21 @@ def _mse(values, prediction):
 
 
 class TsTune(DalTune):
-    """Cross-validated grid search over ``input_size`` and model ranges (``ts_tune``)."""
+    """Cross-validated grid search over ``input_size`` and model ranges (``ts_tune``).
+
+    References:
+        - Kohavi R (1995). A study of cross-validation and bootstrap for accuracy
+          estimation and model selection. IJCAI.
+        - Salles R, Pacitti E, Bezerra E, Marques C, Pacheco C, Oliveira C, Porto
+          F, Ogasawara E (2023). TSPredIT: Integrated Tuning of Data Preprocessing
+          and Time Series Prediction Models. Lecture Notes in Computer Science.
+
+    Porting:
+        Mirrors ``ts_tune.R``. Fidelity: approximate.
+        - CV grid search minimizing MSE (min-mean-error ties -> first). Fold
+          partition uses a seeded numpy RNG (not R's ``sample``), so the chosen
+          configuration can differ when ties are broken by fold assignment.
+    """
 
     def __init__(self, input_size, base_model, folds: int = 10, ranges=None, seed: int = 0) -> None:
         super().__init__(base_model, folds, ranges)
@@ -125,7 +139,18 @@ class TsTune(DalTune):
 
 class TsIntegtune(TsTune):
     """Integrated tuning over input size, preprocessing, augmentation and model
-    hyperparameters (``ts_integtune``)."""
+    hyperparameters (``ts_integtune``).
+
+    References:
+        - Salles R, Pacitti E, Bezerra E, Marques C, Pacheco C, Oliveira C, Porto
+          F, Ogasawara E (2023). TSPredIT: Integrated Tuning of Data Preprocessing
+          and Time Series Prediction Models. Lecture Notes in Computer Science.
+
+    Porting:
+        Mirrors ``ts_integtune.R``. Fidelity: approximate.
+        - Same CV strategy as :class:`TsTune`, jointly searching the preprocessing
+          and augmentation slots (see the fold-RNG note on :class:`TsTune`).
+    """
 
     def __init__(self, input_size, base_model, folds: int = 10, ranges=None,
                  preprocess=None, augment=None, seed: int = 0) -> None:

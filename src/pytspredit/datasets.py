@@ -4,6 +4,11 @@ Python counterpart of the R ``data.R``. ``tsd`` is the small synthetic univariat
 series that is the didactic entry point of the package (a smooth sine signal),
 shipped as a CSV extracted from the original R ``tsd.RData`` so the Python port is
 numerically identical to the R package.
+
+Porting:
+    Mirrors ``data.R`` (the ``tsd`` dataset). Fidelity: exact.
+    - ``tsd`` is ``y = sin(x)`` over ``x = seq(0, 10, 0.25)`` (41 rows), extracted
+      from ``tsd.RData`` so values are identical to R.
 """
 from __future__ import annotations
 
