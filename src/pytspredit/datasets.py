@@ -56,6 +56,7 @@ __all__ = [
     "ipeadata_d",
     "ipeadata_m",
     "list_datasets",
+    "loadfulldata",
     "m1",
     "m3",
     "m4",
@@ -105,6 +106,17 @@ def _coerce_numeric(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _json_to_struct(kind: str, raw: dict):
+    """Build the dataset structure from parsed JSON (shared by local and remote)."""
+    if kind == "series_list":
+        return {k: pd.Series(v, name=k) for k, v in raw.items()}
+    if kind == "df_list":
+        return {k: _coerce_numeric(_records_to_df(v)) for k, v in raw.items()}
+    if kind == "nested_list":
+        return {k: {sk: pd.Series(sv, name=sk) for sk, sv in v.items()} for k, v in raw.items()}
+    raise ValueError(f"unknown dataset kind {kind!r}")  # pragma: no cover
+
+
 def _load(name: str):
     """Load a miniature by its manifest name, dispatching on its ``kind``.
 
@@ -119,13 +131,37 @@ def _load(name: str):
         return pd.read_csv(path)
     with open(path, encoding="utf-8") as fh:
         raw = json.load(fh)
-    if kind == "series_list":
-        return {k: pd.Series(v, name=k) for k, v in raw.items()}
-    if kind == "df_list":
-        return {k: _coerce_numeric(_records_to_df(v)) for k, v in raw.items()}
-    if kind == "nested_list":
-        return {k: {sk: pd.Series(sv, name=sk) for sk, sv in v.items()} for k, v in raw.items()}
-    raise ValueError(f"unknown dataset kind {kind!r} for {name!r}")  # pragma: no cover
+    return _json_to_struct(kind, raw)
+
+
+def loadfulldata(name: str):
+    """Download and return the *full* dataset referenced by its miniature.
+
+    The full artifact is a gzip-compressed, Python-native file (``.csv.gz`` for
+    data frames, ``.json.gz`` for lists) published in the ``cefet-rj-dal/tspredbench``
+    repository; its URL is recorded as ``full_url`` in the manifest. This reads it
+    with ``urllib`` (stdlib) + pandas / stdlib ``gzip`` -- **no extra dependency**.
+    The returned structure matches the miniature's (``datasets.<name>()``).
+
+    Eidolon on-demand expansion (Calmon et al., 2026): the compact local miniature
+    stands in for the full artifact, which is materialized remotely only when needed.
+
+    Raises ``ValueError`` for an embedded dataset with no remote full artifact
+    (e.g. ``tsd``).
+    """
+    import gzip
+    import io
+    import urllib.request
+
+    entry = _manifest()[name]
+    url = entry.get("full_url")
+    if not url:
+        raise ValueError(f"dataset {name!r} has no remote full artifact (it is embedded)")
+    with urllib.request.urlopen(url) as resp:
+        data = resp.read()
+    if entry["kind"] == "dataframe":
+        return pd.read_csv(io.BytesIO(data), compression="gzip")
+    return _json_to_struct(entry["kind"], json.loads(gzip.decompress(data)))
 
 
 def catalog() -> dict:

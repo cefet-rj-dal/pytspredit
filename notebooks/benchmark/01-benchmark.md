@@ -80,15 +80,26 @@ series = list(m4[freq])[0]
 print("frequency:", freq, "| series:", series, "| length:", len(m4[freq][series]))
 ```
 
-## Resolving the full data (on demand)
+## Resolving the full data on demand (`loadfulldata`)
 
-The miniature carries the URL of the full `.RData` in the `cefet-rj-dal/tspredbench`
-repository. Downloading and loading it (`loadfulldata`) ships in the optional
-`[bench]` extra (a later release); the URL is already available here.
+Each miniature carries the URL of the full artifact. `datasets.loadfulldata(name)`
+downloads and returns the complete dataset -- with **no extra dependency**: the full
+data is published as gzip-compressed, Python-native files (`.csv.gz` / `.json.gz`) and
+read with `urllib` (stdlib) + pandas, so there is no `rdata`/`pyarrow` to install.
+The returned structure matches the miniature's.
 
 ```python
-datasets.dataset_url("NN5")
+# the miniature's own structural contract (url points to the full artifact)
+datasets.catalog()["NN5"]["full_url"]
 ```
+
+```python
+# full = datasets.loadfulldata("NN5")   # downloads the complete 735x111 series
+# full.shape
+```
+
+The miniature is exactly the head of the full data, so `loadfulldata(name).head(30)`
+reproduces `datasets.<name>()` for the data-frame datasets.
 
 ## Running a benchmark grid
 

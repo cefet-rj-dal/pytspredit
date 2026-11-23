@@ -147,6 +147,20 @@ verificada antes de pausar para revisão do Eduardo.
   filters_wavelet.R` + `tests/test_quality_wavelet.py` (≤1e-5 vs R, R-free). 203 testes, ruff
   limpo, notebook `filter/03-wavelet-filter`.
 
+- **0.9.0 — Datasets completos (`loadfulldata`), 0 DEP** **[IMPLEMENTADO, branch
+  `milestone-0.9.0-loadfulldata`]**: terceiro e último back-implementation do Ciclo 2.
+  **Pivô (Eduardo):** em vez do extra `[bench]=rdata` planejado, **CSV.gz/JSON.gz
+  pandas-nativo, 0 dep**. Decidido por benchmark real de tamanho: CSV puro ~9× o `.RData`
+  (grande demais), mas **CSV.gz ≈ `.RData`** (NN5: 157/1422/**352**/693KB p/ RData/CSV/CSV.gz/
+  parquet) — **parquet perdeu em tamanho E exige `pyarrow`**; `gzip` é stdlib e
+  `pd.read_csv(compression="gzip")` é pandas-núcleo → 0 dep. `datasets.loadfulldata(nome)`
+  baixa a `full_url` do manifest (urllib stdlib) → pandas/gzip → mesma estrutura do loader da
+  miniatura. **ETL do tspredbench estendido** (`02-build-minidata.R`, branch `full-data-python`):
+  publica os completos em `data/python_full/*.csv.gz|.json.gz` + `full_url` no manifest.
+  Miniaturas seguem CSV/JSON puro. Paridade: miniatura = `head(30)` do full (exato por
+  construção); teste via `file://` (R-free, sem rede). 207 testes, ruff limpo. **Com isso o
+  Ciclo 2 fechou SEM nenhuma dep nova** — hht, wavelets e rdata todos eliminados.
+
 > **Estado ao fim do Ciclo 1 (parcial):** 0.1.0→0.5.0 publicados; `main` é a única branch
 > (todas as milestone branches, já merjadas, foram deletadas local+remoto a pedido do
 > Eduardo). 140 testes verdes, 68 símbolos públicos, 12 notebooks de exemplo. Falta o
@@ -168,14 +182,15 @@ auditoria de crédito (Python + R) ficam como passadas finais perto da 1.0.0. Ve
 ---
 
 ## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.7.0** (PyPI). **0.8.0 implementado** na branch
-  `milestone-0.8.0-wavelet` (aguardando revisão/`twine` do Eduardo).
-- Cobertura: todo o Ciclo 1 + **EMD nativo (0.7.0)** + **MODWT/wavelet nativo (0.8.0)**.
-  **Falta no Ciclo 2:** 0.9.0 `loadfulldata` `[bench]`, 0.10.0 ++ auto-seleção ARIMA/ETS
-  nativa; e as passadas de maturidade (exemplos 1:1, auditoria de crédito Py+R) perto da 1.0.0.
-- **Nota de dep:** 0.7.0 e 0.8.0 **não** adicionaram dep (EMD = numpy+scipy; MODWT = numpy
-  puro); os extras `[emd]` e `[wavelet]` foram **eliminados** do roadmap. Dois
-  back-implementations bem-sucedidos (braço de redução-de-dep do §1b).
+- Última release publicada: **pytspredit 0.8.0** (PyPI). **0.9.0 implementado** na branch
+  `milestone-0.9.0-loadfulldata` (aguardando revisão/`twine` do Eduardo).
+- Cobertura: todo o Ciclo 1 + **EMD nativo (0.7.0)** + **MODWT/wavelet nativo (0.8.0)** +
+  **`loadfulldata` CSV.gz 0-dep (0.9.0)**. **Falta no Ciclo 2:** 0.10.0 ++ auto-seleção
+  ARIMA/ETS nativa; depois as passadas de maturidade (exemplos 1:1, auditoria de crédito Py+R)
+  e a 1.0.0.
+- **Nota de dep:** o **Ciclo 2 inteiro não adicionou nenhuma dep** — EMD (numpy+scipy),
+  wavelet (numpy puro), `loadfulldata` (CSV.gz: pandas+stdlib). Os extras `[emd]`/`[wavelet]`/
+  `[bench]` foram **todos eliminados**. Três back-implementations/reduções-de-dep (braço do §1b).
 - Deps: núcleo `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` +
   `pydaltoolbox`. Extras planejados: `[emd]`, `[wavelet]`, `[bench]`.
 - Próximo: **Ciclo 2** (0.7.0 EMD → 0.8.0 wavelet → 0.9.0 `loadfulldata`), depois as

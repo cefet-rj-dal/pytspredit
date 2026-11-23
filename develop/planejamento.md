@@ -432,13 +432,21 @@ nomeando o extra. Ordem/escopo decididos:
   **Paridade committada:** `develop/parity/filters_wavelet.R` + `tests/test_quality_wavelet.py`
   (valor-a-valor ≤1e-5 vs R, R-free no teste). 203 testes, ruff limpo, notebook
   `filter/03-wavelet-filter`.
-- **⬜ 0.9.0 — Datasets completos (`loadfulldata`):** `datasets.loadfulldata(nome)` → extra
-  **`[bench]` (`rdata`)**: lê a `url` do `manifest.json` → baixa o `.RData` completo com
-  `urllib` (**stdlib, sem `requests`**) → parseia com **`rdata`** (puro-Python) → devolve a
-  MESMA estrutura do loader da miniatura (dataframe/series_list/df_list/nested_list), com
-  as mesmas correções (`_coerce_numeric`, `_row`→índice; normalizar chaves `np.str_`→`str`,
-  datas R→ISO). **Paridade: exata** (mesmos bytes do remoto que o R baixa). Nota: `rdata`
-  puxa `xarray` — por isso fica **só no extra `[bench]`**, nunca no núcleo.
+- **✅ 0.9.0 — Datasets completos (`loadfulldata`) — 0 DEP, no NÚCLEO** — **IMPLEMENTADO**
+  (branch `milestone-0.9.0-loadfulldata`): **PIVÔ (Eduardo, 2026-11-23)** — em vez do extra
+  `[bench]=rdata`, **CSV.gz/JSON.gz pandas-nativo, 0 dep**. Benchmark real decidiu: CSV puro
+  ~9× o `.RData` (grande demais), mas **CSV.gz ≈ `.RData`** (NN5: RData 157KB / CSV 1422KB /
+  **CSV.gz 352KB** / parquet 693KB) — e **parquet perdeu em tamanho E exige `pyarrow`**.
+  `gzip` é stdlib e `pd.read_csv(url, compression="gzip")` é pandas-núcleo → **sem
+  `rdata`/`xarray`/`pyarrow`, cai o extra `[bench]`**. `datasets.loadfulldata(nome)` =
+  `urllib`(stdlib) baixa a `full_url` do manifest → pandas/gzip → MESMA estrutura do loader
+  da miniatura. **ETL do tspredbench estendido** (`02-build-minidata.R`): publica os dados
+  completos como `.csv.gz`/`.json.gz` em `data/python_full/` + `full_url` no manifest
+  (branch tspredbench `full-data-python`). Miniaturas seguem CSV/JSON puro. **Paridade:
+  miniatura = head(30) do full (exato por construção).** Teste via `file://` (sem rede, R-free);
+  o fetch remoto fica ativo quando o tspredbench full-gz for para a main. 207 testes, ruff
+  limpo. **Terceiro back-implementation/redução-de-dep do Ciclo 2 — o roadmap inteiro ficou
+  sem deps novas (hht, wavelets, rdata todos eliminados).**
 - **⬜ 0.10.0 — ++ Auto-seleção ARIMA/ETS nativa** *(0 dep nova)*: hoje `TsArima`/`TsArimax`
   `auto` fazem busca AICc aproximando `forecast::auto.arima` sobre o MLE do statsmodels
   (ordem pode não bater). O ++ é uma **seleção própria/nativa** (Python = referência, R =
@@ -447,8 +455,11 @@ nomeando o extra. Ordem/escopo decididos:
   Candidato principal do §1b. (ETS via `statsmodels` state space; seleção própria por
   AICc/critério fixo, determinística.)
 
-> **Fim do Ciclo 2:** todo o `tspredit` portado (extras isolados) + o ++ de seleção. Depois
-> vêm as passadas de maturidade (§5.4/Maturidade) e a 1.0.0.
+> **Fim do Ciclo 2:** todo o `tspredit` portado + o ++ de seleção. **Resultado inesperado:
+> o Ciclo 2 NÃO adicionou nenhuma dep** — EMD (numpy+scipy), wavelet (numpy puro) e
+> `loadfulldata` (CSV.gz pandas+stdlib) foram todos back-implementados 0-dep; os extras
+> `[emd]`/`[wavelet]`/`[bench]` foram todos eliminados do roadmap. Depois vêm as passadas
+> de maturidade (§5.4/Maturidade) e a 1.0.0.
 
 #### Auditoria de imports + candidatos ++ / redução de dep (2026-11-23)
 

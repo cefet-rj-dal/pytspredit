@@ -82,7 +82,7 @@ instância**; `data.frame` → `pandas.DataFrame`.
 |---|---|---|
 | `tspredbench.R` (só doc de datasets; **sem harness no R**) | `TsPredBench` (harness datasets×modelos → DataFrame tidy) — interface nova, `Porting: n/a` | ✅ 0.6.0 |
 | `data/*.RData` (miniaturas Eidolon com `attr(x,"url")`) | `datasets.<nome>()` (CSV/JSON + `manifest.json`); `catalog`/`list_datasets`/`dataset_url` | ✅ 0.6.0 |
-| `tspredbench_loadfulldata.R` | `datasets.loadfulldata(nome)` (download remoto) | ⬜ 0.9.0 (extra `[bench]`) |
+| `tspredbench_loadfulldata.R` | `datasets.loadfulldata(nome)` (download remoto) | ✅ 0.9.0 — **0 dep** (CSV.gz/JSON.gz via urllib+pandas; **sem `[bench]`/`rdata`**) |
 
 > **Gerador canônico das miniaturas:** `cefet-rj-dal/tspredbench` → `etl/02-build-minidata.R`
 > (estendido) emite R `.RData` em `data/` **e** Python (CSV/JSON+manifest) em `data/python/`
@@ -98,8 +98,11 @@ instância**; `data.frame` → `pandas.DataFrame`.
 ## Pendências de porte (dentro de escopo)
 - **✅ 0.7.0:** `ts_fil_emd`/`ts_fil_remd` — **nativo** (EMD/EEMD em `emd.py`), 0 dep.
 - **✅ 0.8.0:** `ts_fil_wavelet` — **nativo** (MODWT em `wavelet.py`), 0 dep.
-- **⬜ Ciclo 2:** `tspredbench_loadfulldata.R` (0.9.0, `[bench]`), + ++ auto-seleção
-  ARIMA/ETS nativa (0.10.0).
+- **✅ 0.9.0:** `loadfulldata` — **0 dep** (CSV.gz/JSON.gz via urllib+pandas).
+- **⬜ Restante:** ++ auto-seleção ARIMA/ETS nativa (0.10.0); depois maturidade → 1.0.0.
+
+> **Todo o `tspredit` está portado.** O Ciclo 2 fechou sem nenhuma dep nova (extras
+> `[emd]`/`[wavelet]`/`[bench]` eliminados).
 
 > Com o 0.6.0, o **Ciclo 1 está completo** — todo o `tspredit` portado exceto EMD/wavelet
 > e o `loadfulldata` remoto (as únicas peças com dep pesada).
