@@ -15,9 +15,11 @@ constants), carried here at full double precision.
 
 References:
     - Percival, D. B., & Walden, A. T. (2000). *Wavelet Methods for Time Series
-      Analysis*. Cambridge University Press (MODWT, Chapter 5).
+      Analysis*. Cambridge University Press (MODWT pyramid algorithm, Chapter 5).
     - Mallat, S. (1989). *A theory for multiresolution signal decomposition: the
       wavelet representation*. IEEE TPAMI, 11(7), 674-693.
+    - Daubechies, I. (1992). *Ten Lectures on Wavelets*. SIAM (source of the
+      Daubechies / least-asymmetric / coiflet filter coefficient families).
 
 Porting:
     Canonical native implementation. The R ``ts_fil_wavelet.R`` wraps
