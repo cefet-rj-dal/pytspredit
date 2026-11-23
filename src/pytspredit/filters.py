@@ -23,12 +23,13 @@ import pandas as pd
 from pydaltoolbox import DalTransform
 
 from .augment import _boxplot_outlier_idx
+from .emd import eemd, emd
 from .tsdata import ts_data
 
 __all__ = [
-    "TsFilEma", "TsFilFft", "TsFilGabor", "TsFilHp", "TsFilKalman", "TsFilLowess",
-    "TsFilMa", "TsFilNone", "TsFilQes", "TsFilRecursive", "TsFilSeasAdj",
-    "TsFilSes", "TsFilSmooth", "TsFilSpline", "TsFilWinsor",
+    "TsFilEma", "TsFilEmd", "TsFilFft", "TsFilGabor", "TsFilHp", "TsFilKalman",
+    "TsFilLowess", "TsFilMa", "TsFilNone", "TsFilQes", "TsFilRecursive", "TsFilRemd",
+    "TsFilSeasAdj", "TsFilSes", "TsFilSmooth", "TsFilSpline", "TsFilWinsor",
 ]
 
 
@@ -493,3 +494,128 @@ class TsFilKalman(_Filter):
             p = p_pred * (1 - k)
             att[i] = a
         return att
+
+
+def _decompose(y, engine, trials, noise_width, random_state):
+    """Decompose ``y`` into IMFs (last row is the residual) via native EMD/EEMD."""
+    if engine == "eemd":
+        return eemd(y, trials=trials, noise_width=noise_width, random_state=random_state)
+    if engine == "emd":
+        return emd(y)
+    raise ValueError(f"unknown EMD engine {engine!r} (use 'emd' or 'eemd')")
+
+
+def _roughness(x: np.ndarray) -> float:
+    """Normalized-second-difference roughness of an IMF (mirrors R ``fc_roughness``)."""
+    x = x[~np.isnan(x)]
+    if len(x) <= 2:
+        return 0.0
+    first_d = np.diff(x)
+    scale = np.std(first_d, ddof=1)
+    if not np.isfinite(scale) or scale <= np.finfo(float).eps:
+        return 0.0
+    norm_first_d = (first_d - np.mean(first_d)) / scale
+    return float(np.mean((np.diff(norm_first_d) ** 2) / 4))
+
+
+class TsFilEmd(_Filter):
+    """EMD denoising filter: remove the first IMF as noise (``ts_fil_emd``).
+
+    Decomposes the series into Intrinsic Mode Functions and reconstructs it without
+    the first (highest-frequency) IMF: ``result = data - imf1``.
+
+    Parameters
+    ----------
+    engine:
+        ``"emd"`` (default, single pass -- fastest) or ``"eemd"`` (noise-assisted
+        ensemble, the analogue of the R ``CEEMD``).
+    trials, noise_width, random_state:
+        Used only when ``engine="eemd"`` (ensemble size, relative noise std, seed).
+
+    References:
+        - Huang, N. E., et al. (1998). The empirical mode decomposition and the
+          Hilbert spectrum for nonlinear and non-stationary time series analysis.
+          Proceedings of the Royal Society A, 454, 903-995.
+
+    Porting:
+        Replaces ``ts_fil_emd.R`` (which wrapped ``hht::CEEMD``) with the native
+        :mod:`pytspredit.emd`. Fidelity: adapted (own dependency-free engine; EMD is
+        stochastic/backend -- parity is quality-level, not value-wise). Native is
+        canonical here and ~orders of magnitude faster than R ``hht``; the R package
+        is to be backported to it (dropping ``hht``).
+    """
+
+    def __init__(self, engine: str = "emd", trials: int = 100,
+                 noise_width: float = 0.05, random_state=None) -> None:
+        self.engine = engine
+        self.trials = trials
+        self.noise_width = noise_width
+        self.random_state = random_state
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        y = _vec(data)
+        if len(y) < 4 or np.any(np.isnan(y)):
+            return y
+        imfs = _decompose(y, self.engine, self.trials, self.noise_width, self.random_state)
+        if imfs.shape[0] < 2:
+            return y
+        return y - imfs[0]
+
+
+class TsFilRemd(_Filter):
+    """Robust EMD denoising filter (``ts_fil_remd``).
+
+    Decomposes the series, scores each IMF's roughness, selects how many
+    high-frequency IMFs to treat as noise from the cumulative-roughness curve (via
+    :class:`pydaltoolbox.FitCurvatureMin`, capped by ``max_imfs``), and removes them.
+
+    References:
+        - Wu, Z., & Huang, N. E. (2009). Ensemble Empirical Mode Decomposition: a
+          noise-assisted data analysis method. Advances in Adaptive Data Analysis,
+          1(1), 1-41.
+
+    Porting:
+        Replaces ``ts_fil_remd.R`` (``hht::CEEMD`` + ``fit_curvature_min``) with the
+        native :mod:`pytspredit.emd` + ``FitCurvatureMin``. Fidelity: adapted
+        (dependency-free engine; stochastic/backend tolerance). Canonical here.
+    """
+
+    def __init__(self, engine: str = "emd", trials: int = 100, noise_width: float = 0.05,
+                 max_imfs: int | None = None, random_state=None) -> None:
+        self.engine = engine
+        self.trials = trials
+        self.noise_width = noise_width
+        self.max_imfs = max_imfs
+        self.random_state = random_state
+
+    def _cutoff(self, cum_roughness: np.ndarray, nimf: int) -> int:
+        cutoff = 1
+        if nimf >= 3 and np.all(np.isfinite(cum_roughness)) and \
+                np.sum(cum_roughness) > np.finfo(float).eps:
+            from pydaltoolbox import FitCurvatureMin
+            try:
+                res = FitCurvatureMin().transform(cum_roughness)
+                x = float(res["x"].iloc[0])
+                if np.isfinite(x):
+                    cutoff = int(x)
+            except Exception:  # noqa: BLE001 - fall back to removing a single IMF
+                cutoff = 1
+        if self.max_imfs is not None:
+            cutoff = min(cutoff, self.max_imfs)
+        return max(0, min(cutoff, nimf - 1))
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        y = _vec(data)
+        n = len(y)
+        if n < 4 or np.any(np.isnan(y)):
+            return y
+        imfs = _decompose(y, self.engine, self.trials, self.noise_width, self.random_state)
+        nimf = imfs.shape[0] - 1  # exclude the residual trend
+        if nimf < 2:
+            return y
+        roughness = np.array([_roughness(imfs[k]) for k in range(nimf)])
+        cutoff = self._cutoff(np.cumsum(roughness), nimf)
+        if cutoff < 1:
+            return y
+        noise = imfs[:cutoff].sum(axis=0)
+        return y - noise

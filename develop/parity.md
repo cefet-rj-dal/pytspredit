@@ -107,6 +107,7 @@ All on the shared `tsd` series unless noted. To be re-expressed as committed gua
 | Filters: lowess/kalman | **exact** | ~5e-9 (lowess `delta=0.01*(n-1)`,it=3; KF local-level diffuse init) |
 | Filters: ses | near-exact | ~8e-5 |
 | Filters: qes/seas_adj/spline | benign-numeric (backend) | ~0.13 / ~1.2 / ~0.14 — params match, backend differs (HoltWinters / statsmodels STL / `make_smoothing_spline`) |
+| **EMD filters** (`TsFilEmd`/`TsFilRemd`, 0.7.0) | **quality-level** (native engine) | EMD is adaptive + stochastic (`eemd`) with a different backend than R `hht`; invariant = denoising OUTCOME, not values. Native engine: reconstruction exact (Σ IMF = signal, 4e-16), denoising R² ≥ PyEMD (0.971 vs 0.963), removes an injected outlier at least as well as `hht`. ~60× faster than `hht` (EEMD), ~1800× (EMD). Guard: `tests/test_quality_emd.py` (R² improves; outlier removed ≥ `hht`). The smooth `tsd` is degenerate for EMD (IMF1 = the signal) → compare the denoising outcome, not correlation. |
 | `TsVar` | **exact** | ~1e-6 (native OLS + AICc) |
 | `TsLmMv` (known future) | **exact** | 4.97e-9 (`_RLinear`=R `lm`) |
 | `TsRegswMv` (KNN target + periodic aux) | **exact** | identical to 8 dp (orchestration) |

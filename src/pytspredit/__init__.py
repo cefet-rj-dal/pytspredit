@@ -25,6 +25,7 @@ from .darima_warma import TsDarima, TsWarma
 from .deterministic import TsDeterministic, TsPeriodic, TsPersist
 from .filters import (
     TsFilEma,
+    TsFilEmd,
     TsFilFft,
     TsFilGabor,
     TsFilHp,
@@ -34,6 +35,7 @@ from .filters import (
     TsFilNone,
     TsFilQes,
     TsFilRecursive,
+    TsFilRemd,
     TsFilSeasAdj,
     TsFilSes,
     TsFilSmooth,
@@ -75,7 +77,7 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 __all__ = [
     "TsArima",
@@ -93,6 +95,7 @@ __all__ = [
     "TsDeterministic",
     "TsElm",
     "TsFilEma",
+    "TsFilEmd",
     "TsFilFft",
     "TsFilGabor",
     "TsFilHp",
@@ -102,6 +105,7 @@ __all__ = [
     "TsFilNone",
     "TsFilQes",
     "TsFilRecursive",
+    "TsFilRemd",
     "TsFilSeasAdj",
     "TsFilSes",
     "TsFilSmooth",

@@ -111,6 +111,26 @@ verificada antes de pausar para revisão do Eduardo.
   **Decisão:** `TsPredBench` é interface nova (o R `tspredbench.R` é só doc de datasets, sem
   harness) → `Porting: n/a`. 185 testes, ruff limpo, 13 notebooks (novo `benchmark/01`).
 
+## Ciclo 2 — dependências pesadas (extras) + back-implementation/++
+
+- **0.7.0 — Filtros de decomposição (EMD), NATIVO** *(0 dep nova)* **[IMPLEMENTADO, branch
+  `milestone-0.7.0-emd`]**: inicia o Ciclo 2, mas com um **pivô** (Eduardo, 2026-11-23). O
+  plano era embrulhar PyEMD (extra `[emd]`); após análise, **back-implementamos EMD/EEMD
+  nativo** (`emd.py`, numpy+scipy já no núcleo → **0 dep**, cai o extra). `TsFilEmd`/`TsFilRemd`
+  em `filters.py` sobre o engine nativo. **Análise que motivou o pivô:** benchmark R `hht`
+  vs PyEMD vs nativo — o `hht` é **~60× mais lento** que PyEMD e **~1800×** que um EMD nativo
+  (9,3s vs 5ms em n=2048); o nativo tem **reconstrução perfeita** e **denoising ≥ PyEMD**
+  (R² 0.971 vs 0.963), com scipy já no núcleo. **++ honesto:** redução de dep + velocidade +
+  canonicalização (Python dono; R backporta e **dropa `hht`**), **não** um algoritmo novo —
+  **CEEMDAN (candidato da literatura) foi testado e REJEITADO pelo gate §1b** (não melhora o
+  denoising dos filtros, só custa 2.7×; protótipo guardado). **Paridade committada:**
+  `develop/parity/filters_emd.R` (referência `hht`) + `tests/test_quality_emd.py` com
+  invariante de **qualidade** (melhora de R² + remove outlier tão bem ou melhor que `hht`),
+  não valor-a-valor (EMD estocástico/backend). PyEMD/`hht` **só dev** (validação). Achado:
+  o `tsd` (seno puro) é degenerado p/ EMD (IMF1 = o próprio sinal) → correlação não serve;
+  o invariante é o resultado do denoising. 194 testes, ruff limpo, notebook
+  `filter/02-emd-filters`.
+
 > **Estado ao fim do Ciclo 1 (parcial):** 0.1.0→0.5.0 publicados; `main` é a única branch
 > (todas as milestone branches, já merjadas, foram deletadas local+remoto a pedido do
 > Eduardo). 140 testes verdes, 68 símbolos públicos, 12 notebooks de exemplo. Falta o
@@ -132,12 +152,13 @@ auditoria de crédito (Python + R) ficam como passadas finais perto da 1.0.0. Ve
 ---
 
 ## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.5.0** (PyPI). **0.6.0 implementado** na branch
-  `milestone-0.6.0-benchmark` (aguardando revisão/`twine` do Eduardo).
-- Cobertura: todo o pipeline univariado + zoo de modelos + augmentation + filtros (baixa
-  dep) + multivariado + plot + **benchmark (miniaturas Eidolon + TsPredBench)** → **fecha
-  o Ciclo 1**. **Falta:** Ciclo 2 (emd/wavelet/loadfulldata) com deps pesadas; e as
-  passadas de maturidade (exemplos 1:1, auditoria de crédito) perto da 1.0.0.
+- Última release publicada: **pytspredit 0.6.0** (PyPI, fecha o Ciclo 1). **0.7.0
+  implementado** na branch `milestone-0.7.0-emd` (aguardando revisão/`twine` do Eduardo).
+- Cobertura: todo o Ciclo 1 + **EMD nativo (0.7.0)**. **Falta no Ciclo 2:** 0.8.0 wavelet
+  `[wavelet]`, 0.9.0 `loadfulldata` `[bench]`, 0.10.0 ++ auto-seleção ARIMA/ETS nativa; e
+  as passadas de maturidade (exemplos 1:1, auditoria de crédito Py+R) perto da 1.0.0.
+- **Nota de dep:** o 0.7.0 **não** adicionou dep (EMD nativo em numpy+scipy); o extra
+  `[emd]` foi eliminado do roadmap.
 - Deps: núcleo `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` +
   `pydaltoolbox`. Extras planejados: `[emd]`, `[wavelet]`, `[bench]`.
 - Próximo: **Ciclo 2** (0.7.0 EMD → 0.8.0 wavelet → 0.9.0 `loadfulldata`), depois as

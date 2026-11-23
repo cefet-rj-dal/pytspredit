@@ -399,13 +399,23 @@ links do GitHub, revisão do Eduardo, ff-merge.
 Uma **família de dep por release**; cada classe faz import preguiçoso + erro acionável
 nomeando o extra. Ordem/escopo decididos:
 
-- **⬜ 0.7.0 — Filtros de decomposição (EMD):** `TsFilEmd` (remove o 1º IMF como ruído:
-  `data - imf1`) + `TsFilRemd` (roughness por IMF → `FitCurvatureMin` do pydaltoolbox p/ o
-  corte + `max_imfs`) → extra **`[emd]` (PyEMD)**. Mapear `hht::CEEMD`(noise=0.1, trials=5)
-  → PyEMD **EEMD** (`noise_width`/`trials`), `random_state` p/ reprodutibilidade.
-  **Paridade: tolerância de backend/estocástica** (EMD é ensemble; `hht` ≠ PyEMD) —
-  documentar como em qes/seas_adj/spline (0.4.0); invariante = estrutura/forma + R² do
-  reconstruído, não valor-a-valor.
+- **✅ 0.7.0 — Filtros de decomposição (EMD) — NATIVO, back-implementation ++**
+  *(0 dep nova)* — **IMPLEMENTADO** (branch `milestone-0.7.0-emd`): **PIVÔ decidido com o
+  Eduardo (2026-11-23)** — em vez de embrulhar PyEMD (extra `[emd]`), **back-implementamos
+  EMD/EEMD nativo** em `emd.py` (numpy+scipy, ambos já no núcleo → **0 dep**, cai o extra
+  `[emd]`). `TsFilEmd` (remove 1º IMF; engine `emd` default ou `eemd` opcional) + `TsFilRemd`
+  (roughness por IMF → `FitCurvatureMin` + `max_imfs`) em `filters.py`. **Evidência (§1b):**
+  nativo é ~**60× mais rápido que o `hht`** do R (EEMD) / **~1800×** (EMD puro), com
+  **reconstrução perfeita** (Σ IMF = sinal, 4e-16) e **denoising ≥ PyEMD** (R² 0.971 vs
+  0.963). **++ honesto = redução de dep + velocidade + canonicalização** (Python dono; R
+  backporta e **dropa `hht`**), **NÃO** um algoritmo novo: o candidato da literatura
+  **CEEMDAN foi avaliado e REJEITADO pelo gate** (não melhora o denoising dos filtros, só
+  custa 2.7×) — protótipo guardado para se um uso futuro (interpretar IMFs) justificar.
+  **Paridade committada:** `develop/parity/filters_emd.R` (referência `hht`) +
+  `tests/test_quality_emd.py` — invariante de **qualidade** (melhora de R² + remove o
+  outlier **tão bem ou melhor** que o `hht`), não valor-a-valor (EMD é estocástico/backend).
+  PyEMD/`hht` ficam **só na validação (dev)**, nunca no runtime. 194 testes, ruff limpo,
+  notebook `filter/02-emd-filters`.
 - **⬜ 0.8.0 — Wavelet:** `TsFilWavelet` (MODWT: zera o detalhe mais fino e reconstrói;
   `fit` seleciona o melhor filtro por R² quando recebe uma lista) → extra
   **`[wavelet]` (PyWavelets)**. Mapear `wavelets::modwt`/`imodwt` → `pywt.swt`/`iswt`
@@ -443,7 +453,10 @@ estão isoladas como **extras** (padrão correto).
 
 **Candidatos ++ (caso a caso, não regra cega):**
 1. **Auto-seleção ARIMA/ETS nativa** → agendado como **0.10.0** (acima).
-2. **EMD nativo** (sifting em numpy) — só se a exatidão virar requisito; por ora embrulha PyEMD.
+2. **EMD nativo** → **FEITO na 0.7.0** (numpy+scipy, 0 dep; ~60× mais rápido que `hht`,
+   denoising ≥ PyEMD). Elimina o extra `[emd]`; R dropa `hht`. CEEMDAN avaliado e rejeitado
+   pelo gate (sem ganho para o uso dos filtros). **Exemplo concreto do braço de redução-de-dep
+   do §1b dando certo.**
 3. Demais (sklearn/scipy/statsmodels) **permanecem embrulhados** — maduros e com diferença
    pequena (ex.: MLP não vira back-implementation, como no pydaltoolbox).
 
