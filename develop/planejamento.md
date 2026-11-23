@@ -4,7 +4,7 @@
 > **pydaltoolbox** (já publicado no PyPI). Objetivo: você saber todos os passos,
 > o que já foi feito, o que vem, e por quê — sem surpresas.
 
-Última atualização: 2026-11-21
+Última atualização: 2026-11-23
 
 ---
 
@@ -102,6 +102,55 @@ canônicas e comuns. Quando já existe uma implementação **madura** de um dos 
 **diferença é pequena**, mantém-se o que há — ex.: o **MLP do `scikit-learn` não vira
 back-implementation**, porque o R já tem um MLP nativo excelente e a diferença é
 pequena. Cada candidato é **decidido em conjunto**, caso a caso, nunca por automação.
+
+---
+
+## 1c. Práticas de maturidade herdadas do pydaltoolbox (decidido 2026-11-23)
+
+No `pydaltoolbox`, **depois** do port funcional completo, vieram quatro passadas de
+maturidade (0.21→0.24) que o elevaram de "portado" para "auditável e publicável como
+referência". Trazemos as **mesmas práticas** para o pytspredit. Documentos-fonte:
+`C:\Git\dal\pydaltoolbox\develop\{historico,mapeamento,parity}.md` e o passo 0.24.0 do
+histórico de lá. Decisões com o Eduardo (2026-11-23):
+
+**(A) Três documentos de desenvolvimento — criados AGORA (scaffold):**
+- `develop/historico.md` — relato **cronológico** do trabalho concluído (0.1.0→0.5.0),
+  separado do roadmap. (Antes o histórico vivia só na memória + prosa deste arquivo.)
+- `develop/mapeamento.md` — tabela de **correspondência R↔Python** símbolo a símbolo
+  (como a do daltoolbox), com status por classe (✅ portado / 🔜 0.6.0 / ⬜ Ciclo 2 /
+  ❌ fora de escopo).
+- `develop/parity.md` — **metodologia de verificação de paridade** reprodutível
+  (compartilha a metodologia do `parity.md` do pydaltoolbox, adaptada às famílias de
+  séries temporais; serve de espinha dorsal para artigo).
+
+**(B) Ritual de paridade COMMITTADA — a partir do 0.6.0:** até aqui a paridade R vs
+Python foi feita *ad-hoc* (números anotados na memória/planejamento). Dali em diante,
+cada release segue o protocolo do pydaltoolbox: **congelar o input em CSV**, rodar os
+dois lados sobre as MESMAS linhas, comparar o **invariante da família**, e deixar o
+resultado **travado em `tests/test_quality_*.py`** + o **script reprodutível em
+`develop/parity/`**. (Retroação de 0.1→0.5 entra na passada final de paridade.)
+
+**(C) Exemplos 1:1 por classe — passada grande perto da 1.0.0:** hoje há 12 notebooks
+**agrupados por família**; o alvo é **um notebook por classe portada**, espelhando a
+árvore e a didática do R (About / Didactic goal / setup / load / split / fit / eval /
+What to observe / References). **Fora de escopo:** famílias de deep learning que aparecem
+nos notebooks do R (`conv1d`/`lstm`/`torch-ts-mlp`) — **não** têm fonte em `tspredit/R/`
+(vêm de outro pacote) e o pytspredit não tem backend torch; documentado como lacuna
+deliberada no `mapeamento.md`. Os exemplos de `datasets/` dependem das miniaturas do
+0.6.0, então fecham **depois** dele.
+
+**(D) Auditoria de crédito (estilo 0.24.0) — passada grande perto da 1.0.0, Python + R:**
+varredura de TODAS as docstrings: (1) **zero frases proibidas** ("native implementation"/
+"not a wrapper"/"no external dependency"/alfinetadas); (2) toda classe de **algoritmo**
+com Teoria + `References:` (paper original) + `Porting:`; (3) **atribuição canônica** das
+back-implementations ("Canonical; o R é backport desta", paper original + descrição da
+inovação ++), p.ex. `_RLinear`, ELM, `TsVar` nativo, filtros nativos; (4) corrigir
+referências `Mirrors X.R` a arquivos inexistentes. **Espelhada na roxygen do `tspredit`
+R** e os fixes de paridade vão para os **dois lados** (como no daltoolbox).
+
+> **Sequência (decidida):** scaffold dos docs + ritual de paridade **agora/0.6.0**;
+> exemplos 1:1 e auditoria de crédito como **passadas finais** perto da 1.0.0 (ordem do
+> pydaltoolbox: fazer o port inteiro e só então maturar). Ver §5.4/Maturidade.
 
 ---
 
@@ -316,10 +365,31 @@ links do GitHub, revisão do Eduardo, ff-merge.
   **Dado dos exemplos R:** `x2 = stats::filter(y, rep(1/3,3), sides=1)` dá NA nos 2
   primeiros (→ `y`); no Python usar `rolling(3)` (min_periods=3) + preencher NA com `y`
   (não `rolling(min_periods=1)`). 140 testes, 68 símbolos, 12 notebooks verdes.
-- **⬜ 0.6.0 — Benchmark (parte leve)** *(0 dep nova)*: **miniaturas embarcadas**
-  (CSV/JSON + `manifest.json` com urls, extraídas do `.RData` via `Rscript`) +
-  `TsPredBench` (harness datasets×modelos). `datasets.<nome>()` devolve a miniatura.
-  *(`loadfulldata` remoto → Ciclo 2.)*
+- **✅ 0.6.0 — Benchmark (parte leve)** *(0 dep nova)* — **IMPLEMENTADO** (branch
+  `milestone-0.6.0-benchmark`, aguardando revisão/`twine` do Eduardo): **miniaturas
+  Eidolon embarcadas** (CSV p/ data.frame, JSON p/ list, + `manifest.json` com
+  `{url, kind, schema}`) — 20 datasets + `tsd` via `datasets.<nome>()`
+  (`cats/eunite_loads/eunite_reg/eunite_temp/nn3/nn5/santafe_a/santafe_d/ipeadata_d/
+  ipeadata_m/bioenergy/climate/emissions/fertilizers/gdp/pesticides/m1/m3/m4/stocks`)
+  + `catalog()`/`list_datasets()`/`dataset_url()` · `TsPredBench` (harness
+  datasets×modelos → DataFrame tidy `[dataset, model, mse, smape, r2]`, factories ou
+  instâncias, célula que falha vira `nan`+`error` sem abortar a grade). *(`loadfulldata`
+  remoto → Ciclo 2 / 0.9.0.)* **Arquitetura Eidolon** (Calmon et al., 2026): miniatura
+  compacta + url do artefato completo, preservando o contrato (identidade/schema/url);
+  a serialização Python (CSV/JSON+manifest) é a instanciação do contrato, não do
+  `.RData`. **Gerador canônico dual** no `tspredbench`: `etl/02-build-minidata.R`
+  estendido para emitir, do MESMO objeto encolhido, o R `.RData` em `data/` (como hoje)
+  **e** as miniaturas Python em `data/python/` — R↔Python idênticos por construção;
+  sincronizadas para `src/pytspredit/data/` (+ `tsd` local). **Primeira release sob o
+  ritual de paridade committada** (§1c-B): `develop/parity/datasets.R` gera
+  `datasets_ref.json` (dos `.RData` mini) e `tests/test_quality_datasets.py` compara as
+  miniaturas embarcadas ao R elemento-a-elemento (≤1e-9, R-free no teste). **Paridade:
+  as 20 miniaturas batem exatamente com o R** (numérico + colunas de texto `split`/`date`;
+  `_RLinear`-style N/A aqui). Dois achados reusáveis: (1) `rdata` (puro-Python) descarta
+  `attr(url)` e puxa `xarray` → CSV/JSON+manifest é mais leve e fiel ao contrato; (2)
+  colunas totalmente nulas do `jsonlite` viram `object` no pandas (vs `NA_real_` numérico
+  no R) e rownames viram `_row` → loader corrige (`_coerce_numeric` + `_row`→índice).
+  185 testes, ruff limpo, 13 notebooks verdes.
 
 > Fim do Ciclo 1: todo o `tspredit` portado **exceto** EMD/wavelet e o `loadfulldata`
 > remoto (as únicas peças com dep pesada).
@@ -334,9 +404,21 @@ nomeando o extra. Ordem/escopo a combinar com o Eduardo:
   (leitor RData puro-Python `rdata` + download das MESMAS urls remotas do repo
   `tspredbench`, como o R). Ver a nota do padrão miniatura+`loadfulldata` acima.
 
+#### Maturidade (herdada do pydaltoolbox 0.21→0.24) — passadas finais antes da 1.0.0
+Depois de fechar o Ciclo 2 (todo o `tspredit` portado), rodam as passadas que faltam,
+uma release cada, espelhando a ordem do pydaltoolbox (ver §1c):
+- **⬜ Exemplos 1:1** — um notebook por classe portada (§1c-C); inclui `datasets/` e
+  `tutorial/` (dependem do 0.6.0). Exclui as famílias torch (fora de escopo). Dev-only
+  (sem release PyPI, como no pydaltoolbox 0.21/0.22).
+- **⬜ Suíte de paridade retroativa + `parity.md`** — consolidar `develop/parity/` +
+  `tests/test_quality_*.py` cobrindo 0.1→0.5 (o ritual já roda nativo de 0.6.0 em diante);
+  escrever os estudos de caso no `parity.md`.
+- **⬜ Auditoria de crédito (0.24.0-style)** — Python + R (§1c-D). Dev-only de doc.
+
 #### Fechamento
-- **⬜ 1.0.0 — Paridade + estabilização:** varredura completa R vs Py, um exemplo por
-  classe, matriz de paridade R↔Py, revisão/congelamento de API, docs. Sai de **beta**.
+- **⬜ 1.0.0 — Paridade + estabilização:** `mapeamento.md` e `historico.md` finalizados,
+  **matriz de paridade R↔Py completa**, um exemplo por classe, revisão/congelamento de
+  API, docs. Sai de **beta**.
 
 ### Cobertura — auditoria dos 69 símbolos do `NAMESPACE` (2026-11-19)
 Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
@@ -417,6 +499,11 @@ Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
 - [ ] **Ciclo 2 a refinar com o Eduardo** (ordem/escopo de emd/wavelet/bench).
 
 ### Resolvidas
+- [x] **Práticas de maturidade do pydaltoolbox adotadas** (2026-11-23, Eduardo): criar
+      `historico.md`/`mapeamento.md`/`parity.md` **agora** (scaffold); **ritual de paridade
+      committada** (`develop/parity/` + `tests/test_quality_*`) a partir do **0.6.0**;
+      **exemplos 1:1** (um por classe portada) e **auditoria de crédito** (Python **+** R)
+      como **passadas finais** perto da 1.0.0; famílias **torch fora de escopo**. Ver §1c.
 - [x] Backend do ELM (M3): implementação própria (random hidden uniform_positive + pinv,
       sem bias). Com `actfun="purelin"` e `nhid >= nº de lags` equivale a OLS → bate com
       o R independente do RNG. Com `nhid` menor, projeção aleatória (diverge por RNG).

@@ -20,6 +20,7 @@ from .augment import (
     TsAugStretch,
     TsAugWormhole,
 )
+from .benchmark import TsPredBench
 from .darima_warma import TsDarima, TsWarma
 from .deterministic import TsDeterministic, TsPeriodic, TsPersist
 from .filters import (
@@ -74,7 +75,7 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 __all__ = [
     "TsArima",
@@ -120,6 +121,7 @@ __all__ = [
     "TsNormSwminmax",
     "TsPeriodic",
     "TsPersist",
+    "TsPredBench",
     "TsProjection",
     "TsReg",
     "TsRegMv",

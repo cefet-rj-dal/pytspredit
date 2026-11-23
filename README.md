@@ -25,7 +25,7 @@ It is part of the DAL Python family:
 pip install pytspredit
 ```
 
-> **Beta:** the current release (`0.1.0`) is in a testing phase on the way to `1.0.0`.
+> **Beta:** the current release (`0.6.0`) is in a testing phase on the way to `1.0.0`.
 > Feedback and issues are very welcome.
 
 For a local, editable clone (contributing or running the examples):
@@ -58,7 +58,7 @@ print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
 
 ## Status
 
-**Published (`0.5.0`, beta).** The port follows the method validated for
+**`0.6.0` (beta).** The port follows the method validated for
 `pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
 the shared `tsd` series. Implemented:
 
@@ -88,14 +88,20 @@ the shared `tsd` series. Implemented:
   (ARIMA with external regressors) — all target-centered. Plus `plot_ts_pred` /
   `plot_ts_pred_mv` (matplotlib), adding `matplotlib` as a (lightweight) core
   dependency.
+- **Benchmark (0.6.0):** the `tspredbench` dataset collection as **Eidolon
+  miniatures** — compact, package-native stand-ins (CSV/JSON + `manifest.json`)
+  carrying the remote URL of the full artifact, numerically identical to R —
+  exposed via `datasets.<name>()` (20 datasets + `tsd`); plus `TsPredBench`, a
+  *datasets x models* grid harness returning a tidy MSE/sMAPE/R2 table. No new
+  dependency.
 
 Every class documents its academic references and its R-port fidelity
 (`References:` / `Porting:` in the docstrings), mirroring the roxygen `@references`
 and `@details` of the R package. Thin adapters over scikit-learn / numpy / pandas /
 statsmodels reproduce the R backends' defaults (e.g. SVM standardizes like
 `e1071`). Deferred to the next cycle (see
-[develop/planejamento.md](develop/planejamento.md)): benchmark datasets, and the
-heavy-dependency extras (EMD, wavelets, full remote datasets).
+[develop/planejamento.md](develop/planejamento.md)): the heavy-dependency extras
+(EMD, wavelets, and `loadfulldata` for full remote datasets).
 
 ## Documentation
 
@@ -103,6 +109,9 @@ heavy-dependency extras (EMD, wavelets, full remote datasets).
   embedded. Sources live under [notebooks/](notebooks/) (jupytext Markdown), rendered by
   `python notebooks/conversor.py`.
 - [develop/planejamento.md](develop/planejamento.md) — migration roadmap (phases, scope, status).
+- [develop/historico.md](develop/historico.md) — chronological record of completed work.
+- [develop/mapeamento.md](develop/mapeamento.md) — R ↔ Python symbol mapping.
+- [develop/parity.md](develop/parity.md) — R-vs-Python parity verification methodology.
 - [develop/deploy.md](develop/deploy.md) — PyPI publishing guide.
 
 ## Related DAL projects
