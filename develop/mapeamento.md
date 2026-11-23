@@ -10,6 +10,45 @@ instância**; `data.frame` → `pandas.DataFrame`.
 **Legenda:** ✅ portado (release) · 🔜 próxima release · ⬜ Ciclo 2 (dep pesada, extra) ·
 ❌ fora de escopo (ver §Fora de escopo).
 
+## Categorias de porte (como cada classe foi do R para o Python)
+
+Cada classe se encaixa em uma destas categorias (resume o que mudou em R e Python):
+
+| Cat | Nome | O que significa | Lado R |
+|---|---|---|---|
+| **🅦** | **Wrapper fiel** | Embrulha uma lib canônica (scikit-learn / statsmodels / scipy) com defaults fiéis ao backend do R. | inalterado (o R embrulha a lib dele) |
+| **🄽** | **Nativo-espelho** | Reimplementado em numpy/pandas porque o R já era nativo/simples; resultado **bate com o R**. | inalterado |
+| **⧺** | **Back-implementation canônica (++)** | Python vira **dono do algoritmo** (nativo); o **R foi backportado** para a mesma implementação, **dropando uma dep**. Nativo nos **dois** lados, interface comum. | **reescrito** (dropou dep) |
+| **✨** | **Interface nova** | Sem contraparte direta no R (contribuição de interface). | — |
+| **🐞** | **Fix dos dois lados** | Bug corrigido em R **e** Python. | corrigido |
+
+### Resumo por classe
+
+| Família / classe | Cat | Fidelidade | Nota |
+|---|---|---|---|
+| `ts_data`/`ts_projection`/`ts_sample`/`ts_head`/`adjust_ts_data`, `TsReg`/`TsRegSW`, `mse/smape/r2` | 🄽 | exato | núcleo em pandas/numpy |
+| Normalização: `TsNormNone/Gminmax/Swminmax/Diff/An` | 🄽 | exato (≤1e-13) | `ts_norm_none` também teve 🐞 (bug do caminho-x corrigido nos dois) |
+| `TsLagmap` (12 estratégias) | 🄽 | exato | acf/pacf via statsmodels configurados p/ casar com o R |
+| `TsKnn`/`TsRf`/`TsSvm`/`TsMlp` | 🅦 | exato (knn) / tolerância RNG (rf,mlp) / near (svm) | sklearn; SVM escala como `e1071` |
+| `TsElm` | 🄽 | exato no regime OLS | ELM próprio (R usa `elmNNRcpp`) |
+| `TsArima`/`TsArimax` | 🅦 | tolerância de backend | statsmodels (R usa `forecast`) |
+| `TsDeterministic`/`TsPeriodic`/`TsPersist` | 🄽 | exato | regra pura |
+| `TsDarima`/`TsWarma`/`TsLmMv` | 🄽 | exato | usam `_RLinear` (reproduz o `lm` do R em designs colineares) |
+| Augmentation (8: `TsAug*`) | 🄽 | exato (determ.) / tolerância RNG | numpy nativo |
+| Filtros nativos: `none/ma/ema/winsor/recursive/fft/smooth/hp/gabor/kalman` | 🄽 | exato (~5e-9) | numpy; `kalman` = KF local-level próprio (R usa `KFAS`) |
+| Filtros wrapper: `lowess/ses/qes/seas_adj/spline` | 🅦 | exato ou tolerância de backend | statsmodels/scipy |
+| `TsVar` | 🄽 | exato (~1e-6) | OLS + AICc próprio |
+| **`TsFilEmd`/`TsFilRemd`** (+`emd`/`eemd`) | **⧺** | qualidade (estocástico) | **nativo Py+R; R dropou `hht`**; ~60–1800× mais rápido |
+| **`TsFilWavelet`** (+`modwt`/`imodwt`) | **⧺** | valor-a-valor ~5e-6 | **nativo Py+R; R dropou `wavelets`** |
+| `plot_ts_pred`/`plot_ts_pred_mv` | ✨ | — | matplotlib (port do `grf_ts_pred` do daltoolbox) |
+| Miniaturas Eidolon (`datasets.<nome>`) | ✨ | valores exatos vs R | CSV/JSON + manifest (contrato Eidolon) |
+| `TsPredBench` | ✨ | n/a | harness datasets×modelos (sem contraparte R) |
+| `loadfulldata` | ✨ | exato (= head do full) | CSV.gz/JSON.gz, 0 dep |
+
+**Back-implementations canônicas (⧺) até agora:** `_RLinear` (o `lm` do R, usado em darima/warma/lm_mv — nativo Py, R inalterado pois o R já tinha `lm`), **EMD** (R dropou `hht`) e **wavelet/MODWT** (R dropou `wavelets`). As duas últimas reescreveram o R; o Ciclo 2 fechou **sem nenhuma dep nova** e ainda **removeu** `hht` e `wavelets` do R.
+
+---
+
 ## Núcleo de dados / contrato (Experiment Line)
 | R (arquivo) | R (símbolo) | Python | Status |
 |---|---|---|---|
