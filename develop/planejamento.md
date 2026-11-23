@@ -416,11 +416,22 @@ nomeando o extra. Ordem/escopo decididos:
   outlier **tão bem ou melhor** que o `hht`), não valor-a-valor (EMD é estocástico/backend).
   PyEMD/`hht` ficam **só na validação (dev)**, nunca no runtime. 194 testes, ruff limpo,
   notebook `filter/02-emd-filters`.
-- **⬜ 0.8.0 — Wavelet:** `TsFilWavelet` (MODWT: zera o detalhe mais fino e reconstrói;
-  `fit` seleciona o melhor filtro por R² quando recebe uma lista) → extra
-  **`[wavelet]` (PyWavelets)**. Mapear `wavelets::modwt`/`imodwt` → `pywt.swt`/`iswt`
-  (`boundary="periodic"`); mapa de filtros haar→`haar`, d4→`db2`, la8→`sym4`, c6→`coif1`,
-  bl14→(melhor equivalente pywt). **Paridade: tolerância** (convenção MODWT vs pywt).
+- **✅ 0.8.0 — Wavelet — NATIVO, back-implementation** *(0 dep nova)* — **IMPLEMENTADO**
+  (branch `milestone-0.8.0-wavelet`): **PIVÔ (Eduardo, 2026-11-23)** — como no EMD, em vez
+  de embrulhar PyWavelets (extra `[wavelet]`), **MODWT nativo em `wavelet.py` (numpy puro —
+  nem scipy → 0 dep, cai o extra)**. `TsFilWavelet` (zera D1 e reconstrói; `fit` seleciona o
+  melhor filtro por R²) sobre ele; famílias haar/d4/la8/bl14/c6 (coef. do R `wavelets`,
+  hardcoded, precisão plena). **Diferença vs EMD:** MODWT é transformada linear
+  **determinística** → paridade **valor-a-valor ~5e-6** com o R `wavelets` (muito mais
+  fiel que o `pywt.swt`, que tem convenção diferente; e o PyWavelets nem está instalado).
+  Insight: `ts_fil_wavelet` = `x − D1`, independente do nº de níveis. **++ honesto = redução
+  de dep + exatidão + canonicalização** (Python dono; R backporta e **dropa `wavelets`**);
+  **thresholding (Donoho-Johnstone) avaliado e REJEITADO pelo gate** (R² 0.25 vs 0.97 do
+  zero-D1 — MODWT redundante exige formulação translation-invariant, pesquisa sem ganho
+  garantido). c6 reconstrói só a ~1e-6 (coef. coiflet publicados são aproximados, igual no R).
+  **Paridade committada:** `develop/parity/filters_wavelet.R` + `tests/test_quality_wavelet.py`
+  (valor-a-valor ≤1e-5 vs R, R-free no teste). 203 testes, ruff limpo, notebook
+  `filter/03-wavelet-filter`.
 - **⬜ 0.9.0 — Datasets completos (`loadfulldata`):** `datasets.loadfulldata(nome)` → extra
   **`[bench]` (`rdata`)**: lê a `url` do `manifest.json` → baixa o `.RData` completo com
   `urllib` (**stdlib, sem `requests`**) → parseia com **`rdata`** (puro-Python) → devolve a
@@ -457,7 +468,11 @@ estão isoladas como **extras** (padrão correto).
    denoising ≥ PyEMD). Elimina o extra `[emd]`; R dropa `hht`. CEEMDAN avaliado e rejeitado
    pelo gate (sem ganho para o uso dos filtros). **Exemplo concreto do braço de redução-de-dep
    do §1b dando certo.**
-3. Demais (sklearn/scipy/statsmodels) **permanecem embrulhados** — maduros e com diferença
+3. **MODWT/wavelet nativo** → **FEITO na 0.8.0** (numpy puro, **0 dep, nem scipy**;
+   determinístico → paridade valor-a-valor ~5e-6 com R). Elimina o extra `[wavelet]`/PyWavelets;
+   R dropa `wavelets`. Thresholding avaliado e rejeitado pelo gate. **Segundo back-implementation
+   bem-sucedido (ainda mais forte: 0 dep total + quase-exato).**
+4. Demais (sklearn/scipy/statsmodels) **permanecem embrulhados** — maduros e com diferença
    pequena (ex.: MLP não vira back-implementation, como no pydaltoolbox).
 
 #### Maturidade (herdada do pydaltoolbox 0.21→0.24) — passadas finais antes da 1.0.0

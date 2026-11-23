@@ -131,6 +131,22 @@ verificada antes de pausar para revisão do Eduardo.
   o invariante é o resultado do denoising. 194 testes, ruff limpo, notebook
   `filter/02-emd-filters`.
 
+- **0.8.0 — Wavelet (MODWT), NATIVO** *(0 dep nova)* **[IMPLEMENTADO, branch
+  `milestone-0.8.0-wavelet`]**: segundo back-implementation do Ciclo 2, mesmo pivô do EMD
+  (Eduardo, 2026-11-23). Em vez de embrulhar PyWavelets (extra `[wavelet]`), **MODWT nativo**
+  em `wavelet.py` (**numpy puro — nem scipy → 0 dep**). `TsFilWavelet` (zera D1, `fit`
+  seleciona melhor filtro por R²) sobre ele; haar/d4/la8/bl14/c6 (coef. do R `wavelets`
+  hardcoded). **Diferença-chave vs EMD:** MODWT é transformada **linear determinística** →
+  paridade **valor-a-valor ~5e-6** com o R (não quality-level); mais fiel que `pywt.swt`
+  (convenção diferente) — e o PyWavelets nem estava instalado. **Análise do ++:** thresholding
+  de Donoho-Johnstone (método canônico de denoising) **avaliado e REJEITADO pelo gate** (soft/
+  hard/por-nível → R² 0.23–0.25 vs 0.97 do zero-D1; MODWT redundante exige translation-invariant,
+  pesquisa sem ganho garantido). ++ honesto = redução de dep + exatidão + canonicalização
+  (R dropa `wavelets`). Achado: c6 reconstrói só a ~1e-6 (coef. coiflet publicados são
+  aproximados, igual no R). **Paridade committada valor-a-valor:** `develop/parity/
+  filters_wavelet.R` + `tests/test_quality_wavelet.py` (≤1e-5 vs R, R-free). 203 testes, ruff
+  limpo, notebook `filter/03-wavelet-filter`.
+
 > **Estado ao fim do Ciclo 1 (parcial):** 0.1.0→0.5.0 publicados; `main` é a única branch
 > (todas as milestone branches, já merjadas, foram deletadas local+remoto a pedido do
 > Eduardo). 140 testes verdes, 68 símbolos públicos, 12 notebooks de exemplo. Falta o
@@ -152,13 +168,14 @@ auditoria de crédito (Python + R) ficam como passadas finais perto da 1.0.0. Ve
 ---
 
 ## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.6.0** (PyPI, fecha o Ciclo 1). **0.7.0
-  implementado** na branch `milestone-0.7.0-emd` (aguardando revisão/`twine` do Eduardo).
-- Cobertura: todo o Ciclo 1 + **EMD nativo (0.7.0)**. **Falta no Ciclo 2:** 0.8.0 wavelet
-  `[wavelet]`, 0.9.0 `loadfulldata` `[bench]`, 0.10.0 ++ auto-seleção ARIMA/ETS nativa; e
-  as passadas de maturidade (exemplos 1:1, auditoria de crédito Py+R) perto da 1.0.0.
-- **Nota de dep:** o 0.7.0 **não** adicionou dep (EMD nativo em numpy+scipy); o extra
-  `[emd]` foi eliminado do roadmap.
+- Última release publicada: **pytspredit 0.7.0** (PyPI). **0.8.0 implementado** na branch
+  `milestone-0.8.0-wavelet` (aguardando revisão/`twine` do Eduardo).
+- Cobertura: todo o Ciclo 1 + **EMD nativo (0.7.0)** + **MODWT/wavelet nativo (0.8.0)**.
+  **Falta no Ciclo 2:** 0.9.0 `loadfulldata` `[bench]`, 0.10.0 ++ auto-seleção ARIMA/ETS
+  nativa; e as passadas de maturidade (exemplos 1:1, auditoria de crédito Py+R) perto da 1.0.0.
+- **Nota de dep:** 0.7.0 e 0.8.0 **não** adicionaram dep (EMD = numpy+scipy; MODWT = numpy
+  puro); os extras `[emd]` e `[wavelet]` foram **eliminados** do roadmap. Dois
+  back-implementations bem-sucedidos (braço de redução-de-dep do §1b).
 - Deps: núcleo `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` +
   `pydaltoolbox`. Extras planejados: `[emd]`, `[wavelet]`, `[bench]`.
 - Próximo: **Ciclo 2** (0.7.0 EMD → 0.8.0 wavelet → 0.9.0 `loadfulldata`), depois as

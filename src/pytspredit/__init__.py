@@ -40,6 +40,7 @@ from .filters import (
     TsFilSes,
     TsFilSmooth,
     TsFilSpline,
+    TsFilWavelet,
     TsFilWinsor,
 )
 from .lagmap import TsLagmap
@@ -77,7 +78,7 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 __all__ = [
     "TsArima",
@@ -110,6 +111,7 @@ __all__ = [
     "TsFilSes",
     "TsFilSmooth",
     "TsFilSpline",
+    "TsFilWavelet",
     "TsFilWinsor",
     "TsIntegtune",
     "TsKnn",

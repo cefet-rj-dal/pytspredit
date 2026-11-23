@@ -58,7 +58,7 @@ instância**; `data.frame` → `pandas.DataFrame`.
 | `ts_fil_ses/qes/hp/lowess/seas_adj/kalman.R` | `TsFilSes`/`TsFilQes`/`TsFilHp`/`TsFilLowess`/`TsFilSeasAdj`/`TsFilKalman` | ✅ 0.4.0 |
 | `ts_fil_spline/gabor.R` | `TsFilSpline`/`TsFilGabor` (scipy) | ✅ 0.4.0 |
 | `ts_fil_emd.R` / `ts_fil_remd.R` | `TsFilEmd` / `TsFilRemd` (+ `emd`/`eemd` em `emd.py`) | ✅ 0.7.0 — **nativo** (numpy+scipy, 0 dep; R backporta e **dropa `hht`**) |
-| `ts_fil_wavelet.R` | `TsFilWavelet` | ⬜ 0.8.0 (extra `[wavelet]`, PyWavelets) |
+| `ts_fil_wavelet.R` | `TsFilWavelet` (+ `modwt`/`imodwt` em `wavelet.py`) | ✅ 0.8.0 — **nativo** (MODWT numpy puro, 0 dep; R backporta e **dropa `wavelets`**) |
 
 ## Multivariado + plot
 | R | Python | Status |
@@ -97,8 +97,9 @@ instância**; `data.frame` → `pandas.DataFrame`.
 
 ## Pendências de porte (dentro de escopo)
 - **✅ 0.7.0:** `ts_fil_emd`/`ts_fil_remd` — **nativo** (EMD/EEMD em `emd.py`), 0 dep.
-- **⬜ Ciclo 2:** `ts_fil_wavelet` (0.8.0, `[wavelet]`), `tspredbench_loadfulldata.R`
-  (0.9.0, `[bench]`), + ++ auto-seleção ARIMA/ETS nativa (0.10.0).
+- **✅ 0.8.0:** `ts_fil_wavelet` — **nativo** (MODWT em `wavelet.py`), 0 dep.
+- **⬜ Ciclo 2:** `tspredbench_loadfulldata.R` (0.9.0, `[bench]`), + ++ auto-seleção
+  ARIMA/ETS nativa (0.10.0).
 
 > Com o 0.6.0, o **Ciclo 1 está completo** — todo o `tspredit` portado exceto EMD/wavelet
 > e o `loadfulldata` remoto (as únicas peças com dep pesada).

@@ -46,7 +46,11 @@ for m in methods:
     acf_seasonal   lags=[np.int64(8), np.int64(4), np.int64(2), np.int64(1)]  columns=['t8', 't4', 't2', 't1']
     pacf_seasonal  lags=[np.int64(8), np.int64(4), np.int64(2), np.int64(1)]  columns=['t8', 't4', 't2', 't1']
     blocks         lags=[np.int64(4), np.int64(3), np.int64(2), np.int64(1)]  columns=['t4', 't3', 't2', 't1']
+
+
     mi             lags=[np.int64(9), np.int64(5), np.int64(4), np.int64(2)]  columns=['t9', 't5', 't4', 't2']
+
+
     mrmr           lags=[np.int64(9), np.int64(6), np.int64(2), np.int64(1)]  columns=['t9', 't6', 't2', 't1']
 
 

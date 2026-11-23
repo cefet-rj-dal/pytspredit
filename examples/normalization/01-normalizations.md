@@ -130,8 +130,12 @@ for op in ["divide", "subtract", "softdivide", "asinh"]:
 ```
 
     divide     -> mean +0.5651, std 1.3326
+
+
     subtract   -> mean +0.5004, std 0.2286
     softdivide -> mean +0.4999, std 0.2175
+
+
     asinh      -> mean +0.4965, std 0.2064
 
 
@@ -146,5 +150,7 @@ import numpy as np
 print("max round-trip error:", float(np.abs(back.to_numpy() - windows.to_numpy()).max()))
 ```
 
-    max round-trip error: 1.1102230246251565e-16
+    max round-trip error:
+
+     1.1102230246251565e-16
 

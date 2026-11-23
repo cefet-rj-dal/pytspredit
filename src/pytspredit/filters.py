@@ -25,11 +25,13 @@ from pydaltoolbox import DalTransform
 from .augment import _boxplot_outlier_idx
 from .emd import eemd, emd
 from .tsdata import ts_data
+from .wavelet import modwt_denoise
 
 __all__ = [
     "TsFilEma", "TsFilEmd", "TsFilFft", "TsFilGabor", "TsFilHp", "TsFilKalman",
     "TsFilLowess", "TsFilMa", "TsFilNone", "TsFilQes", "TsFilRecursive", "TsFilRemd",
-    "TsFilSeasAdj", "TsFilSes", "TsFilSmooth", "TsFilSpline", "TsFilWinsor",
+    "TsFilSeasAdj", "TsFilSes", "TsFilSmooth", "TsFilSpline", "TsFilWavelet",
+    "TsFilWinsor",
 ]
 
 
@@ -619,3 +621,48 @@ class TsFilRemd(_Filter):
             return y
         noise = imfs[:cutoff].sum(axis=0)
         return y - noise
+
+
+class TsFilWavelet(_Filter):
+    """Wavelet (MODWT) denoising filter (``ts_fil_wavelet``).
+
+    Reconstructs the series with the finest-scale detail zeroed (``x - D1``). If
+    ``filter`` is a list of names, :meth:`fit` selects the one maximizing R2 against
+    the input (as in the R original).
+
+    Parameters
+    ----------
+    filter:
+        A wavelet filter name (``"haar"``, ``"d4"``, ``"la8"``, ``"bl14"``, ``"c6"``)
+        or a list of names to select from in :meth:`fit`.
+
+    References:
+        - Mallat, S. (1989). A theory for multiresolution signal decomposition.
+          IEEE TPAMI, 11(7), 674-693.
+        - Percival, D. B., & Walden, A. T. (2000). Wavelet Methods for Time Series
+          Analysis. Cambridge University Press.
+
+    Porting:
+        Replaces ``ts_fil_wavelet.R`` (``wavelets::modwt``/``imodwt``) with the native
+        :mod:`pytspredit.wavelet` (pure numpy, no dependency). Fidelity: approximate
+        (~5e-6 vs R; same algorithm/coefficients, different numeric path). Canonical
+        here (the R package is to be backported to it, dropping ``wavelets``).
+    """
+
+    def __init__(self, filter: str | list[str] = "haar") -> None:
+        self.filter = filter
+
+    def fit(self, data=None, **kwargs) -> TsFilWavelet:
+        if isinstance(self.filter, (list, tuple)):
+            from .ts_reg import r2_ts
+            x = _vec(data)
+            best, best_r2 = None, -np.inf
+            for name in self.filter:
+                r2 = r2_ts(x, modwt_denoise(x, name))
+                if r2 > best_r2:
+                    best, best_r2 = name, r2
+            self.filter = best
+        return self
+
+    def transform(self, data, **kwargs) -> np.ndarray:
+        return modwt_denoise(_vec(data), self.filter)
