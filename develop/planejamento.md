@@ -150,7 +150,11 @@ R** e os fixes de paridade vão para os **dois lados** (como no daltoolbox).
 
 > **Sequência (decidida):** scaffold dos docs + ritual de paridade **agora/0.6.0**;
 > exemplos 1:1 e auditoria de crédito como **passadas finais** perto da 1.0.0 (ordem do
-> pydaltoolbox: fazer o port inteiro e só então maturar). Ver §5.4/Maturidade.
+> pydaltoolbox: fazer o port inteiro e só então maturar). Ver §5.4/Maturidade, que
+> **espelha o pydaltoolbox 0.20→0.24** em 6 passos (M1 docs → M2 exemplos 1:1 → M3 testes
+> pareados retroativos → M4 metadados/Beta → M5 parity.md → M6 auditoria de crédito).
+> **O último passo é um release BETA `1.0.0b1`** (rodar ~1 semana), e só depois a `1.0.0`
+> estável (Eduardo, 2026-11-23) — não ir direto à 1.0.0.
 
 ---
 
@@ -495,21 +499,49 @@ estão isoladas como **extras** (padrão correto).
 4. Demais (sklearn/scipy/statsmodels) **permanecem embrulhados** — maduros e com diferença
    pequena (ex.: MLP não vira back-implementation, como no pydaltoolbox).
 
-#### Maturidade (herdada do pydaltoolbox 0.21→0.24) — passadas finais antes da 1.0.0
-Depois de fechar o Ciclo 2 (todo o `tspredit` portado), rodam as passadas que faltam,
-uma release cada, espelhando a ordem do pydaltoolbox (ver §1c):
-- **⬜ Exemplos 1:1** — um notebook por classe portada (§1c-C); inclui `datasets/` e
-  `tutorial/` (dependem do 0.6.0). Exclui as famílias torch (fora de escopo). Dev-only
-  (sem release PyPI, como no pydaltoolbox 0.21/0.22).
-- **⬜ Suíte de paridade retroativa + `parity.md`** — consolidar `develop/parity/` +
-  `tests/test_quality_*.py` cobrindo 0.1→0.5 (o ritual já roda nativo de 0.6.0 em diante);
-  escrever os estudos de caso no `parity.md`.
-- **⬜ Auditoria de crédito (0.24.0-style)** — Python + R (§1c-D). Dev-only de doc.
+#### Maturidade — espelha o pydaltoolbox 0.20→0.24 (decidido 2026-11-23)
 
-#### Fechamento
-- **⬜ 1.0.0 — Paridade + estabilização:** `mapeamento.md` e `historico.md` finalizados,
-  **matriz de paridade R↔Py completa**, um exemplo por classe, revisão/congelamento de
-  API, docs. Sai de **beta**.
+Agora que o Ciclo 2 fechou (todo o `tspredit` portado), rodamos as MESMAS passadas de
+maturidade que elevaram o pydaltoolbox de "portado" para "publicável como referência".
+Mapeamento passo-a-passo (pydaltoolbox → pytspredit):
+
+- **M1 — Organização de docs (espelha pydaltoolbox 0.20, só-R).** O `tspredit` R já usa
+  `notebooks/`→`examples/` (não é `Rmd/`); passada leve: confirmar o `conversor.R`, regenerar
+  `examples/` do pacote atual (sem `hht`/`wavelets`/`forecast`), remover ativos órfãos. Só-R,
+  sem release PyPI.
+- **M2 — Exemplos 1:1 R↔Python (espelha 0.21/0.22).** Reorganizar os notebooks do pytspredit
+  para **um por classe portada**, espelhando a árvore e a didática do R (About / Didactic goal
+  / setup / load / split / fit / eval / What to observe / References). Famílias: `tsdata`,
+  `normalization`, `lagmapping`, `prediction`, `filter`, `augment`, `multivariate`, `tuning`,
+  `datasets`, `tutorial`, `custom`. **Fora de escopo:** torch (conv1d/lstm/torch-ts-mlp).
+  Meta: **paridade de contagem família-a-família** com o R (como o 107=107 do pydaltoolbox).
+  **Exemplos do ARIMA++/auto curtos** (sem busca lenta nos que rodam). Dev-only (sem PyPI),
+  provavelmente 1–2 passadas.
+- **M3 — Testes pareados R↔Python retroativos (espelha 0.23 + o ciclo de paridade).**
+  Consolidar `tests/test_quality_*.py` + scripts em `develop/parity/` cobrindo 0.1→0.5
+  (normalização = **matriz igual** ≤1e-9; lagmap = conjuntos; regressores = R²/métricas;
+  deterministic/darima/warma; filtros; multivariado). Congelar o input em CSV; comparar o
+  invariante da família; **achar e corrigir bugs nos dois lados** (como os 6 do pydaltoolbox).
+  Fix de código → pode gerar release pequeno; resto dev-only.
+- **M4 — Metadados (espelha "Metadados do pacote").** `pyproject.toml`: contribuidores
+  (espelhar o `Authors@R` do `tspredit` R: Eduardo, Arthur Garcia, Cristiane Gea, Diogo
+  Santos, …), e **Development Status `3 - Alpha` → `4 - Beta`**.
+- **M5 — `parity.md` (espelha "Metodologia de paridade").** Já existe; atualizar com os
+  estudos de caso do M3 e a matriz de paridade R↔Py completa.
+- **M6 — Auditoria de crédito (espelha 0.24.0), Python + R.** Varredura de TODAS as
+  docstrings/roxygen: zero frases proibidas; Teoria + `References:` (paper original) +
+  `Porting:` em toda classe de algoritmo; **atribuição canônica das back-implementations/++**
+  (EMD, wavelet, ARIMA++, `_RLinear`, ELM, `TsVar`); corrigir `Mirrors X.R` a arquivos
+  inexistentes. Espelhar no `tspredit` R. Dev-only de doc.
+
+#### Fechamento — BETA primeiro, depois 1.0.0 (decidido 2026-11-23)
+- **⬜ `1.0.0b1` — RELEASE BETA.** Fechadas M1–M6, publicar uma versão **beta** (PEP 440
+  `1.0.0b1`, "batizada com o beta") no PyPI — `mapeamento.md`/`historico.md` finalizados,
+  matriz de paridade completa, API revisada. **Rodar ~1 semana em beta** (não ir direto p/
+  1.0.0 hoje), coletar feedback.
+- **⬜ `1.0.0` — estável.** Após a semana de beta sem problemas, promover a `1.0.0`
+  (congela a API, sai de beta). **A partir daqui o pytspredit também usa numeração Boeing**
+  (1.0.707, 1.0.717, …), como o `tspredit` R.
 
 ### Cobertura — auditoria dos 69 símbolos do `NAMESPACE` (2026-11-19)
 Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
@@ -592,6 +624,11 @@ Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
       PyEMD/PyWavelets com tolerância documentada. Ver §5.4/Ciclo 2.
 
 ### Resolvidas
+- [x] **Maturidade espelha o pydaltoolbox 0.20→0.24; fecho com BETA antes da 1.0.0**
+      (2026-11-23, Eduardo): 6 passos M1–M6 (docs → exemplos 1:1 → testes pareados
+      retroativos → metadados/Beta classifier → parity.md → auditoria de crédito Py+R);
+      o **último passo é um release `1.0.0b1`** rodando **~1 semana** em beta, depois a
+      `1.0.0` estável. Pós-1.0.0 o pytspredit também adota numeração Boeing. Ver §5.4.
 - [x] **Práticas de maturidade do pydaltoolbox adotadas** (2026-11-23, Eduardo): criar
       `historico.md`/`mapeamento.md`/`parity.md` **agora** (scaffold); **ritual de paridade
       committada** (`develop/parity/` + `tests/test_quality_*`) a partir do **0.6.0**;
