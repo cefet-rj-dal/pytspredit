@@ -394,15 +394,58 @@ links do GitHub, revisão do Eduardo, ff-merge.
 > Fim do Ciclo 1: todo o `tspredit` portado **exceto** EMD/wavelet e o `loadfulldata`
 > remoto (as únicas peças com dep pesada).
 
-#### Ciclo 2 — dependências pesadas (extras opcionais) — *esboço, Eduardo refina*
+#### Ciclo 2 — dependências pesadas (extras) + um ++ nativo — **DESENHADO (2026-11-23, Eduardo)**
 
-Uma família de dep por release; cada classe faz import preguiçoso + erro acionável
-nomeando o extra. Ordem/escopo a combinar com o Eduardo:
-- **⬜ 0.7.0 — Filtros de decomposição (EMD):** `TsFilEmd`, `TsFilRemd` → extra `[emd]` (PyEMD).
-- **⬜ 0.8.0 — Wavelet:** `TsFilWavelet` → extra `[wavelet]` (PyWavelets).
-- **⬜ 0.9.0 — Datasets completos:** `datasets.loadfulldata(nome)` → extra `[bench]`
-  (leitor RData puro-Python `rdata` + download das MESMAS urls remotas do repo
-  `tspredbench`, como o R). Ver a nota do padrão miniatura+`loadfulldata` acima.
+Uma **família de dep por release**; cada classe faz import preguiçoso + erro acionável
+nomeando o extra. Ordem/escopo decididos:
+
+- **⬜ 0.7.0 — Filtros de decomposição (EMD):** `TsFilEmd` (remove o 1º IMF como ruído:
+  `data - imf1`) + `TsFilRemd` (roughness por IMF → `FitCurvatureMin` do pydaltoolbox p/ o
+  corte + `max_imfs`) → extra **`[emd]` (PyEMD)**. Mapear `hht::CEEMD`(noise=0.1, trials=5)
+  → PyEMD **EEMD** (`noise_width`/`trials`), `random_state` p/ reprodutibilidade.
+  **Paridade: tolerância de backend/estocástica** (EMD é ensemble; `hht` ≠ PyEMD) —
+  documentar como em qes/seas_adj/spline (0.4.0); invariante = estrutura/forma + R² do
+  reconstruído, não valor-a-valor.
+- **⬜ 0.8.0 — Wavelet:** `TsFilWavelet` (MODWT: zera o detalhe mais fino e reconstrói;
+  `fit` seleciona o melhor filtro por R² quando recebe uma lista) → extra
+  **`[wavelet]` (PyWavelets)**. Mapear `wavelets::modwt`/`imodwt` → `pywt.swt`/`iswt`
+  (`boundary="periodic"`); mapa de filtros haar→`haar`, d4→`db2`, la8→`sym4`, c6→`coif1`,
+  bl14→(melhor equivalente pywt). **Paridade: tolerância** (convenção MODWT vs pywt).
+- **⬜ 0.9.0 — Datasets completos (`loadfulldata`):** `datasets.loadfulldata(nome)` → extra
+  **`[bench]` (`rdata`)**: lê a `url` do `manifest.json` → baixa o `.RData` completo com
+  `urllib` (**stdlib, sem `requests`**) → parseia com **`rdata`** (puro-Python) → devolve a
+  MESMA estrutura do loader da miniatura (dataframe/series_list/df_list/nested_list), com
+  as mesmas correções (`_coerce_numeric`, `_row`→índice; normalizar chaves `np.str_`→`str`,
+  datas R→ISO). **Paridade: exata** (mesmos bytes do remoto que o R baixa). Nota: `rdata`
+  puxa `xarray` — por isso fica **só no extra `[bench]`**, nunca no núcleo.
+- **⬜ 0.10.0 — ++ Auto-seleção ARIMA/ETS nativa** *(0 dep nova)*: hoje `TsArima`/`TsArimax`
+  `auto` fazem busca AICc aproximando `forecast::auto.arima` sobre o MLE do statsmodels
+  (ordem pode não bater). O ++ é uma **seleção própria/nativa** (Python = referência, R =
+  backport) que dê **controle da ordem escolhida** e paridade sob nosso controle — gate da
+  Ação 1++ = prever a verdade tão bem ou melhor que a referência, não mera paridade.
+  Candidato principal do §1b. (ETS via `statsmodels` state space; seleção própria por
+  AICc/critério fixo, determinística.)
+
+> **Fim do Ciclo 2:** todo o `tspredit` portado (extras isolados) + o ++ de seleção. Depois
+> vêm as passadas de maturidade (§5.4/Maturidade) e a 1.0.0.
+
+#### Auditoria de imports + candidatos ++ / redução de dep (2026-11-23)
+
+> Pedida pelo nextprompt (fazer antes de escolher o próximo marco).
+
+**Imports de terceiros no núcleo:** `numpy`, `pandas`, `scipy`, `scikit-learn`
+(`KNeighborsRegressor`/`MLPRegressor`/`RandomForestRegressor`/`SVR`/`StandardScaler`/
+`TransformedTargetRegressor`/`make_pipeline`), `statsmodels` (`ARIMA`, `lowess`,
+`ExponentialSmoothing`, `STL`, `acf`/`pacf`/`kpss`), `matplotlib`, `pydaltoolbox`.
+**Todas canônicas** — nenhuma dep atípica/nicho no núcleo → **nada a back-implementar por
+atrito**; todas seguem embrulhadas. As únicas deps de nicho (PyEMD/PyWavelets/`rdata`) já
+estão isoladas como **extras** (padrão correto).
+
+**Candidatos ++ (caso a caso, não regra cega):**
+1. **Auto-seleção ARIMA/ETS nativa** → agendado como **0.10.0** (acima).
+2. **EMD nativo** (sifting em numpy) — só se a exatidão virar requisito; por ora embrulha PyEMD.
+3. Demais (sklearn/scipy/statsmodels) **permanecem embrulhados** — maduros e com diferença
+   pequena (ex.: MLP não vira back-implementation, como no pydaltoolbox).
 
 #### Maturidade (herdada do pydaltoolbox 0.21→0.24) — passadas finais antes da 1.0.0
 Depois de fechar o Ciclo 2 (todo o `tspredit` portado), rodam as passadas que faltam,
@@ -492,11 +535,13 @@ Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
       baixando o `.RData` completo das MESMAS urls do repo `tspredbench`. Ver §5.4/0.7.0.
 - [x] Ordem do Ciclo 1 definida: 0.2 modelos → 0.3 augmentation → 0.4 filtros →
       0.5 multivariado+plot → 0.6 benchmark (miniaturas). Ciclo 2 (0.7+) = deps pesadas.
-- [ ] **Sub-decisão (Ciclo 2, datasets):** formato das miniaturas (CSV p/ data.frame,
-      JSON p/ listas) e leitor RData (`rdata` puro-Python vs `pyreadr`). Resolver na 0.9.0.
-- [ ] **Granularidade dos filtros (0.4.0):** sub-blocos 4a/4b numa release vs dividir —
-      confirmar ao começar a 0.4.0.
-- [ ] **Ciclo 2 a refinar com o Eduardo** (ordem/escopo de emd/wavelet/bench).
+- [x] **Sub-decisão (Ciclo 2, datasets):** formato das miniaturas e leitor RData.
+      ✅ (2026-11-23) Miniaturas = CSV/JSON+manifest (resolvido na 0.6.0); leitor do
+      `loadfulldata` = **`rdata`** (puro-Python), só no extra `[bench]` (0.9.0).
+- [x] **Ciclo 2 DESENHADO com o Eduardo** (2026-11-23): 0.7 EMD `[emd]` → 0.8 wavelet
+      `[wavelet]` → 0.9 `loadfulldata` `[bench]` → **0.10 ++ auto-seleção ARIMA/ETS nativa**
+      → maturidade → 1.0.0. Uma família de dep por release; EMD/wavelet embrulham
+      PyEMD/PyWavelets com tolerância documentada. Ver §5.4/Ciclo 2.
 
 ### Resolvidas
 - [x] **Práticas de maturidade do pydaltoolbox adotadas** (2026-11-23, Eduardo): criar
