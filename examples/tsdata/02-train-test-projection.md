@@ -17,7 +17,7 @@ print("total windows:", windows.shape[0])
 ```
 
     total windows: 32
-    
+
 
 
 ```python
@@ -28,7 +28,7 @@ ts.ts_head(samp.test)
 ```
 
     train: (27, 10)  test: (5, 10)
-    
+
 
 
 
@@ -55,7 +55,7 @@ io_train.input.head(3)
 
     input columns: ['t9', 't8', 't7', 't6', 't5', 't4', 't3', 't2', 't1']
     output column : t0
-    
+
 
 
 

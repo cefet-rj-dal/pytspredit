@@ -60,7 +60,7 @@ ts.ts_head(tr, 3)
 ```
 
     range: 0.0 to 1.0
-    
+
 
 
 
@@ -104,7 +104,7 @@ ts.ts_head(tr, 3)
 ```
 
     width: 10 -> 9
-    
+
 
 
 
@@ -133,7 +133,7 @@ for op in ["divide", "subtract", "softdivide", "asinh"]:
     subtract   -> mean +0.5004, std 0.2286
     softdivide -> mean +0.4999, std 0.2175
     asinh      -> mean +0.4965, std 0.2064
-    
+
 
 Every normalizer is invertible, so a forecast produced in the normalized space is
 returned on the original scale:
@@ -147,4 +147,4 @@ print("max round-trip error:", float(np.abs(back.to_numpy() - windows.to_numpy()
 ```
 
     max round-trip error: 1.1102230246251565e-16
-    
+

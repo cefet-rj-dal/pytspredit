@@ -61,7 +61,7 @@ evaluate_5step(ts.TsElm(ts.TsNormGminmax(), 4, ts.TsLagmap("acf"), nhid=5, actfu
 
 
                 mse         smape   R2
-    0  1.908051e-26  4.662408e-13  1.0
+    0  2.936693e-27  1.760780e-13  1.0
 
 
 

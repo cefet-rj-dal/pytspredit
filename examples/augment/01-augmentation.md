@@ -24,7 +24,7 @@ print("original windows:", windows.shape)
 ```
 
     original windows: (32, 10)
-    
+
 
 ## Deterministic augmenters
 
@@ -37,7 +37,7 @@ ts.ts_head(flipped, 3)
 ```
 
     flip: (64, 10) (original + augmented)
-    
+
 
 
 
@@ -61,7 +61,7 @@ print("wormhole:", ts.TsAugWormhole().fit(windows).transform(windows).shape)
     stretch: (64, 10)
     shrink : (64, 10)
     wormhole: (63, 10)
-    
+
 
 ## Stochastic augmenters
 
@@ -74,7 +74,7 @@ jit.transform(windows).shape
 ```
 
     jitter noise sd: 0.4396
-    
+
 
 
 
@@ -92,7 +92,7 @@ print("awaresmooth:", ts.TsAugAwaresmooth(factor=1, random_state=0).transform(wi
 
     awareness  : (64, 10)
     awaresmooth: (64, 10)
-    
+
 
 ## Inside integrated tuning
 
@@ -120,10 +120,10 @@ itune.best_params
 
 
 
-    {'input_size': 5,
+    {'input_size': 4,
      'preprocess': 0,
      'augment': 0,
-     'nhid': 4,
+     'nhid': 3,
      'actfun': 'purelin'}
 
 

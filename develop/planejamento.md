@@ -156,12 +156,12 @@ pydaltoolbox.DalTune
 1. **Unitário** → `pytest` por componente (`fit → predict/transform → evaluate`).
 2. **Integrado** → exemplos ponta-a-ponta (tutoriais).
 3. **Documentação executável** → `notebooks/**/*.md` (jupytext) renderizado em
-   `examples/**/*.md` (saída real embutida) por `tools/build_examples.py`. Falha se
+   `examples/**/*.md` (saída real embutida) por `notebooks/conversor.py`. Falha se
    houver erro → é smoke test. Tabelas em texto puro (estilo `##` do R). **Um
    exemplo didático por classe** (objetivo + referência do artigo + fit/predict/evaluate).
 
 **Comandos:** `pip install -e ".[dev,docs]"` · `ruff check .` · `pytest` ·
-`python tools/build_examples.py`.
+`python notebooks/conversor.py`.
 
 ---
 
@@ -173,7 +173,7 @@ Legenda: ✅ feito · 🔜 próximo · ⬜ pendente (v1) · 🔭 Bloco B (pós-v
 
 #### ✅ Fase 0 — Scaffolding
 `pyproject` (deps incl. `pydaltoolbox`+`statsmodels`), layout `src/pytspredit/`,
-`tools/build_examples.py`, `develop/` (PROMPT+planejamento+deploy), README.
+`notebooks/conversor.py`, `develop/` (PROMPT+planejamento+deploy), README.
 
 #### ✅ Fase 1 — Núcleo de dados
 `ts_data` (janela deslizante), `ts_projection`, `ts_sample`, `adjust_ts_data`,
@@ -424,7 +424,7 @@ Cruzamento completo `export()` do R × roadmap. **Todos cobertos:**
       (aproxima `forecast::auto.arima`, pode não reproduzir a ordem exata). Backend MLE
       difere do `forecast` → previsões próximas, não bit-idênticas.
 - Nota: `TsArimax` é multivariado (xreg) → movido para o Bloco B junto da família MV.
-- [x] **Fecho M4:** build + `twine check` OK; sdist exclui `develop/notebooks/examples/tests/tools`
+- [x] **Fecho M4:** build + `twine check` OK; sdist exclui `develop/notebooks/examples/tests`
       e inclui `tsd.csv`; **install em venv limpo OK** (numpy 2.5.5 / pandas 3.1.1 do PyPI).
       O teste de venv limpo pegou um bug real: `row.to_numpy()` vem **read-only** no numpy novo;
       corrigido com cópia explícita no `predict` multi-step do `TsRegSW`. 28 símbolos públicos.

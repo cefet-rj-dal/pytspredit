@@ -21,7 +21,7 @@ print("available lag columns:", list(io.input.columns))
 ```
 
     available lag columns: ['t9', 't8', 't7', 't6', 't5', 't4', 't3', 't2', 't1']
-    
+
 
 Each strategy returns the selected lags (`lag 1` = most recent feature) for a given
 `input_size`:
@@ -47,8 +47,10 @@ for m in methods:
     pacf_seasonal  lags=[np.int64(8), np.int64(4), np.int64(2), np.int64(1)]  columns=['t8', 't4', 't2', 't1']
     blocks         lags=[np.int64(4), np.int64(3), np.int64(2), np.int64(1)]  columns=['t4', 't3', 't2', 't1']
     mi             lags=[np.int64(9), np.int64(5), np.int64(4), np.int64(2)]  columns=['t9', 't5', 't4', 't2']
+
+
     mrmr           lags=[np.int64(9), np.int64(6), np.int64(2), np.int64(1)]  columns=['t9', 't6', 't2', 't1']
-    
+
 
 A lag map is just another component of a sliding-window regressor; passing
 `input_map=ts.TsLagmap('pacf')` tells the model to select lags by partial

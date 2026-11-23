@@ -53,12 +53,12 @@ auto.evaluate(samp.test.to_numpy().ravel(),
 ```
 
     selected (p, d, q): (2, 0, 0)
-    
 
 
 
 
-                mse     smape   R2
-    0  2.609398e-11  0.000022  1.0
+
+                mse   smape   R2
+    0  6.630410e-10  0.0001  1.0
 
 

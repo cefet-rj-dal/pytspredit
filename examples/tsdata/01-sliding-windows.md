@@ -57,7 +57,7 @@ ts.ts_head(windows, 3)
 ```
 
     shape: (32, 10)
-    
+
 
 
 

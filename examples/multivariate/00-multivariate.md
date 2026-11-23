@@ -92,7 +92,7 @@ model.evaluate(samp.test["y"].to_numpy(), np.asarray(pred))["metrics"]
 
 
                 mse         smape   R2
-    0  6.073343e-30  9.151154e-15  1.0
+    0  4.927607e-30  8.071499e-15  1.0
 
 
 
@@ -127,7 +127,7 @@ np.asarray(lm2.predict(steps_ahead=5)).round(6)
 
 
 
-    array([ 0.425557,  0.203134, -0.030606, -0.261539, -0.475751])
+    array([ 0.426142,  0.204368, -0.028689, -0.258943, -0.472521])
 
 
 
@@ -145,7 +145,7 @@ np.asarray(ax.predict(samp.test, steps_ahead=5)).round(6)
 
 
 
-    array([ 0.421967,  0.204523, -0.012581, -0.21452 , -0.21099 ])
+    array([ 0.421914,  0.204402, -0.012741, -0.214651, -0.210372])
 
 
 

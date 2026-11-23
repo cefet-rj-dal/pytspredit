@@ -73,7 +73,7 @@ darima.evaluate(output, darima.predict(io_test.input.iloc[[0]], steps_ahead=5))[
 
 
                 mse         smape   R2
-    0  9.195314e-30  8.601082e-15  1.0
+    0  1.396731e-29  6.421535e-15  1.0
 
 
 
@@ -86,13 +86,13 @@ warma.evaluate(output, warma.predict(io_test.input.iloc[[0]], steps_ahead=5))["m
 ```
 
     selected steps: 0
-    
+
 
 
 
 
                 mse         smape   R2
-    0  1.822176e-29  7.787043e-15  1.0
+    0  2.493848e-30  7.238914e-15  1.0
 
 
 

@@ -22,7 +22,7 @@ From the project root (`c:/Git/dal/pytspredit`):
 # 2. quality gate — must be green
 ruff check .
 python -m pytest
-python tools/build_examples.py        # all notebooks must execute
+python notebooks/conversor.py        # all notebooks must execute
 
 # 3. clean + build
 #   Git Bash:    rm -rf dist build src/*.egg-info

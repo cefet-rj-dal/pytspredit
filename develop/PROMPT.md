@@ -40,12 +40,12 @@ A pasta atual (`C:\Git\dal\pytspredit`) é um scaffold vazio (só `.git`, `.giti
 - **Layout:** `src/pytspredit/`, `pyproject.toml` com `hatchling`, deps mínimas.
 - **3 camadas de garantia:** (1) `pytest` unit por componente; (2) `pytest` integração
   (tutoriais ponta-a-ponta); (3) **documentação executável** — notebooks jupytext em
-  `notebooks/**/*.md` renderizados para `examples/**/*.md` por `tools/build_examples.py`
+  `notebooks/**/*.md` renderizados para `examples/**/*.md` por `notebooks/conversor.py`
   (copie o script do pydaltoolbox; tabelas saem em texto puro, sem HTML). **Um exemplo
   didático por classe** (objetivo + referência do artigo + fit/predict/evaluate).
 - **Pasta `develop/`** para material de dev (este PROMPT.md, planejamento.md, deploy.md),
   **excluída do sdist** via `[tool.hatch.build.targets.sdist]` (veja o pyproject do
-  pydaltoolbox: `include = src+README+LICENSE`, `exclude = develop/notebooks/examples/tests/tools`).
+  pydaltoolbox: `include = src+README+LICENSE`, `exclude = develop/notebooks/examples/tests`).
 - **Qualidade sempre verde:** `ruff check .` + `pytest` + build dos exemplos a cada passo.
 - **Git:** trabalhe em branch, faça push para o Eduardo revisar no GitHub, **pause a cada
   fase/sub-bloco** para ele conferir, depois ff-merge na `main`. `gh` NÃO está instalado.
@@ -113,7 +113,7 @@ pydaltoolbox; statsmodels se ARIMA entrar na v1 — avalie como extra se preferi
 ## 6. Roadmap sugerido (em fases/sub-blocos, pause a cada um)
 
 0. Scaffolding: `pyproject` (dep `pydaltoolbox`), `src/`, `develop/` (mova este PROMPT +
-   planejamento.md + deploy.md para lá), `tools/build_examples.py`, README com `pip install`.
+   planejamento.md + deploy.md para lá), `notebooks/conversor.py`, README com `pip install`.
 1. **Núcleo de dados:** `TsData` (janela deslizante) + `ts_projection` + datasets (`tsd`).
 2. **Base de regressão:** `TsReg` (contrato `fit(x,y)`/`predict(x)`/`evaluate`) + um
    regressor simples (ex.: `TsKnn` ou `TsLm`) rodando um experimento ponta-a-ponta.
@@ -131,11 +131,11 @@ Bloco B: filtros EMD/wavelet/gabor/fft, state-space, benchmark, gráficos.
 como fizemos no pydaltoolbox — documento vivo, marcando fases feitas.)*
 
 ## 7. Ritual a cada fase
-Implementar + testes → criar notebook do tema → `python tools/build_examples.py` →
+Implementar + testes → criar notebook do tema → `python notebooks/conversor.py` →
 `ruff` + `pytest` verdes → commit no branch + push → **Eduardo revisa no GitHub** →
 ff-merge na main. Sempre comparar qualidade R vs Python nos pontos sensíveis.
 
 ## 8. Primeiro passo concreto
-Leia `pydaltoolbox/pyproject.toml`, `tools/build_examples.py`, `src/pydaltoolbox/base.py`
+Leia `pydaltoolbox/pyproject.toml`, `notebooks/conversor.py`, `src/pydaltoolbox/base.py`
 e `regression/`, depois `tspredit/R/ts_data.R`, `ts_reg.R`, `ts_norm_gminmax.R`,
 `ts_mlp.R`. Proponha o planejamento ao Eduardo e comece pela Fase 0+1.

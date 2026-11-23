@@ -31,7 +31,7 @@ print("ema :", np.round(ts.TsFilEma(3).fit(y).transform(y)[:6], 3))
 
     ma  : [  nan   nan 0.242 0.469 0.668 0.824]
     ema : [  nan   nan 0.345 0.562 0.744 0.88 ]
-    
+
 
 ## Outlier-robust
 
@@ -43,7 +43,7 @@ print("smooth:", np.round(ts.TsFilSmooth().fit(y).transform(y)[6:11], 3))
 
     winsor: [0.995 0.984 0.995 0.778 0.598]
     smooth: [0.997 1.408 0.881 0.778 0.598]
-    
+
 
 ## Trend / low-pass
 
@@ -64,7 +64,7 @@ for name, f in [("recursive", ts.TsFilRecursive(0.05)), ("hp", ts.TsFilHp(100)),
     fft        -> smoothed length 41
     gabor      -> smoothed length 41
     kalman     -> smoothed length 41
-    
+
 
 ## Exponential smoothing and seasonal adjustment
 
@@ -78,7 +78,7 @@ print("seas_adj:", np.round(ts.TsFilSeasAdj(frequency=12).fit(y).transform(y)[:5
     ses : [   nan -0.     0.247  0.479  0.682]
     qes : [  nan   nan 0.472 0.709 0.913]
     seas_adj: [1.09  1.024 0.959 0.894 0.828]
-    
+
 
 Nine filters reproduce R exactly (`none`, `ma`, `ema`, `winsor`, `recursive`, `fft`,
 `smooth`, `hp`, `gabor`); `lowess` and `kalman` match too. `ses`, `qes`, `seas_adj` and
@@ -94,4 +94,4 @@ print("all same length:",
 ```
 
     all same length: True
-    
+

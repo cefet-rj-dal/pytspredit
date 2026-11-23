@@ -43,11 +43,11 @@ Repository = "https://github.com/cefet-rj-dal/pytspredit"
 packages = ["src/pytspredit"]
 
 # The published source distribution ships only the package and essential metadata.
-# Development-only material (develop/, notebooks/, examples/, tests/, tools/) is kept
+# Development-only material (develop/, notebooks/, examples/, tests/) is kept
 # out of what users install.
 [tool.hatch.build.targets.sdist]
 include = ["src/pytspredit", "README.md", "LICENSE"]
-exclude = ["develop", "notebooks", "examples", "tests", "tools"]
+exclude = ["develop", "notebooks", "examples", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -45,14 +45,14 @@ pred = best.predict(io_test.input.iloc[[0]], steps_ahead=5)
 best.evaluate(output, pred)["metrics"]
 ```
 
-    selected: {'input_size': 5, 'nhid': 4, 'actfun': 'purelin'}
-    
+    selected: {'input_size': 4, 'nhid': 3, 'actfun': 'purelin'}
+
 
 
 
 
                 mse         smape   R2
-    0  3.664659e-29  1.708909e-14  1.0
+    0  4.748564e-28  7.448503e-14  1.0
 
 
 
@@ -75,14 +75,14 @@ pred = best.predict(io_test.input.iloc[[0]], steps_ahead=5)
 best.evaluate(output, pred)["metrics"]
 ```
 
-    selected: {'input_size': 3, 'preprocess': 1, 'augment': 0, 'nhid': 4, 'actfun': 'purelin'}
-    
+    selected: {'input_size': 5, 'preprocess': 1, 'augment': 0, 'nhid': 5, 'actfun': 'purelin'}
+
 
 
 
 
                 mse         smape   R2
-    0  2.621114e-30  8.246134e-15  1.0
+    0  1.976158e-30  8.625306e-15  1.0
 
 
 

@@ -101,7 +101,7 @@ heavy-dependency extras (EMD, wavelets, full remote datasets).
 
 - [Processed examples](examples/) — notebooks executed end to end, with real output
   embedded. Sources live under [notebooks/](notebooks/) (jupytext Markdown), rendered by
-  `python tools/build_examples.py`.
+  `python notebooks/conversor.py`.
 - [develop/planejamento.md](develop/planejamento.md) — migration roadmap (phases, scope, status).
 - [develop/deploy.md](develop/deploy.md) — PyPI publishing guide.
 
