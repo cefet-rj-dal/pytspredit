@@ -32,6 +32,7 @@ Cada classe se encaixa em uma destas categorias (resume o que mudou em R e Pytho
 | `TsKnn`/`TsRf`/`TsSvm`/`TsMlp` | 🅦 | exato (knn) / tolerância RNG (rf,mlp) / near (svm) | sklearn; SVM escala como `e1071` |
 | `TsElm` | 🄽 | exato no regime OLS | ELM próprio (R usa `elmNNRcpp`) |
 | `TsArima`/`TsArimax` | 🅦 | tolerância de backend | statsmodels (R usa `forecast`) |
+| `TsArima(auto="cv")` — **ARIMA++** | **⧺ (++ algorítmico)** | ~14% melhor que auto.arima (NN5) | candidatos ACF/PACF + CV casada ao horizonte; **melhora o método**, não só porta (não há contraparte no R) |
 | `TsDeterministic`/`TsPeriodic`/`TsPersist` | 🄽 | exato | regra pura |
 | `TsDarima`/`TsWarma`/`TsLmMv` | 🄽 | exato | usam `_RLinear` (reproduz o `lm` do R em designs colineares) |
 | Augmentation (8: `TsAug*`) | 🄽 | exato (determ.) / tolerância RNG | numpy nativo |
@@ -45,7 +46,12 @@ Cada classe se encaixa em uma destas categorias (resume o que mudou em R e Pytho
 | `TsPredBench` | ✨ | n/a | harness datasets×modelos (sem contraparte R) |
 | `loadfulldata` | ✨ | exato (= head do full) | CSV.gz/JSON.gz, 0 dep |
 
-**Back-implementations canônicas (⧺) até agora:** `_RLinear` (o `lm` do R, usado em darima/warma/lm_mv — nativo Py, R inalterado pois o R já tinha `lm`), **EMD** (R dropou `hht`) e **wavelet/MODWT** (R dropou `wavelets`). As duas últimas reescreveram o R; o Ciclo 2 fechou **sem nenhuma dep nova** e ainda **removeu** `hht` e `wavelets` do R.
+**Back-implementations canônicas / ++ (⧺) até agora:** `_RLinear` (o `lm` do R, usado em
+darima/warma/lm_mv — nativo Py, R inalterado pois o R já tinha `lm`), **EMD** (R dropou `hht`),
+**wavelet/MODWT** (R dropou `wavelets`) e **ARIMA++** (`auto="cv"`, ++ algorítmico que **melhora**
+o auto.arima: ~14% melhor no NN5). EMD/wavelet reescreveram o R (redução de dep); ARIMA++ é
+melhoria de método (sem contraparte no R). O Ciclo 2 fechou **sem nenhuma dep nova** e ainda
+**removeu** `hht` e `wavelets` do R.
 
 ---
 

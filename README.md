@@ -25,7 +25,7 @@ It is part of the DAL Python family:
 pip install pytspredit
 ```
 
-> **Beta:** the current release (`0.9.0`) is in a testing phase on the way to `1.0.0`.
+> **Beta:** the current release (`0.10.0`) is in a testing phase on the way to `1.0.0`.
 > Feedback and issues are very welcome.
 
 For a local, editable clone (contributing or running the examples):
@@ -58,7 +58,7 @@ print(model.evaluate(io_test.output.to_numpy(), forecast)["metrics"])
 
 ## Status
 
-**`0.9.0` (beta).** The port follows the method validated for
+**`0.10.0` (beta).** The port follows the method validated for
 `pydaltoolbox` (already on PyPI), with **R-vs-Python parity checked at every step** on
 the shared `tsd` series. Implemented:
 
@@ -112,14 +112,20 @@ the shared `tsd` series. Implemented:
   Python-native files (`.csv.gz`/`.json.gz`) and read with `urllib` + pandas, so it is
   **0 new dependency** (gzipped CSV beat both plain CSV on size and `.RData`/parquet on
   size+deps in benchmarking — no `rdata`/`pyarrow`/`xarray`).
+- **ARIMA++ (0.10.0):** `TsArima(auto="cv")` — a smarter automatic order selector that
+  fixes two weaknesses of `auto.arima`: **ACF/PACF-driven candidates** (seasonal lags
+  enter the search instead of a fixed cap of 5) and selection by **horizon-matched
+  rolling-origin cross-validation** (out-of-sample accuracy, not the in-sample AICc
+  proxy). On real competition data (NN5) it forecasts **~14% better** than the AICc auto.
+  Native, 0 new dependency — the first genuine *algorithmic* ++ (beyond dependency reduction).
 
 Every class documents its academic references and its R-port fidelity
 (`References:` / `Porting:` in the docstrings), mirroring the roxygen `@references`
 and `@details` of the R package. Thin adapters over scikit-learn / numpy / pandas /
 statsmodels reproduce the R backends' defaults (e.g. SVM standardizes like
 `e1071`). Deferred to the next cycle (see
-[develop/planejamento.md](develop/planejamento.md)): a native ARIMA/ETS
-auto-selection, then the 1.0.0 maturity passes.
+[develop/planejamento.md](develop/planejamento.md)): the 1.0.0 maturity passes
+(1:1 examples, credit audit, parity matrix). The full `tspredit` port is complete.
 
 ## Documentation
 

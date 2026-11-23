@@ -161,6 +161,19 @@ verificada antes de pausar para revisão do Eduardo.
   construção); teste via `file://` (R-free, sem rede). 207 testes, ruff limpo. **Com isso o
   Ciclo 2 fechou SEM nenhuma dep nova** — hht, wavelets e rdata todos eliminados.
 
+- **0.10.0 — ARIMA++ (auto-seleção nativa), 0 DEP** **[IMPLEMENTADO, branch
+  `milestone-0.10.0-autoarima`]**: fecha o Ciclo 2 e é o **primeiro ++ ALGORÍTMICO** (os
+  outros foram redução-de-dep). `TsArima(auto="cv")` ataca 2 fraquezas do `auto.arima`:
+  (1) **candidatos dirigidos por ACF/PACF** (lags significativos entram; sazonal 12 testado)
+  em vez do cap fixo 5; (2) **seleção por CV rolling-origin casada ao horizonte** (sMAPE
+  out-of-sample) em vez do AICc in-sample. `auto="aicc"` continua default (compat). **Processo
+  de validação (iterativo, gate §1b):** 1º teste (seno puro) reprovou — seno é determinístico,
+  não-AR; 2º (AR(12) real) ganhou; 3º (NN5 real) **reprovou com CV de 1-passo** (0.1655 vs
+  0.1565) → diagnóstico: **a CV tem que casar o horizonte da previsão**; com CV multi-step
+  casada **passou: ~14% melhor (0.1352 vs 0.1565, 4/4), recupera o lag 7**. Lição reusável: em
+  auto-seleção por CV, o horizonte da CV deve ser o horizonte de previsão. Benchmark committado
+  `develop/parity/autoarima_benchmark.py`. Notebook `prediction/04-arima-plus`.
+
 > **Estado ao fim do Ciclo 1 (parcial):** 0.1.0→0.5.0 publicados; `main` é a única branch
 > (todas as milestone branches, já merjadas, foram deletadas local+remoto a pedido do
 > Eduardo). 140 testes verdes, 68 símbolos públicos, 12 notebooks de exemplo. Falta o
@@ -182,15 +195,15 @@ auditoria de crédito (Python + R) ficam como passadas finais perto da 1.0.0. Ve
 ---
 
 ## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.8.0** (PyPI). **0.9.0 implementado** na branch
-  `milestone-0.9.0-loadfulldata` (aguardando revisão/`twine` do Eduardo).
-- Cobertura: todo o Ciclo 1 + **EMD nativo (0.7.0)** + **MODWT/wavelet nativo (0.8.0)** +
-  **`loadfulldata` CSV.gz 0-dep (0.9.0)**. **Falta no Ciclo 2:** 0.10.0 ++ auto-seleção
-  ARIMA/ETS nativa; depois as passadas de maturidade (exemplos 1:1, auditoria de crédito Py+R)
-  e a 1.0.0.
+- Última release publicada: **pytspredit 0.9.0** (PyPI). **0.10.0 implementado** na branch
+  `milestone-0.10.0-autoarima` (aguardando revisão/`twine` do Eduardo). **Ciclo 2 completo.**
+- Cobertura: todo o Ciclo 1 + **EMD (0.7.0)** + **MODWT/wavelet (0.8.0)** + **`loadfulldata`
+  (0.9.0)** + **ARIMA++ (0.10.0)**. **Todo o `tspredit` portado.** Falta só a **maturidade**
+  (exemplos 1:1, auditoria de crédito Py+R, matriz de paridade) e a **1.0.0**.
 - **Nota de dep:** o **Ciclo 2 inteiro não adicionou nenhuma dep** — EMD (numpy+scipy),
-  wavelet (numpy puro), `loadfulldata` (CSV.gz: pandas+stdlib). Os extras `[emd]`/`[wavelet]`/
-  `[bench]` foram **todos eliminados**. Três back-implementations/reduções-de-dep (braço do §1b).
+  wavelet (numpy puro), `loadfulldata` (CSV.gz: pandas+stdlib), ARIMA++ (statsmodels-núcleo).
+  Extras `[emd]`/`[wavelet]`/`[bench]` **eliminados**. Três reduções-de-dep + um ++ algorítmico
+  (ARIMA++), todos do §1b.
 - Deps: núcleo `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` +
   `pydaltoolbox`. Extras planejados: `[emd]`, `[wavelet]`, `[bench]`.
 - Próximo: **Ciclo 2** (0.7.0 EMD → 0.8.0 wavelet → 0.9.0 `loadfulldata`), depois as

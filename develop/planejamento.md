@@ -447,19 +447,26 @@ nomeando o extra. Ordem/escopo decididos:
   o fetch remoto fica ativo quando o tspredbench full-gz for para a main. 207 testes, ruff
   limpo. **Terceiro back-implementation/redução-de-dep do Ciclo 2 — o roadmap inteiro ficou
   sem deps novas (hht, wavelets, rdata todos eliminados).**
-- **⬜ 0.10.0 — ++ Auto-seleção ARIMA/ETS nativa** *(0 dep nova)*: hoje `TsArima`/`TsArimax`
-  `auto` fazem busca AICc aproximando `forecast::auto.arima` sobre o MLE do statsmodels
-  (ordem pode não bater). O ++ é uma **seleção própria/nativa** (Python = referência, R =
-  backport) que dê **controle da ordem escolhida** e paridade sob nosso controle — gate da
-  Ação 1++ = prever a verdade tão bem ou melhor que a referência, não mera paridade.
-  Candidato principal do §1b. (ETS via `statsmodels` state space; seleção própria por
-  AICc/critério fixo, determinística.)
+- **✅ 0.10.0 — ARIMA++ (auto-seleção nativa)** *(0 dep nova)* — **IMPLEMENTADO** (branch
+  `milestone-0.10.0-autoarima`): **primeiro ++ ALGORÍTMICO de verdade** (EMD/wavelet foram
+  redução-de-dep). `TsArima(auto="cv")` ataca 2 fraquezas do `auto.arima`: (1) **candidatos
+  dirigidos por ACF/PACF** — os lags significativos entram na busca (lag sazonal 12 testado
+  quando os dados pedem) em vez do cap fixo 5; (2) **seleção por CV rolling-origin casada ao
+  horizonte** (sMAPE out-of-sample), não o AICc in-sample. Tudo nativo (KPSS/acf/pacf/ARIMA já
+  statsmodels-núcleo); `auto="aicc"` segue como default p/ compatibilidade. **Gate §1b PASSOU:
+  no NN5 (dados reais de competição) o cv++ é ~14% melhor que o aicc** (sMAPE 0.1352 vs 0.1565,
+  ganha 4/4, recupera o lag semanal 7). **Achado-chave:** a CV precisa **casar o horizonte da
+  previsão** — CV de 1-passo escolhia ordens que generalizavam mal (0.1655); multi-step casado
+  deu 0.1352. Em série AR(12) sintética também ganha (0.19 vs 0.24, pega lag ~12). Benchmark
+  committado em `develop/parity/autoarima_benchmark.py`. Testes rápidos (componentes + e2e
+  pequeno; o "ganha" fica no benchmark manual, não na suíte). Notebook `prediction/04-arima-plus`.
 
-> **Fim do Ciclo 2:** todo o `tspredit` portado + o ++ de seleção. **Resultado inesperado:
-> o Ciclo 2 NÃO adicionou nenhuma dep** — EMD (numpy+scipy), wavelet (numpy puro) e
-> `loadfulldata` (CSV.gz pandas+stdlib) foram todos back-implementados 0-dep; os extras
-> `[emd]`/`[wavelet]`/`[bench]` foram todos eliminados do roadmap. Depois vêm as passadas
-> de maturidade (§5.4/Maturidade) e a 1.0.0.
+> **Fim do Ciclo 2 — COMPLETO (0.7→0.10).** Todo o `tspredit` portado + o ARIMA++.
+> **Resultado: o Ciclo 2 NÃO adicionou nenhuma dep** — EMD (numpy+scipy), wavelet (numpy
+> puro), `loadfulldata` (CSV.gz pandas+stdlib) back-implementados 0-dep (extras
+> `[emd]`/`[wavelet]`/`[bench]` eliminados); e o ARIMA++ (0 dep) foi o **único ++
+> algorítmico**, validado contra o auto.arima. Depois vêm as passadas de maturidade
+> (§5.4/Maturidade) e a 1.0.0.
 
 #### Auditoria de imports + candidatos ++ / redução de dep (2026-11-23)
 
@@ -474,7 +481,9 @@ atrito**; todas seguem embrulhadas. As únicas deps de nicho (PyEMD/PyWavelets/`
 estão isoladas como **extras** (padrão correto).
 
 **Candidatos ++ (caso a caso, não regra cega):**
-1. **Auto-seleção ARIMA/ETS nativa** → agendado como **0.10.0** (acima).
+1. **Auto-seleção ARIMA nativa** → **FEITO na 0.10.0** (ARIMA++ `auto="cv"`: candidatos
+   ACF/PACF + CV casada ao horizonte). **Único ++ algorítmico** do Ciclo 2 e **passou o gate**
+   (~14% melhor que o aicc/auto.arima no NN5). (ETS no pool fica p/ uma eventual extensão futura.)
 2. **EMD nativo** → **FEITO na 0.7.0** (numpy+scipy, 0 dep; ~60× mais rápido que `hht`,
    denoising ≥ PyEMD). Elimina o extra `[emd]`; R dropa `hht`. CEEMDAN avaliado e rejeitado
    pelo gate (sem ganho para o uso dos filtros). **Exemplo concreto do braço de redução-de-dep
