@@ -509,7 +509,11 @@ Mapeamento passo-a-passo (pydaltoolbox → pytspredit):
   `notebooks/`→`examples/` (não é `Rmd/`); passada leve: confirmar o `conversor.R`, regenerar
   `examples/` do pacote atual (sem `hht`/`wavelets`/`forecast`), remover ativos órfãos. Só-R,
   sem release PyPI.
-- **M2 — Exemplos 1:1 R↔Python (espelha 0.21/0.22).** Reorganizar os notebooks do pytspredit
+- **✅ M2 — Exemplos 1:1 R↔Python (espelha 0.21/0.22) — FEITO** (branch `milestone-m2-examples`):
+  ~103 notebooks um-por-classe em 11 famílias, todos verdes (Pacote 1: tsdata 3, normalization 9,
+  lagmapping 13, augment 8, filter 16, prediction 11, tuning 2, multivariate 6; Pacote 2: datasets
+  21, custom 4, tutorial 10). Torch fora de escopo; variantes stock-close adiadas (sem classe nova).
+- **M2 (descrição original) — Exemplos 1:1 R↔Python (espelha 0.21/0.22).** Reorganizar os notebooks do pytspredit
   para **um por classe portada**, espelhando a árvore e a didática do R (About / Didactic goal
   / setup / load / split / fit / eval / What to observe / References). Famílias: `tsdata`,
   `normalization`, `lagmapping`, `prediction`, `filter`, `augment`, `multivariate`, `tuning`,
