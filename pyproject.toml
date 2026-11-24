@@ -9,12 +9,26 @@ description = "Time series prediction with tunable preprocessing (Python port of
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [
+# Contributors to the pytspredit (Python) port. Roles follow the R Authors@R convention:
+# cre (maintainer) -> maintainers; aut (author) + ths (advisor) and ctb (contributor)
+# -> authors (PEP 621 has no separate contributor field); cph (copyright holder) ->
+# CEFET/RJ, noted below. ORCID of the maintainer: 0000-0002-0466-0626.
+maintainers = [
   { name = "Eduardo Ogasawara", email = "eogasawara@ieee.org" },
+]
+authors = [
+  { name = "Eduardo Ogasawara", email = "eogasawara@ieee.org" },       # aut, ths, cre
+  { name = "Diego Carvalho", email = "diego.carvalho@cefet-rj.br" },    # ctb
+  { name = "Eduardo Bezerra", email = "ebezerra@cefet-rj.br" },         # ctb
+  { name = "Esther Pacitti", email = "Esther.Pacitti@lirmm.fr" },       # ctb
+  { name = "Fabio Porto", email = "fporto@lncc.br" },                   # ctb
+  { name = "Fernando Alexandrino", email = "fernando.alexandrino@ifsp.edu.br" },  # aut
+  { name = "Rebecca Salles", email = "rebecca.pontes-salles@inria.fr" },  # aut
+  { name = "CEFET/RJ" },                                                # cph (copyright holder)
 ]
 keywords = ["time series", "forecasting", "machine learning", "experiment line", "scikit-learn"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
