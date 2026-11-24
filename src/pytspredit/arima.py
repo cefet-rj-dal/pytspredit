@@ -179,13 +179,13 @@ def _auto_order(series):
 
 
 def fit_arima(series, auto="aicc", max_order=12, cv_folds=2, horizon=None):
-    """Native automatic ARIMA fit -- the role of ``forecast::auto.arima``.
+    """Automatic ARIMA fit -- the automatic order-selection entry point.
 
-    Selects the ``(p, d, q)`` order automatically and returns the fitted model, with
-    no dependency on R's ``forecast``. This is the univariate auto-fit entry point
-    used by :class:`TsArima` (constructor orders left ``None`` or set to ``(0, 0, 0)``),
-    and is exported for standalone reuse. Its canonical R counterpart is the exported
-    ``fit_arima()`` in ``ts_arima.R``.
+    Selects the ``(p, d, q)`` order automatically and returns the fitted model. This is
+    the univariate auto-fit entry point used by :class:`TsArima` (constructor orders left
+    ``None`` or set to ``(0, 0, 0)``), and is exported for standalone reuse. Both this
+    function and its canonical R counterpart -- the exported ``fit_arima()`` in
+    ``ts_arima.R`` -- play the role of ``forecast::auto.arima``.
 
     * ``auto="aicc"`` (default) -- compact AICc search (p, q in 0..3), approximating
       ``forecast::auto.arima``.
@@ -203,6 +203,12 @@ def fit_arima(series, auto="aicc", max_order=12, cv_folds=2, horizon=None):
 
 class TsArima(TsReg):
     """ARIMA(p, d, q) forecaster. Leave orders ``None`` (or ``(0, 0, 0)``) for auto.
+
+    Theory:
+        ARIMA(p, d, q) models a univariate series by combining ``p`` autoregressive
+        terms, ``d`` orders of differencing to reach stationarity, and ``q`` moving-average
+        terms (Box & Jenkins). Orders are either given explicitly or selected automatically
+        (see below); parameters are estimated by maximum likelihood.
 
     Automatic order selection (when ``p``/``d``/``q`` are ``None`` or all ``0`` --
     ``(0, 0, 0)`` is read as the auto-fit sentinel, so a pure white-noise model is not
@@ -234,8 +240,9 @@ class TsArima(TsReg):
         adapted (``auto="cv"`` is a new, improved selector, not in R's ``auto.arima``).
         - Built on ``statsmodels`` (R used ``forecast::Arima``/``auto.arima``):
           explicit ``(p,d,q)`` matches exactly; ``auto="aicc"`` approximates
-          ``auto.arima`` (different MLE backend, ~6e-4); ``auto="cv"`` (ARIMA++) is a
-          native improvement validated against ``auto.arima`` on the benchmark datasets.
+          ``auto.arima`` (different MLE backend, ~6e-4); ``auto="cv"`` (ARIMA++) is an
+          algorithmic improvement validated against ``auto.arima`` on real benchmark data
+          (NN5: ~14% lower sMAPE; see ``develop/parity.md`` Section 5.3).
     """
 
     def __init__(self, p=None, d=None, q=None, auto="aicc",

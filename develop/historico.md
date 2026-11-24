@@ -278,6 +278,40 @@ Passada de documentação (sem mudança de código, sem release). Atualizado o `
   (o `mapeamento.md` fica com a **correspondência** de símbolos; o veredito/evidência vai pro
   `parity.md`).
 
+### M6 — Auditoria de crédito / documentação justa, Python + R (2026-11-24) **[branches `milestone-m6-credit-audit` (pytspredit) + `m6-credit-audit` (tspredit), dev-only]**
+Espelha a passada 0.24.0 do pydaltoolbox. Varredura de TODAS as docstrings (Python) + roxygen
+(R), aplicando a convenção: Teoria + `References:` (paper original) + `Porting:`; **a remoção de
+dependência vai na mensagem de commit, NÃO na doc**.
+- **Frases proibidas = ZERO.** Removidas "native implementation"/"dependency-free"/"drops
+  hht/forecast/wavelets"/"no dependency" do Python (arima, deterministic, emd, wavelet,
+  filters ×3, regressors, multivariate) e do R (ts_arima ×2, ts_fil_emd, ts_fil_remd,
+  ts_fil_wavelet, tslagutils). Reescritas para: teoria do método + atribuição canônica +
+  o ++ **com evidência** (não o ângulo de dep).
+- **`Theory:` adicionado** nas classes de algoritmo-chave (EMD, MODWT/wavelet, ARIMA/ARIMA++,
+  ELM, deterministic); as demais classes de algoritmo já tinham `References:`+`Porting:` (da
+  varredura do 0.5.0). Classes identidade/framework/privadas (TsNormNone, TsAugNone, TsFilNone,
+  `_RLinear`, `_Filter`, TsRegSW, bases MV) legitimamente sem paper; `TsPredBench` = interface
+  nova (`Porting: n/a`).
+- **Atribuição canônica das back-impls/++** (Python é a referência; R backporta) com evidência:
+  EMD (reconstrução exata 4e-16; ~1800× mais rápido que o `hht`), MODWT/wavelet (valor-a-valor
+  ~5e-6), ARIMA++ (~14% melhor no NN5, aponta parity.md §5.3), `_RLinear` (=`lm` do R por
+  descarte de colunas), ELM (pseudo-inversa de Moore-Penrose), `TsVar` (OLS+AICc).
+- **Refs `Mirrors X.R` inexistentes corrigidas:** `ts_periodic.R`/`ts_persist.R` (não existem;
+  são funções dentro de `ts_deterministic.R`) → corrigido; `grf_ts_pred.R` confirmado como
+  arquivo do **daltoolbox** (ref cross-package legítima). Varridos todos os 59 refs de arquivo R.
+- **Validação.** Python: ruff limpo, **261 testes verdes**, import OK (0.11.1). R: `roxygenise()`
+  8.1.1 regenerou 6 `man/*.Rd` (NAMESPACE inalterado), **`R CMD INSTALL` limpo**, versão mantida
+  em **2.0.747** (polimento de doc da release ainda não submetida ao CRAN — não mexi no alvo do
+  CRAN; decisão de bump fica com o Eduardo). Branch R `m6-credit-audit` pushada, aguardando
+  revisão/merge/CRAN do Eduardo.
+
+### Mudança do fecho — o beta será `0.x.0`, não `1.0.0b1` (Eduardo, 2026-11-24)
+Vamos **batizar de beta a versão subsequente à última de qualidade**, e ela **continua na linha
+`0.x.0`** (ex.: `0.12.0`) — não salta para `1.0.0b1`. As passadas de maturidade (M1–M6) + **uma
+tarefa extra que o Eduardo vai passar antes do beta** são "de qualidade"; a próxima `0.x.0`
+depois delas é o beta (roda ~1 semana → promove a `1.0.0` estável). Ver `planejamento.md`
+§5.4/Fechamento.
+
 ---
 
 ## Estado atual (base para o `planejamento.md`)
@@ -294,10 +328,13 @@ Passada de documentação (sem mudança de código, sem release). Atualizado o `
   **M2 ✓** (exemplos 1:1, ~104 notebooks, na main), **M3 ✓** (testes pareados R↔Python 0.1→0.5,
   committados, na main — achou+corrigiu o bug do `ts_arimax`), **M4 ✓** (metadados: autores do
   port + Development Status `4-Beta`, branch `milestone-m4-metadata`, dev-only). **Falta: M5**
-  **M5 ✓** (parity.md: estudos de caso §5 + matriz R↔Py completa §6, branch
-  `milestone-m5-parity-matrix`, dev-only). **Falta: M6** (auditoria de crédito Py+R:
-  Teoria+References+Porting, atribuição das back-impls/++). **FECHO:** publicar `1.0.0b1`
-  (beta ~1 semana) → promover a **1.0.0**; pós-1.0.0 pytspredit também adota numeração Boeing.
-- Branches já mescladas (podem ser deletadas): `milestone-m3-paired-tests` (pytspredit),
-  `arimax-xreg-fix` (tspredit). `main` é a única branch de código nos dois repos.
-- Próximo: **M6** (auditoria de crédito Py+R). Depois o beta `1.0.0b1`.
+  **M5 ✓** (parity.md §5+§6, mesclado na main), **M6 ✓** (auditoria de crédito Py+R:
+  frases proibidas=0, Theory+References+Porting, atribuição canônica das back-impls/++,
+  refs Mirrors corrigidas; pytspredit branch `milestone-m6-credit-audit`, tspredit branch
+  `m6-credit-audit`). **FECHO (renomeado):** o beta será a **próxima `0.x.0`** (não
+  `1.0.0b1`) — a versão subsequente à última de qualidade, batizada de beta (~1 semana) →
+  promover a **1.0.0**; pós-1.0.0 pytspredit também adota numeração Boeing.
+- **⏸️ ANTES DO BETA:** o Eduardo vai passar **outra tarefa** — fazê-la antes da release beta.
+- `main` é a única branch de código mesclada nos dois repos; as branches M6 aguardam
+  revisão/merge (tspredit: também a submissão ao CRAN do Eduardo).
+- Próximo: a **tarefa extra do Eduardo**, depois o **beta `0.x.0`**.

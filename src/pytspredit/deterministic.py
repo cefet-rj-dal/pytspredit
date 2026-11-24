@@ -1,14 +1,28 @@
 """Deterministic (rule-based) univariate predictors.
 
 Python counterpart of ``ts_deterministic.R`` (+ ``ts_periodic``, ``ts_persist``).
-These forecast by a deterministic *rule* rather than a statistical learner, so
-they are fully native (no new dependencies) and match R exactly.
+These forecast by a deterministic *rule* rather than a statistical learner.
 
-* ``"periodic"``: repeat a learned cycle of fixed length.
-* ``"persist"``: repeat the most recent observed value.
+Theory:
+    Rule-based baselines are the standard reference models in forecasting (Hyndman &
+    Athanasopoulos). ``"periodic"`` (seasonal naive) repeats a learned cycle of fixed
+    length; ``"persist"`` (naive / random walk) repeats the most recent observed value.
+    Despite their simplicity they are strong baselines on seasonal and trending series and
+    are the yardstick a learned model must beat.
+
+* ``"periodic"``: repeat a learned cycle of fixed length (seasonal naive).
+* ``"persist"``: repeat the most recent observed value (naive forecast).
 
 Like :class:`~pytspredit.TsArima`, they extend :class:`~pytspredit.TsReg` and work
 on a raw series (``ts_data`` with ``sw = 1``) or on sliding windows.
+
+References:
+    - Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and
+      Practice* (3rd ed.), OTexts (simple benchmark methods: naive, seasonal naive).
+
+Porting:
+    Mirrors ``ts_deterministic.R`` (which also defines ``ts_periodic`` and ``ts_persist``).
+    Fidelity: exact (rule-based; matches R to floating-point tolerance).
 """
 from __future__ import annotations
 

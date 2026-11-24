@@ -540,11 +540,10 @@ class TsFilEmd(_Filter):
           Proceedings of the Royal Society A, 454, 903-995.
 
     Porting:
-        Replaces ``ts_fil_emd.R`` (which wrapped ``hht::CEEMD``) with the native
-        :mod:`pytspredit.emd`. Fidelity: adapted (own dependency-free engine; EMD is
-        stochastic/backend -- parity is quality-level, not value-wise). Native is
-        canonical here and ~orders of magnitude faster than R ``hht``; the R package
-        is to be backported to it (dropping ``hht``).
+        Mirrors ``ts_fil_emd.R``, built on the decomposition in :mod:`pytspredit.emd`
+        (the canonical reference for the algorithm; the R filter is backported to it).
+        Fidelity: adapted -- EMD is adaptive/stochastic, so parity is quality-level (the
+        denoising outcome), not value-wise. See ``develop/parity.md`` Section 5.4.
     """
 
     def __init__(self, engine: str = "emd", trials: int = 100,
@@ -577,9 +576,10 @@ class TsFilRemd(_Filter):
           1(1), 1-41.
 
     Porting:
-        Replaces ``ts_fil_remd.R`` (``hht::CEEMD`` + ``fit_curvature_min``) with the
-        native :mod:`pytspredit.emd` + ``FitCurvatureMin``. Fidelity: adapted
-        (dependency-free engine; stochastic/backend tolerance). Canonical here.
+        Mirrors ``ts_fil_remd.R``, built on :mod:`pytspredit.emd` + ``FitCurvatureMin``
+        (the canonical reference for the EMD algorithm; the R filter is backported to it).
+        Fidelity: adapted -- EMD is adaptive/stochastic, so parity is quality-level, not
+        value-wise.
     """
 
     def __init__(self, engine: str = "emd", trials: int = 100, noise_width: float = 0.05,
@@ -643,10 +643,10 @@ class TsFilWavelet(_Filter):
           Analysis. Cambridge University Press.
 
     Porting:
-        Replaces ``ts_fil_wavelet.R`` (``wavelets::modwt``/``imodwt``) with the native
-        :mod:`pytspredit.wavelet` (pure numpy, no dependency). Fidelity: approximate
-        (~5e-6 vs R; same algorithm/coefficients, different numeric path). Canonical
-        here (the R package is to be backported to it, dropping ``wavelets``).
+        Mirrors ``ts_fil_wavelet.R``, built on the MODWT in :mod:`pytspredit.wavelet`
+        (the canonical reference for the transform; the R filter is backported to it).
+        Fidelity: approximate (~5e-6 vs R; same algorithm/coefficients, different numeric
+        path). See ``develop/parity.md`` Section 5 (wavelet row).
     """
 
     def __init__(self, filter: str | list[str] = "haar") -> None:

@@ -1,17 +1,30 @@
-"""Native Maximal Overlap Discrete Wavelet Transform (MODWT).
+"""Maximal Overlap Discrete Wavelet Transform (MODWT).
 
-A dependency-free (pure numpy) implementation of the MODWT and its inverse, used by
-the wavelet denoising filter ``TsFilWavelet``. Unlike EMD, the MODWT is a fixed,
-deterministic linear transform, so this native port matches the R ``wavelets`` package
-value-for-value (~5e-6), and -- unlike wrapping PyWavelets' ``swt`` (a different
-normalization convention) -- needs no new dependency at all (not even scipy).
+Implementation of the MODWT and its inverse, used by the wavelet denoising filter
+``TsFilWavelet``. The MODWT is a shift-invariant, undecimated wavelet transform: a fixed,
+deterministic linear decomposition into wavelet (detail) and scaling (smooth) coefficients
+at each level.
 
-Canonical here: this native implementation is the reference; the R ``tspredit`` filter
-(which used the ``wavelets`` package) is to be backported to it, dropping that dependency.
+Theory:
+    The MODWT applies circularly-shifted, rescaled versions of a quadrature-mirror filter
+    pair (scaling ``g``, wavelet ``h``) in a pyramid algorithm (Percival & Walden 2000,
+    Ch. 5), building on Mallat's multiresolution analysis (Mallat 1989). Because it is
+    undecimated it is translation-invariant and admits an exact multiresolution
+    reconstruction, which makes "remove the finest detail" denoising independent of the
+    number of levels. The scaling/wavelet coefficient families (Daubechies,
+    least-asymmetric, coiflet, best-localized) come from Daubechies (1992).
 
-The wavelet/scaling filter coefficients are the Daubechies/least-asymmetric/coiflet/
-best-localized families as provided by R ``wavelets::wt.filter`` (public-domain
-constants), carried here at full double precision.
+Canonical attribution:
+    This module is the canonical reference implementation of the MODWT for the toolkit, and
+    the R ``tspredit`` wavelet filter is backported to the same algorithm. Because the
+    MODWT is a deterministic linear transform, parity with the R ``wavelets`` package is
+    value-for-value (~5e-6 across all five filter families; c6 reconstructs to ~1e-6
+    because the published coiflet coefficients are only approximately orthogonal, which is
+    true in R as well). See ``develop/parity.md`` Section 5 (wavelet row).
+
+    The wavelet/scaling filter coefficients are the Daubechies/least-asymmetric/coiflet/
+    best-localized families as provided by R ``wavelets::wt.filter`` (public-domain
+    constants), carried here at full double precision.
 
 References:
     - Percival, D. B., & Walden, A. T. (2000). *Wavelet Methods for Time Series
@@ -22,9 +35,9 @@ References:
       Daubechies / least-asymmetric / coiflet filter coefficient families).
 
 Porting:
-    Canonical native implementation. The R ``ts_fil_wavelet.R`` wraps
-    ``wavelets::modwt``/``imodwt``; this module replaces that engine. Fidelity:
-    approximate (~5e-6 vs R; different numeric path, same algorithm and coefficients).
+    Mirrors ``ts_fil_wavelet.R`` (the MODWT core it consumes), which this module is the
+    reference for. Fidelity: approximate (~5e-6 vs R; different numeric path, same
+    algorithm and coefficients).
 """
 from __future__ import annotations
 

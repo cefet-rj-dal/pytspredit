@@ -199,10 +199,15 @@ def _elm_activation(name):
 
 
 class TsElm(TsRegSW):
-    """Extreme Learning Machine regression (``ts_elm``; elmNNRcpp).
+    """Extreme Learning Machine regression (``ts_elm``; R uses ``elmNNRcpp``).
 
-    Random hidden weights + closed-form (pseudo-inverse) output weights, no bias
-    (matching ``init_weights='uniform_positive'``, ``bias=FALSE``).
+    Theory:
+        An ELM is a single-hidden-layer feedforward network whose hidden-layer weights
+        are drawn at random and left fixed; only the output weights are learned, in closed
+        form, as the Moore-Penrose pseudo-inverse of the hidden activations against the
+        targets (Huang, Zhu & Siew 2006). This removes iterative training and yields a
+        least-squares solution. Here the hidden weights are uniform-positive with no bias
+        (matching R's ``init_weights='uniform_positive'``, ``bias=FALSE``).
 
     References:
         - Huang G-B, Zhu Q-Y, Siew C-K (2006). Extreme Learning Machine: Theory
@@ -210,11 +215,11 @@ class TsElm(TsRegSW):
 
     Porting:
         Mirrors ``ts_elm.R``. Fidelity: approximate.
-        - Native implementation (random projection + pseudo-inverse). With
-          ``actfun='purelin'`` and ``nhid`` equal to the number of inputs the
-          hidden map is an invertible square projection, so the fit reduces to
-          OLS and is RNG-invariant (matches R exactly); other ``nhid`` values use
-          a genuine random projection (backend-RNG tolerance on extrapolation).
+        - Implemented directly as a random hidden projection plus a pseudo-inverse output
+          solve. With ``actfun='purelin'`` and ``nhid`` equal to the number of inputs the
+          hidden map is an invertible square projection, so the fit reduces to OLS and is
+          RNG-invariant (matches R exactly); other ``nhid`` values use a genuine random
+          projection (backend-RNG tolerance on extrapolation).
     """
 
     def __init__(self, preprocess=None, input_size=None, input_map=None,

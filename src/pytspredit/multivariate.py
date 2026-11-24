@@ -769,8 +769,8 @@ class TsVar(TsRegMv):
 
     Porting:
         Mirrors ``ts_var.R``. Fidelity: exact.
-        - Native OLS VAR (``numpy.linalg.lstsq``) with the same AICc order search
-          as R (R used ``stats::lm.fit``); results match to numerical precision.
+        - OLS VAR (``numpy.linalg.lstsq``) with the same AICc order search as R
+          (R used ``stats::lm.fit``); results match to numerical precision (~1e-6).
     """
 
     def __init__(self, target=None, p=None, p_max: int = 5, intercept: bool = True) -> None:

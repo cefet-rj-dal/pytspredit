@@ -535,17 +535,31 @@ Mapeamento passo-a-passo (pydaltoolbox → pytspredit):
   ARIMA++/horizonte-CV, EMD degenerado, read-only numpy) + §6 matriz de paridade R↔Py
   completa e autoritativa (invariante/veredito/evidência/guard por classe). `mapeamento.md`
   aponta a §6 como matriz autoritativa.
-- **M6 — Auditoria de crédito (espelha 0.24.0), Python + R.** Varredura de TODAS as
-  docstrings/roxygen: zero frases proibidas; Teoria + `References:` (paper original) +
-  `Porting:` em toda classe de algoritmo; **atribuição canônica das back-implementations/++**
-  (EMD, wavelet, ARIMA++, `_RLinear`, ELM, `TsVar`); corrigir `Mirrors X.R` a arquivos
-  inexistentes. Espelhar no `tspredit` R. Dev-only de doc.
+- **✅ M6 — Auditoria de crédito (espelha 0.24.0), Python + R — FEITO** (branch
+  `milestone-m6-credit-audit` no pytspredit + `m6-credit-audit` no tspredit). Varredura de
+  TODAS as docstrings (Python) + roxygen (R): **frases proibidas = ZERO** (removidas de
+  arima/deterministic/emd/wavelet/filters/regressors/multivariate no Python e de
+  ts_arima/ts_fil_emd/ts_fil_remd/ts_fil_wavelet/tslagutils no R — a remoção de dep vai na
+  mensagem de commit, não na doc); Teoria + `References:` + `Porting:` nas classes de
+  algoritmo (adicionado `Theory:` em EMD/wavelet/ARIMA/ELM/deterministic); **atribuição
+  canônica das back-impls/++** com evidência (EMD ~1800× mais rápido; wavelet valor-a-valor
+  ~5e-6; ARIMA++ ~14% melhor no NN5; `_RLinear`=`lm` do R; ELM; `TsVar`); corrigidas refs
+  `Mirrors X.R` inexistentes (`ts_periodic.R`/`ts_persist.R`→`ts_deterministic.R`;
+  `grf_ts_pred.R` confirmado como arquivo do daltoolbox). Python: 261 testes verdes, ruff
+  limpo. R: roxygenise 8.1.1 regenerou 6 `.Rd`, `R CMD INSTALL` limpo, versão mantida em
+  2.0.747 (polimento de doc da release ainda não submetida ao CRAN). Dev-only.
 
-#### Fechamento — BETA primeiro, depois 1.0.0 (decidido 2026-11-23)
-- **⬜ `1.0.0b1` — RELEASE BETA.** Fechadas M1–M6, publicar uma versão **beta** (PEP 440
-  `1.0.0b1`, "batizada com o beta") no PyPI — `mapeamento.md`/`historico.md` finalizados,
-  matriz de paridade completa, API revisada. **Rodar ~1 semana em beta** (não ir direto p/
-  1.0.0 hoje), coletar feedback.
+#### Fechamento — BETA primeiro, depois 1.0.0 (decidido 2026-11-23; **beta renomeado 2026-11-24**)
+- **⚠️ MUDANÇA (Eduardo, 2026-11-24):** o beta **NÃO** será `1.0.0b1`. Vamos **batizar de
+  beta a versão subsequente à última de qualidade**, e ela **continua na linha `0.x.0`**
+  (ex.: `0.12.0`), não salta para `1.0.0b1` (PEP 440). Ou seja: as passadas de maturidade
+  (M1–M6 + a tarefa extra que o Eduardo vai passar antes do beta) são "de qualidade"; a
+  PRÓXIMA `0.x.0` depois delas é "o beta".
+- **⏸️ ANTES DO BETA:** o Eduardo vai passar **outra tarefa** — fazer essa tarefa primeiro,
+  depois a release beta.
+- **⬜ `0.x.0` — RELEASE BETA.** Fechadas M1–M6 + a tarefa extra, publicar a próxima `0.x.0`
+  no PyPI como o beta — `mapeamento.md`/`historico.md` finalizados, matriz de paridade
+  completa, API revisada. **Rodar ~1 semana em beta**, coletar feedback.
 - **⬜ `1.0.0` — estável.** Após a semana de beta sem problemas, promover a `1.0.0`
   (congela a API, sai de beta). **A partir daqui o pytspredit também usa numeração Boeing**
   (1.0.707, 1.0.717, …), como o `tspredit` R.

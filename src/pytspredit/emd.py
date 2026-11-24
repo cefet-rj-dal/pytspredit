@@ -1,14 +1,27 @@
-"""Native Empirical Mode Decomposition (EMD / EEMD / CEEMDAN).
+"""Empirical Mode Decomposition (EMD / EEMD).
 
-A dependency-free (numpy + scipy, both already core) implementation of EMD and its
-noise-assisted ensemble variants, used by the decomposition filters ``TsFilEmd`` and
-``TsFilRemd``. Decomposes a signal into Intrinsic Mode Functions (IMFs) by iterative
-sifting with cubic-spline envelopes and Rilling-style boundary mirroring.
+Implementation of EMD and its noise-assisted ensemble variant (EEMD), used by the
+decomposition filters ``TsFilEmd`` and ``TsFilRemd``. Decomposes a signal into Intrinsic
+Mode Functions (IMFs) by iterative sifting with cubic-spline envelopes and Rilling-style
+boundary mirroring.
 
-Canonical here: this native implementation is the reference; the R ``tspredit`` filters
-(which used the ``hht`` package) are to be backported to it. It is both faster (orders of
-magnitude vs R ``hht``) and dependency-free (drops PyEMD / ``hht``), while matching or
-improving IMF quality on the package's denoising use case.
+Theory:
+    EMD is a data-driven, fully adaptive decomposition for nonlinear and non-stationary
+    signals (Huang et al. 1998). It extracts IMFs -- zero-mean oscillatory components with
+    a locally symmetric envelope -- by repeatedly *sifting*: interpolate the upper and
+    lower extrema with cubic-spline envelopes, subtract their mean, and iterate until the
+    component is an IMF; the IMF is then removed and the process repeats on the residual.
+    EEMD (Wu & Huang 2009) adds controlled white noise across an ensemble and averages the
+    resulting IMFs to mitigate mode mixing. End effects are handled by reflecting the
+    outermost extrema across the boundaries (Rilling et al. 2003).
+
+Canonical attribution:
+    This module is the canonical reference implementation of EMD/EEMD for the toolkit, and
+    the R ``tspredit`` decomposition filters are backported to the same algorithm. The
+    improvement (++), with evidence: exact reconstruction (the IMFs sum to the signal to
+    ~4e-16), denoising R-squared that matches or exceeds reference implementations on the
+    package's outlier-removal use case, and roughly three orders of magnitude faster than
+    the ``hht``-based reference at n~2048. See ``develop/parity.md`` Section 5.4.
 
 References:
     - Huang, N. E., Shen, Z., Long, S. R., et al. (1998). *The empirical mode
@@ -20,9 +33,10 @@ References:
       decomposition and its algorithms*. IEEE-EURASIP NSIP (boundary mirroring).
 
 Porting:
-    Canonical native implementation. The R ``ts_fil_emd.R`` / ``ts_fil_remd.R`` wrap the
-    ``hht`` package (``CEEMD``); this module replaces that engine. Fidelity: adapted
-    (own algorithm; EMD is backend/stochastic -- parity is quality-level, not value-wise).
+    Mirrors the R native decomposition core (``emd_decompose`` / ``eemd_decompose`` in
+    ``ts_fil_emd.R``), which this module is the reference for. Fidelity: adapted -- EMD is
+    adaptive and (for EEMD) stochastic, so parity is quality-level (the denoising outcome),
+    not value-wise.
 """
 from __future__ import annotations
 
