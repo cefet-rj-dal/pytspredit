@@ -42,6 +42,35 @@ def test_auto_order_selects_something():
     assert np.isfinite(pred).all()
 
 
+def test_zero_order_is_auto_sentinel():
+    # (0, 0, 0) is read as the auto-fit sentinel, like NULL/None
+    sr = _raw_split()
+    model = ts.TsArima(0, 0, 0)
+    assert not model.manual_order
+    model.fit(sr.train)
+    assert model._order() != (0, 0, 0)  # auto picked a real order
+    assert all(v is not None for v in model._order())
+
+
+def test_zero_in_one_position_stays_manual():
+    # only the full (0, 0, 0) triggers auto; (0, 1, 1) is a real manual order
+    model = ts.TsArima(0, 1, 1)
+    assert model.manual_order
+    model.fit(_raw_split().train)
+    assert model._order() == (0, 1, 1)
+
+
+def test_fit_arima_public_helper():
+    sr = _raw_split()
+    order, trend, model = ts.fit_arima(sr.train)
+    assert len(order) == 3
+    assert model is not None
+    assert isinstance(trend, str)
+    # cv mode reachable through the same entry point
+    order_cv, _, _ = ts.fit_arima(sr.train, auto="cv", horizon=3)
+    assert len(order_cv) == 3
+
+
 def test_rolling_one_step():
     sr = _raw_split()
     model = ts.TsArima(p=2, d=0, q=0).fit(sr.train)

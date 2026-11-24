@@ -9,7 +9,7 @@ scikit-learn / numpy / pandas / statsmodels with thin adapters.
 from __future__ import annotations
 
 from . import datasets
-from .arima import TsArima
+from .arima import TsArima, fit_arima
 from .augment import (
     TsAugAwareness,
     TsAugAwaresmooth,
@@ -78,7 +78,7 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.10.0"
+__version__ = "0.11.0"
 
 __all__ = [
     "TsArima",
@@ -142,6 +142,7 @@ __all__ = [
     "adjust_ts_data",
     "adjust_ts_data_mv",
     "datasets",
+    "fit_arima",
     "mse_ts",
     "plot_ts_pred",
     "plot_ts_pred_mv",

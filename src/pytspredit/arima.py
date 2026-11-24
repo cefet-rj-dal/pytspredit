@@ -19,7 +19,7 @@ from statsmodels.tsa.arima.model import ARIMA
 
 from .ts_reg import TsReg, _vec
 
-__all__ = ["TsArima"]
+__all__ = ["TsArima", "fit_arima"]
 
 
 def _ndiffs(series, max_d: int = 2, alpha: float = 0.05) -> int:
@@ -178,10 +178,35 @@ def _auto_order(series):
     return best[1], best[2], best[3]
 
 
-class TsArima(TsReg):
-    """ARIMA(p, d, q) forecaster. Leave orders ``None`` for automatic selection.
+def fit_arima(series, auto="aicc", max_order=12, cv_folds=2, horizon=None):
+    """Native automatic ARIMA fit -- the role of ``forecast::auto.arima``.
 
-    Automatic order selection (when ``p``/``d``/``q`` are ``None``):
+    Selects the ``(p, d, q)`` order automatically and returns the fitted model, with
+    no dependency on R's ``forecast``. This is the univariate auto-fit entry point
+    used by :class:`TsArima` (constructor orders left ``None`` or set to ``(0, 0, 0)``),
+    and is exported for standalone reuse. Its canonical R counterpart is the exported
+    ``fit_arima()`` in ``ts_arima.R``.
+
+    * ``auto="aicc"`` (default) -- compact AICc search (p, q in 0..3), approximating
+      ``forecast::auto.arima``.
+    * ``auto="cv"`` -- **ARIMA++**: ACF/PACF-driven candidates + horizon-matched
+      rolling-origin cross-validation. ``max_order``/``cv_folds``/``horizon`` tune it.
+
+    Returns ``(order, trend, model)``: the selected ``(p, d, q)`` tuple, the
+    statsmodels trend string, and the fitted ``statsmodels`` results object.
+    """
+    x = _vec(series)
+    if auto == "cv":
+        return _auto_order_cv(x, max_order=max_order, folds=cv_folds, horizon=horizon)
+    return _auto_order(x)
+
+
+class TsArima(TsReg):
+    """ARIMA(p, d, q) forecaster. Leave orders ``None`` (or ``(0, 0, 0)``) for auto.
+
+    Automatic order selection (when ``p``/``d``/``q`` are ``None`` or all ``0`` --
+    ``(0, 0, 0)`` is read as the auto-fit sentinel, so a pure white-noise model is not
+    reachable) delegates to the exported :func:`fit_arima`:
 
     * ``auto="aicc"`` (default) -- a compact AICc search (p,q in 0..3), approximating
       ``forecast::auto.arima``.
@@ -221,7 +246,9 @@ class TsArima(TsReg):
         self.max_order = max_order
         self.cv_folds = cv_folds
         self.horizon = horizon           # CV horizon for auto="cv" (defaults to season)
-        self.manual_order = p is not None and d is not None and q is not None
+        specified = p is not None and d is not None and q is not None
+        auto_zero = specified and p == 0 and d == 0 and q == 0  # (0,0,0) = auto-fit
+        self.manual_order = specified and not auto_zero
         self.include_mean = bool(self.manual_order and d == 0)
         self.include_drift = bool(self.manual_order and d == 1)
         self.model = None
@@ -234,12 +261,9 @@ class TsArima(TsReg):
             trend = _trend(self.d, self.include_mean, self.include_drift)
             self.model = _fit_arima(series, (self.p, self.d, self.q), trend)
         else:
-            if self.auto == "cv":
-                (self.p, self.d, self.q), _, self.model = _auto_order_cv(
-                    series, max_order=self.max_order, folds=self.cv_folds,
-                    horizon=self.horizon)
-            else:
-                (self.p, self.d, self.q), _, self.model = _auto_order(series)
+            (self.p, self.d, self.q), _, self.model = fit_arima(
+                series, auto=self.auto, max_order=self.max_order,
+                cv_folds=self.cv_folds, horizon=self.horizon)
             self.include_mean = self.d == 0
             self.include_drift = self.d == 1
         return self

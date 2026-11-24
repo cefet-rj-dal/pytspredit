@@ -1,6 +1,9 @@
 # ARIMA++ : smarter automatic order selection
 
-`TsArima` offers two automatic order selectors (used when `p`/`d`/`q` are left `None`):
+`TsArima` offers two automatic order selectors, used when `p`/`d`/`q` are left `None`
+**or set to `(0, 0, 0)`** (the auto-fit sentinel). The same native engine is exported as
+`fit_arima()` — the dependency-free counterpart of `forecast::auto.arima`, mirrored 1:1 by
+the exported `fit_arima()` in the R `tspredit`:
 
 * `auto="aicc"` (default) — a compact AICc search, approximating `forecast::auto.arima`.
 * `auto="cv"` — **ARIMA++**, which fixes two known weaknesses of `auto.arima`:
@@ -24,6 +27,29 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pytspredit as ts
 ```
+
+## The native auto-fit: `fit_arima()` and the `(0, 0, 0)` sentinel
+
+
+```python
+rng0 = np.random.default_rng(0)
+s = np.cumsum(rng0.standard_normal(80)) + 0.1 * np.arange(80)
+
+# standalone native auto.arima -> (order, trend, fitted model)
+order, trend, _ = ts.fit_arima(s)
+print("fit_arima selected order:", order)
+
+# inside the class, (0, 0, 0) requests the same auto-fit as None
+print("(0,0,0) is auto:", not ts.TsArima(0, 0, 0).manual_order)
+print("class auto order:", ts.TsArima(0, 0, 0).fit(s)._order())
+```
+
+    fit_arima selected order: (0, 1, 0)
+    (0,0,0) is auto: True
+
+
+    class auto order: (0, 1, 0)
+
 
 ## A series with long (seasonal) autoregressive structure
 
