@@ -162,32 +162,7 @@ def test_regsw_mv_requires_one_model_per_aux():
         model.fit(samp.train)
 
 
-# -- R-vs-Python parity (documented) -------------------------------------------
-
-def test_parity_var_matches_r():
-    """Native OLS VAR matches R ts_var to numerical precision."""
-    model = ts.TsVar(p_max=3).fit(ts.ts_sample(_mv(), test_size=5).train)
-    r = np.array([0.412118, 0.173889, -0.075151, -0.319519, -0.544021])
-    np.testing.assert_allclose(np.asarray(model.predict(steps_ahead=5)), r, atol=1e-5)
-
-
-def test_parity_lm_mv_matches_r():
-    """TsLmMv reuses R's lm column-dropping (_RLinear) -> exact."""
-    samp = ts.ts_sample(_mv(), test_size=5)
-    model = ts.TsLmMv(formula="y ~ x1 + x2").fit(samp.train)
-    pred = model.predict(samp.test, steps_ahead=5)
-    r = np.array([0.41161932, 0.17404351, -0.07477247, -0.31935845, -0.44889824])
-    np.testing.assert_allclose(np.asarray(pred), r, atol=1e-7)
-
-
-def test_parity_regsw_mv_orchestration_matches_r():
-    """Deterministic target (KNN) + deterministic aux -> exact orchestration parity."""
-    samp = ts.ts_sample(_mv(), test_size=5)
-    model = ts.TsRegswMv(
-        model_y=ts.ts_mv_spec(ts.TsKnn(ts.TsNormGminmax(), k=3),
-                              variables=["y", "x1", "x2"]),
-        models_x={"x1": ts.ts_mv_spec(ts.TsPeriodic(7)),
-                  "x2": ts.ts_mv_spec(ts.TsPeriodic(7))},
-        window_size=5).fit(samp.train)
-    r = np.array([0.53495236, 0.37375105, 0.37375105, 0.73785421, 0.96531613])
-    np.testing.assert_allclose(np.asarray(model.predict(steps_ahead=5)), r, atol=1e-6)
+# -- R-vs-Python parity --------------------------------------------------------
+# Consolidated into the committed-parity guard tests/test_quality_multivariate.py
+# (reproducible R reference develop/parity/multivariate.R, + ts_arimax coverage). See
+# develop/parity.md.
