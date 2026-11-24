@@ -530,8 +530,11 @@ Mapeamento passo-a-passo (pydaltoolbox → pytspredit):
 - **M4 — Metadados (espelha "Metadados do pacote").** `pyproject.toml`: contribuidores
   (espelhar o `Authors@R` do `tspredit` R: Eduardo, Arthur Garcia, Cristiane Gea, Diogo
   Santos, …), e **Development Status `3 - Alpha` → `4 - Beta`**.
-- **M5 — `parity.md` (espelha "Metodologia de paridade").** Já existe; atualizar com os
-  estudos de caso do M3 e a matriz de paridade R↔Py completa.
+- **✅ M5 — `parity.md` (espelha "Metodologia de paridade") — FEITO** (branch
+  `milestone-m5-parity-matrix`, dev-only): §5 estudos de caso (ts_norm_none, ts_arimax xreg,
+  ARIMA++/horizonte-CV, EMD degenerado, read-only numpy) + §6 matriz de paridade R↔Py
+  completa e autoritativa (invariante/veredito/evidência/guard por classe). `mapeamento.md`
+  aponta a §6 como matriz autoritativa.
 - **M6 — Auditoria de crédito (espelha 0.24.0), Python + R.** Varredura de TODAS as
   docstrings/roxygen: zero frases proibidas; Teoria + `References:` (paper original) +
   `Porting:` em toda classe de algoritmo; **atribuição canônica das back-implementations/++**

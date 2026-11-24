@@ -10,6 +10,11 @@ instância**; `data.frame` → `pandas.DataFrame`.
 **Legenda:** ✅ portado (release) · 🔜 próxima release · ⬜ Ciclo 2 (dep pesada, extra) ·
 ❌ fora de escopo (ver §Fora de escopo).
 
+> **Veredito de paridade (M5):** este documento registra a **correspondência** R↔Python
+> (qual símbolo vira qual). A **matriz de paridade completa** — invariante comparado,
+> veredito, evidência numérica e o guard committado de cada classe — está em
+> `parity.md` §6 (autoritativa); os estudos de caso dos bugs/achados, em `parity.md` §5.
+
 ## Categorias de porte (como cada classe foi do R para o Python)
 
 Cada classe se encaixa em uma destas categorias (resume o que mudou em R e Python):

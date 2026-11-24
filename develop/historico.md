@@ -256,6 +256,28 @@ Birindiba. **[PUBLICADO no PyPI como 0.11.1, 2026-11-24]** — release interino 
 mudança funcional desde 0.11.0). O beta `1.0.0b1` (FECHO) segue depois do M5+M6. Mesclado na
 main; branch deletada.
 
+### M5 — `parity.md`: estudos de caso + matriz de paridade completa (2026-11-24) **[branch `milestone-m5-parity-matrix`, dev-only no PyPI]**
+Passada de documentação (sem mudança de código, sem release). Atualizado o `parity.md`:
+- **§5 — Estudos de caso** (narrativa, espelhando o estilo do `parity.md` do pydaltoolbox):
+  (5.1) bug do caminho-x do `ts_norm_none` no R — o "a referência não é a verdade", achado
+  por bissecção (o gap `[0.87]`→`[0.41]` do darima era o alvo corrompido, não o `_RLinear`);
+  (5.2) bug `object 'xreg' not found` do `ts_arimax` no R (regressão da remoção do `forecast`),
+  achado **ao escrever a referência** do M3 — paridade é concordância depois dos dois certos;
+  (5.3) ARIMA++ e o gate `++` — a lei reusável "a CV tem que casar o horizonte da previsão"
+  (NN5 1-passo reprovou, multi-step passou ~14% melhor); (5.4) EMD no `tsd` degenerado —
+  escolher o invariante (resultado do denoising, não correlação); (5.5) linhas read-only do
+  numpy — o install em venv limpo é um gate de paridade.
+- **§6 — Matriz de paridade completa R↔Py (autoritativa)**: uma linha por família/classe com
+  invariante comparado · veredito · evidência numérica · **guard committado + gerador**. Toda
+  linha é hoje um guard R-free committado (ritual M3), então caiu a ressalva "ad-hoc" pré-0.6.0.
+  Legenda de vereditos (exact/near-exact/backend/stochastic/quality/value-wise/++/✨/🐞).
+- **§7 — Itens abertos**: matriz ✓ e estudos de caso ✓ marcados feitos; resta só re-evidenciar
+  sob seed os poucos vereditos "benignos" ainda ad-hoc (augmentation RNG, fold RNG do tuning),
+  na passada de endurecimento da 1.0.0.
+- `mapeamento.md`: nota apontando o `parity.md` §6 como a matriz de paridade autoritativa
+  (o `mapeamento.md` fica com a **correspondência** de símbolos; o veredito/evidência vai pro
+  `parity.md`).
+
 ---
 
 ## Estado atual (base para o `planejamento.md`)
@@ -272,9 +294,10 @@ main; branch deletada.
   **M2 ✓** (exemplos 1:1, ~104 notebooks, na main), **M3 ✓** (testes pareados R↔Python 0.1→0.5,
   committados, na main — achou+corrigiu o bug do `ts_arimax`), **M4 ✓** (metadados: autores do
   port + Development Status `4-Beta`, branch `milestone-m4-metadata`, dev-only). **Falta: M5**
-  (parity.md: estudos de caso + matriz R↔Py completa) → **M6** (auditoria de crédito Py+R:
-  Teoria+References+Porting, atribuição das back-impls/++). **FECHO:** publicar `1.0.0b1` (beta ~1 semana) → promover a **1.0.0**; pós-1.0.0
-  pytspredit também adota numeração Boeing.
+  **M5 ✓** (parity.md: estudos de caso §5 + matriz R↔Py completa §6, branch
+  `milestone-m5-parity-matrix`, dev-only). **Falta: M6** (auditoria de crédito Py+R:
+  Teoria+References+Porting, atribuição das back-impls/++). **FECHO:** publicar `1.0.0b1`
+  (beta ~1 semana) → promover a **1.0.0**; pós-1.0.0 pytspredit também adota numeração Boeing.
 - Branches já mescladas (podem ser deletadas): `milestone-m3-paired-tests` (pytspredit),
   `arimax-xreg-fix` (tspredit). `main` é a única branch de código nos dois repos.
-- Próximo: **M4**. Depois M5, M6, e o beta `1.0.0b1`.
+- Próximo: **M6** (auditoria de crédito Py+R). Depois o beta `1.0.0b1`.
