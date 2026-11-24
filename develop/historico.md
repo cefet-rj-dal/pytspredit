@@ -325,11 +325,14 @@ juntos, **só o núcleo** (daltoolboxdp/reproduce ficam p/ depois). Plano em `de
   232 testes). `daltoolbox 1.4.717` na main (removidos grf_ts/grf_ts_pred/grf_series + NAMESPACE
   + Rd; 40/41 → plot_scatter; `R CMD INSTALL` limpo; **CRAN = passo manual do Eduardo**). Todas
   as 4 branches `plot-ownership` mescladas e deletadas.
-- **Fase 4 (exemplos Python) — EM ANDAMENTO (branch `plot-examples`):** enriquecer os ~104
-  notebooks com os plots ao nível do R (~70% vs 6%). FEITO: **filter (16)** = `plot_ts` da série
-  crua + `plot_ts_pred(y, yadj=filtrado)`; **prediction (8: 01-08)** = `plot_ts_pred` do forecast
-  de 5 passos. Todos renderizam verde (plots viram imagens no examples/). FALTAM: augment,
-  lagmapping, normalization, tsdata, multivariate, tuning, datasets, tutorial, custom.
+- **Fase 4 (exemplos Python) — FEITA (branch `plot-examples`, aguardando revisão/merge):**
+  **70/104 notebooks com plot** (era 6; o R plota ~70%). filter 16, prediction 9 (01-08+10),
+  normalization 9, augment 8, lagmapping 13, tsdata 3, multivariate 4 (TsLmMv/TsArimax/TsVar/
+  TsRegswMv), datasets 1 (tsd), custom 1 (filter), tutorial 6 (arima 01-03 + mlp 04/06/08).
+  `plot_ts` (série crua), `plot_ts_pred` (forecast/filtro), `plot_ts_pred_mv` (MV). Os 34 sem
+  plot espelham o R (datasets accessors, tuning, custom extensions, MV build/split, prediction
+  concepts 00/09). Todos verdes pelo conversor (plots viram imagens). **Pendente:** revisão +
+  ff-merge do Eduardo; depois a release beta `0.x.0` leva os `plot_ts`/`plot_series` novos ao PyPI.
 
 ---
 

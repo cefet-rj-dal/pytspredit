@@ -69,8 +69,13 @@ Decidido com o Eduardo (2026-11-24). Duas frentes; a B depende da A.
     `R CMD INSTALL` limpo; verificado que o daltoolbox não expõe mais `plot_ts_pred` e o
     tspredit sim. (NAMESPACE editado cirurgicamente p/ evitar o reformat do roxygen 8.1.1.)
   - Escopo: **só o núcleo** (Eduardo) — daltoolboxdp e reproduce ficam p/ depois.
-- **⏳ Fase 4 (exemplos Python)** — em andamento: enriquecer os ~104 notebooks do pytspredit
-  com os plots (`plot_ts`/`plot_ts_pred`/`plot_ts_pred_mv`) ao nível do R (~70%).
+- **✅ Fase 4 (exemplos Python) — FEITA** (branch `plot-examples`): **70/104 notebooks com
+  plot** (era 6/104; o R plota ~70%). Por família: filter 16/16, prediction 9/11, normalization
+  9/9, augment 8/8, lagmapping 13/13, tsdata 3/3, multivariate 4/6 (os que preveem), datasets
+  1/21, custom 1/4, tutorial 6/10. Os 34 sem plot **espelham as escolhas do R** (datasets só
+  plota o tsd; tuning não plota; custom só o custom-filter; MV build/split não preveem;
+  prediction concepts 00/09). Todos renderizam verde (plots viram imagens no `examples/`).
+  `plot_ts` (série crua) / `plot_ts_pred` (forecast ou filtro) / `plot_ts_pred_mv` (MV).
 - **Pós-Fase 4:** o beta `0.x.0` do pytspredit (que leva os `plot_ts`/`plot_series` novos ao
   PyPI). Pendente externo do Eduardo: CRAN do daltoolbox 1.4.717 + tspredit.
 
