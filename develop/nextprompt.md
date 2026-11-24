@@ -21,24 +21,19 @@ ESTADO ATUAL (2026-11-24)
   famílias (tsdata/normalization/lagmapping/augment/filter/prediction/tuning/multivariate/
   datasets/custom/tutorial), todos verdes (torch fora de escopo; stock-close adiadas). A
   branch `milestone-m2-examples` já foi ff-mergeada e deletada em sessão anterior.
-- **M3 ✓ FEITO** na branch **`milestone-m3-paired-tests`** (pytspredit, pushed, dev-only,
-  aguardando ff-merge): 6 pares `develop/parity/<fam>.R`→`<fam>_ref.json` + guards R-free
-  `tests/test_quality_<fam>.py` para normalização/lagmap/regressores/model-zoo/filtros/
-  multivariado (0.1→0.5); datasets/emd/wavelet já tinham. **Achou+corrigiu 1 bug REAL do R**:
-  `ts_arimax` predict quebrava (`object 'xreg' not found`) — fix em `arima_fit`
-  (`fit$call$xreg <- xreg`), na branch **`arimax-xreg-fix`** do tspredit (pushed, DESCRIPTION
-  **2.0.737→2.0.747**). Python já estava certo.
-- Branches de feature absorvidas e DELETADAS (local+remoto): `fit-arima-export`,
-  `emd-native-backport`, `milestone-m2-examples`.
-
-PENDÊNCIAS DE MERGE
-- ff-merge de `milestone-m2-examples`? NÃO — já estava na main. Pendentes agora:
-  **`milestone-m3-paired-tests`** (pytspredit, dev-only ff) e **`arimax-xreg-fix`**
-  (tspredit, ff→main). Push direto na main do tspredit é bloqueado pelo classificador → use branch.
+- **M3 ✓ FEITO E MESCLADO NA MAIN** (pytspredit HEAD `28e8516`, dev-only sem PyPI): 6 pares
+  `develop/parity/<fam>.R`→`<fam>_ref.json` + guards R-free `tests/test_quality_<fam>.py`
+  para normalização/lagmap/regressores/model-zoo/filtros/multivariado (0.1→0.5);
+  datasets/emd/wavelet já tinham. **Achou+corrigiu 1 bug REAL do R**: `ts_arimax` predict
+  quebrava (`object 'xreg' not found`) — fix em `arima_fit` (`fit$call$xreg <- xreg`),
+  **MESCLADO na main do tspredit** (HEAD `e5f4583`, DESCRIPTION **2.0.747**). Python já certo.
+- Branches de feature absorvidas: `fit-arima-export`, `emd-native-backport`,
+  `milestone-m2-examples` (deletadas); `milestone-m3-paired-tests` (pytspredit) e
+  `arimax-xreg-fix` (tspredit) já mescladas — PODEM SER DELETADAS. `main` é a única de código.
 
 PENDÊNCIA EXTERNA (Eduardo faz)
-- submissão ao CRAN do `tspredit` **v2.0.747** (após ff-merge do `arimax-xreg-fix`; o alvo
-  mudou de 2.0.737 por causa do fix do ARIMAX achado no M3).
+- submissão ao CRAN do `tspredit` **v2.0.747** (já na main do R; o alvo mudou de 2.0.737
+  por causa do fix do ARIMAX achado no M3).
 
 PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada um numa branch:
 - **M4 — Metadados:** `pyproject.toml` com contribuidores (espelhar o `Authors@R` do
@@ -75,6 +70,6 @@ GOTCHAS IMPORTANTES DESTA MÁQUINA
 - ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
   rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
 
-COMECE confirmando comigo: fazer os ff-merges pendentes (M3 no pytspredit, `arimax-xreg-fix`
-no tspredit) e seguir para o **M4** (metadados / classificador Beta) — ou priorizar outro
-passo da reta de maturidade (M5 parity.md / M6 auditoria de crédito) rumo ao `1.0.0b1` beta.
+COMECE confirmando comigo: seguir para o **M4** (metadados / classificador Beta) — ou
+priorizar outro passo da reta de maturidade (M5 parity.md / M6 auditoria de crédito) rumo ao
+`1.0.0b1` beta. (M3 e o fix do ARIMAX já estão nas mains; branches mescladas podem ser deletadas.)
