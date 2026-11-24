@@ -26,6 +26,14 @@ warnings.filterwarnings("ignore")
 import pytspredit as ts
 ```
 
+Visualize the series used in this example:
+
+```python
+_d = ts.datasets.tsd()
+ts.plot_ts(x=_d["x"], y=_d["y"])
+```
+
+
 ```python
 y = ts.datasets.tsd()["y"]
 w = ts.ts_data(y, 5)

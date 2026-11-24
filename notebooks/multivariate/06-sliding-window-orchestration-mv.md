@@ -48,6 +48,13 @@ orch = ts.TsRegswMv(
 orch.predict(steps_ahead=5).system
 ```
 
+Plot the multivariate forecast for the target variable:
+
+```python
+pred = orch.predict(steps_ahead=5)
+ts.plot_ts_pred_mv(samp.train, samp.test, pred, variable="y")
+```
+
 > **What to observe.** `ts_mv_spec` wires each variable to its own model; `predict().system` holds the full multivariate forecast.
 
 **References:** Salles et al. (2023), *TSPredIT*, LNCS 14160.

@@ -41,6 +41,21 @@ np.asarray(var.predict(steps_ahead=5)).round(4)
 
 
 
+Plot the multivariate forecast for the target variable:
+
+
+```python
+pred = var.predict(steps_ahead=5)
+ts.plot_ts_pred_mv(samp.train, samp.test, pred, variable="y")
+```
+
+
+
+
+    <Figure size 600x350 with 1 Axes>
+
+
+
 > **What to observe.** `TsVar` forecasts the full system; by default `predict` returns the target `y`.
 
 **References:** Lütkepohl, H. (2005), *New Introduction to Multiple Time Series Analysis*, Springer; Salles et al. (2023), *TSPredIT*, LNCS 14160.

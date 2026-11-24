@@ -21,6 +21,29 @@ methods = ["recent", "even", "geom", "acf", "pacf", "peaks",
            "seasonal", "acf_seasonal", "pacf_seasonal", "blocks", "mi", "mrmr"]
 ```
 
+Visualize the series used in this example:
+
+
+```python
+_d = ts.datasets.tsd()
+ts.plot_ts(x=_d["x"], y=_d["y"])
+```
+
+
+
+
+
+![png](fig/13-lag-mapping-comparison/output_3_0.png)
+
+
+
+
+
+
+![png](fig/13-lag-mapping-comparison/output_3_1.png)
+
+
+
 
 ```python
 for m in methods:
@@ -38,11 +61,7 @@ for m in methods:
     acf_seasonal   lags=[np.int64(8), np.int64(4), np.int64(2), np.int64(1)]  columns=['t8', 't4', 't2', 't1']
     pacf_seasonal  lags=[np.int64(8), np.int64(4), np.int64(2), np.int64(1)]  columns=['t8', 't4', 't2', 't1']
     blocks         lags=[np.int64(4), np.int64(3), np.int64(2), np.int64(1)]  columns=['t4', 't3', 't2', 't1']
-
-
     mi             lags=[np.int64(9), np.int64(5), np.int64(4), np.int64(2)]  columns=['t9', 't5', 't4', 't2']
-
-
     mrmr           lags=[np.int64(9), np.int64(6), np.int64(2), np.int64(1)]  columns=['t9', 't6', 't2', 't1']
 
 

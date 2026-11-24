@@ -44,6 +44,13 @@ ax = ts.TsArimax(p=2, d=0, q=0).fit(samp.train)
 np.asarray(ax.predict(samp.test, steps_ahead=5)).round(4)
 ```
 
+Plot the multivariate forecast for the target variable:
+
+```python
+pred = ax.predict(samp.test, steps_ahead=5)
+ts.plot_ts_pred_mv(samp.train, samp.test, pred, variable="y")
+```
+
 > **What to observe.** Explicit `(p,d,q)` keeps the example fast; auxiliaries enter through `xreg`.
 
 **References:** Box, Jenkins, Reinsel & Ljung (2015), *Time Series Analysis*, Wiley; Salles et al. (2023), *TSPredIT*, LNCS 14160.

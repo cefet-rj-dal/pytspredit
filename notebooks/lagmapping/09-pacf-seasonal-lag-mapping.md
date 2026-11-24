@@ -27,6 +27,14 @@ import pytspredit as ts
 io = ts.ts_projection(ts.ts_data(ts.datasets.tsd()["y"], 10))
 ```
 
+Visualize the series used in this example:
+
+```python
+_d = ts.datasets.tsd()
+ts.plot_ts(x=_d["x"], y=_d["y"])
+```
+
+
 ```python
 lm = ts.TsLagmap(method="pacf_seasonal", seasonality=4).fit(io.input, io.output, input_size=4)
 print("selected lags:", list(lm.lags))

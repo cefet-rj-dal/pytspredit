@@ -41,6 +41,21 @@ np.asarray(lm.predict(samp.test, steps_ahead=5)).round(4)
 
 
 
+Plot the multivariate forecast for the target variable:
+
+
+```python
+pred = lm.predict(samp.test, steps_ahead=5)
+ts.plot_ts_pred_mv(samp.train, samp.test, pred, variable="y")
+```
+
+
+
+
+    <Figure size 600x350 with 1 Axes>
+
+
+
 > **What to observe.** With known future auxiliaries the fit reproduces R's `lm` (exact); otherwise auxiliaries are modeled.
 
 **References:** Montgomery, Peck & Vining (2012), *Introduction to Linear Regression Analysis*, Wiley; Salles et al. (2023), *TSPredIT*, LNCS 14160.

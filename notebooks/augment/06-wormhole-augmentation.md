@@ -29,6 +29,14 @@ windows = ts.ts_data(ts.datasets.tsd()["y"], 10)
 print("original windows:", windows.shape)
 ```
 
+Visualize the series used in this example:
+
+```python
+_d = ts.datasets.tsd()
+ts.plot_ts(x=_d["x"], y=_d["y"])
+```
+
+
 ```python
 out = ts.TsAugWormhole().fit(windows).transform(windows)
 print('after augmentation:', out.shape)

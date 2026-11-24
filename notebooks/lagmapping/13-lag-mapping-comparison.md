@@ -32,6 +32,14 @@ methods = ["recent", "even", "geom", "acf", "pacf", "peaks",
            "seasonal", "acf_seasonal", "pacf_seasonal", "blocks", "mi", "mrmr"]
 ```
 
+Visualize the series used in this example:
+
+```python
+_d = ts.datasets.tsd()
+ts.plot_ts(x=_d["x"], y=_d["y"])
+```
+
+
 ```python
 for m in methods:
     lm = ts.TsLagmap(method=m, seasonality=4).fit(io.input, io.output, input_size=4)

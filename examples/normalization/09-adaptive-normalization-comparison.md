@@ -20,6 +20,29 @@ y = ts.datasets.tsd()["y"]
 w = ts.ts_data(y, 5)
 ```
 
+Visualize the series used in this example:
+
+
+```python
+_d = ts.datasets.tsd()
+ts.plot_ts(x=_d["x"], y=_d["y"])
+```
+
+
+
+
+
+![png](fig/09-adaptive-normalization-comparison/output_3_0.png)
+
+
+
+
+
+
+![png](fig/09-adaptive-normalization-comparison/output_3_1.png)
+
+
+
 
 ```python
 # first transformed window (t4..t0) under each operator
