@@ -53,6 +53,27 @@ Decidido com o Eduardo (2026-11-24). Duas frentes; a B depende da A.
   ~70% do R): por família, adicionar `plot_ts`/`plot_ts_pred`/`plot_ts_pred_mv`; conversor
   verde. (Os exemplos R já têm; é trazer o Python ao nível do R.)
 
+## Status (2026-11-24)
+- **✅ Fase 1 (aditiva)** — donos ganham as 4 funções. pytspredit (`plot_ts`/`plot_series`
+  novos + `plot_ts_pred`/`plot_ts_pred_mv`) e tspredit (`grf_ts`/`grf_ts_pred`/`grf_series`
+  copiados; +ggplot2/reshape nos Imports). Mesclado na main dos dois; 261 testes + ruff
+  (Py), `R CMD INSTALL` limpo (R), paridade de geometria confirmada.
+- **✅ Fases 2–3 (remoção dos toolboxes) — SELADAS E RELEASED:**
+  - **pydaltoolbox 0.25.0 PUBLICADO no PyPI** (https://pypi.org/project/pydaltoolbox/0.25.0/):
+    removidos `plot_ts`/`plot_ts_pred`/`plot_series` de `viz` (temporal.py deletado), tests/
+    README/mapeamento atualizados, exemplos TS 30/31/32 removidos, export 40/41 reescritos p/
+    `plot_scatter`. 232 testes + ruff; build+twine check OK.
+  - **daltoolbox 1.4.717 na main** (CRAN = passo manual do Eduardo): removidos
+    `grf_ts`/`grf_ts_pred`/`grf_series` (R + NAMESPACE + Rd, 123→120 exports), exemplos TS
+    30/31/32 removidos, 40/41 (.Rmd) reescritos p/ `plot_scatter`, series.* órfãos removidos.
+    `R CMD INSTALL` limpo; verificado que o daltoolbox não expõe mais `plot_ts_pred` e o
+    tspredit sim. (NAMESPACE editado cirurgicamente p/ evitar o reformat do roxygen 8.1.1.)
+  - Escopo: **só o núcleo** (Eduardo) — daltoolboxdp e reproduce ficam p/ depois.
+- **⏳ Fase 4 (exemplos Python)** — em andamento: enriquecer os ~104 notebooks do pytspredit
+  com os plots (`plot_ts`/`plot_ts_pred`/`plot_ts_pred_mv`) ao nível do R (~70%).
+- **Pós-Fase 4:** o beta `0.x.0` do pytspredit (que leva os `plot_ts`/`plot_series` novos ao
+  PyPI). Pendente externo do Eduardo: CRAN do daltoolbox 1.4.717 + tspredit.
+
 ## Ritual
 Branch por frente (`plot-ownership` no pytspredit e no tspredit; branches próprias nos
 demais repos), exemplos committados, links do GitHub ao Eduardo, ff-merge só quando ele

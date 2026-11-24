@@ -36,6 +36,13 @@ pred = model.predict(te.input.iloc[[0]], steps_ahead=5)
 model.evaluate(te.output.to_numpy().ravel(), pred)["metrics"]
 ```
 
+Plot the 5-step forecast against the observed series (solid = observed, dashed = forecast):
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=pred)
+```
+
 > **What to observe.** `fit` learns on the training windows; `predict(steps_ahead=5)` rolls forward from the first test window; `evaluate` reports MSE/sMAPE/R2.
 
 **References:** Salles, R. et al. (2017). IJCNN; Box, Jenkins, Reinsel & Ljung (2015), *Time Series Analysis*, Wiley.

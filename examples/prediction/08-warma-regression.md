@@ -34,6 +34,29 @@ model.evaluate(te.output.to_numpy().ravel(), pred)["metrics"]
 
 
 
+Plot the 5-step forecast against the observed series (solid = observed, dashed = forecast):
+
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=pred)
+```
+
+
+
+
+
+![png](fig/08-warma-regression/output_4_0.png)
+
+
+
+
+
+
+![png](fig/08-warma-regression/output_4_1.png)
+
+
+
 > **What to observe.** `fit` learns on the training windows; `predict(steps_ahead=5)` rolls forward from the first test window; `evaluate` reports MSE/sMAPE/R2.
 
 **References:** Salles, R. et al. (2017). IJCNN; Box, Jenkins, Reinsel & Ljung (2015), *Time Series Analysis*, Wiley.

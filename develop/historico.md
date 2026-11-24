@@ -312,6 +312,25 @@ tarefa extra que o Eduardo vai passar antes do beta** são "de qualidade"; a pr�
 depois delas é o beta (roda ~1 semana → promove a `1.0.0` estável). Ver `planejamento.md`
 §5.4/Fechamento.
 
+### Responsabilidade dos plots de TS + exemplos (2026-11-24) **[tarefa extra pré-beta do Eduardo]**
+Decisão (Eduardo): os plots de **série temporal** são responsabilidade do pacote de TS
+(`tspredit`/`pytspredit`), não do toolbox geral (`daltoolbox`/`pydaltoolbox`). Mover de fato
+(quebra), todos os temporais (`plot_ts`/`plot_ts_pred`/`plot_ts_pred_mv`/`plot_series`), R+Python
+juntos, **só o núcleo** (daltoolboxdp/reproduce ficam p/ depois). Plano em `develop/plano-plots.md`.
+- **Fase 1 (aditiva):** `pytspredit.plot` ganhou `plot_ts`+`plot_series` (+ os já existentes
+  `plot_ts_pred`/`plot_ts_pred_mv`); `tspredit` ganhou `grf_ts`/`grf_ts_pred`/`grf_series`
+  (+ggplot2/reshape). Mesclado nas mains; paridade de geometria OK.
+- **Fases 2–3 (remoção dos toolboxes) — SELADAS + RELEASED:** `pydaltoolbox 0.25.0` **no PyPI**
+  (removidos os 3 plots de `viz`; exemplos TS 30/31/32 removidos, export 40/41 → `plot_scatter`;
+  232 testes). `daltoolbox 1.4.717` na main (removidos grf_ts/grf_ts_pred/grf_series + NAMESPACE
+  + Rd; 40/41 → plot_scatter; `R CMD INSTALL` limpo; **CRAN = passo manual do Eduardo**). Todas
+  as 4 branches `plot-ownership` mescladas e deletadas.
+- **Fase 4 (exemplos Python) — EM ANDAMENTO (branch `plot-examples`):** enriquecer os ~104
+  notebooks com os plots ao nível do R (~70% vs 6%). FEITO: **filter (16)** = `plot_ts` da série
+  crua + `plot_ts_pred(y, yadj=filtrado)`; **prediction (8: 01-08)** = `plot_ts_pred` do forecast
+  de 5 passos. Todos renderizam verde (plots viram imagens no examples/). FALTAM: augment,
+  lagmapping, normalization, tsdata, multivariate, tuning, datasets, tutorial, custom.
+
 ---
 
 ## Estado atual (base para o `planejamento.md`)

@@ -34,6 +34,29 @@ model.evaluate(samp.test.to_numpy().ravel(), pred)["metrics"]
 
 
 
+Plot the 5-step forecast against the observed series (solid = observed, dashed = forecast):
+
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=pred)
+```
+
+
+
+
+
+![png](fig/01-arima-baseline/output_4_0.png)
+
+
+
+
+
+
+![png](fig/01-arima-baseline/output_4_1.png)
+
+
+
 > **What to observe.** An explicit `(p, d, q)` fits one model directly; for automatic
 > order selection see `TsArima(auto="aicc")` and the ARIMA++ `auto="cv"` example.
 
