@@ -34,6 +34,28 @@ d.head(3)
 
 
 
+Visualize the series:
+
+
+```python
+ts.plot_ts(x=d["x"], y=d["y"])
+```
+
+
+
+
+
+![png](fig/01-tsd/output_4_0.png)
+
+
+
+
+
+
+![png](fig/01-tsd/output_4_1.png)
+
+
+
 > **What to observe.** The miniature preserves the schema of the full dataset (same columns/keys); use `loadfulldata` to fetch the complete series.
 
 **References:** Salles et al. (2023), *TSPredIT*, LNCS 14160.

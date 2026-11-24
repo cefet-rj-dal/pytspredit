@@ -31,6 +31,13 @@ pred = model.predict(samp.test, steps_ahead=1)
 print("rolling-origin sMAPE:", round(float(ts.smape_ts(samp.test.to_numpy().ravel(), pred)), 4))
 ```
 
+Plot the forecast against the observed series:
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:len(y_all) - len(pred)], ypred=pred)
+```
+
 > **What to observe.** Rolling-origin is the honest way to assess forecast accuracy over time.
 
 **References:** Tashman (2000), *Out-of-sample tests of forecasting accuracy*, Int. J. Forecasting 16(4).

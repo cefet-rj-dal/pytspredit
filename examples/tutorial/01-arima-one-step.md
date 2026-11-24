@@ -29,6 +29,29 @@ model.evaluate(samp.test.to_numpy().ravel(), pred)["metrics"]
 
 
 
+Plot the forecast against the observed series:
+
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:len(y_all) - len(pred)], ypred=pred)
+```
+
+
+
+
+
+![png](fig/01-arima-one-step/output_4_0.png)
+
+
+
+
+
+
+![png](fig/01-arima-one-step/output_4_1.png)
+
+
+
 > **What to observe.** One-step rolling forecast refits with the known order as actuals arrive.
 
 **References:** Box, Jenkins, Reinsel & Ljung (2015), *Time Series Analysis*, Wiley.

@@ -29,6 +29,29 @@ model.evaluate(samp.test.to_numpy().ravel(), pred)["metrics"]
 
 
 
+Plot the 5-step forecast against the observed series:
+
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:len(y_all) - len(pred)], ypred=pred)
+```
+
+
+
+
+
+![png](fig/03-arima-steps-ahead/output_4_0.png)
+
+
+
+
+
+
+![png](fig/03-arima-steps-ahead/output_4_1.png)
+
+
+
 > **What to observe.** A single multi-step forecast from the last training point.
 
 **References:** Box, Jenkins, Reinsel & Ljung (2015), *Time Series Analysis*, Wiley.

@@ -40,6 +40,28 @@ np.round(f.transform(y)[:6], 3)
 
 
 
+Compare the original series with the filtered one:
+
+
+```python
+ts.plot_ts_pred(y=y, yadj=f.transform(y))
+```
+
+
+
+
+
+![png](fig/02-custom-filter/output_4_0.png)
+
+
+
+
+
+
+![png](fig/02-custom-filter/output_4_1.png)
+
+
+
 > **What to observe.** The same `fit`/`transform` contract as the built-in `TsFil*`
 > filters, so your filter can be used anywhere one is expected.
 

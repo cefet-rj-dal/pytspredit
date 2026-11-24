@@ -109,6 +109,28 @@ print("12-step sMAPE  aicc = %.4f   arima++ = %.4f" % (smape(test, pa), smape(te
     12-step sMAPE  aicc = 0.1912   arima++ = 0.0873
 
 
+Plot the ARIMA++ 12-step forecast against the observed series:
+
+
+```python
+ts.plot_ts_pred(y=y, yadj=train, ypred=pc)
+```
+
+
+
+
+
+![png](fig/10-arima-plus/output_12_0.png)
+
+
+
+
+
+
+![png](fig/10-arima-plus/output_12_1.png)
+
+
+
 > **What to observe.** On autoregressive/seasonal structure the ACF/PACF candidates reach
 > past the cap of 5 and the horizon-matched CV picks the order that forecasts best, so
 > ARIMA++ beats the AICc auto. On real competition data (NN5) it is ~14% better on

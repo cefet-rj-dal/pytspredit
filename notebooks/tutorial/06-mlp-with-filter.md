@@ -35,6 +35,13 @@ model = ts.TsMlp(ts.TsNormGminmax(), input_size=5).fit(tr.input, tr.output)
 model.evaluate(out, model.predict(te.input.iloc[[0]], steps_ahead=5))["metrics"]
 ```
 
+Plot the 5-step forecast against the observed series:
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=model.predict(te.input.iloc[[0]], steps_ahead=5))
+```
+
 > **What to observe.** Filtering upstream can denoise the signal the model learns from.
 
 **References:** Salles et al. (2023), *TSPredIT*, LNCS 14160.

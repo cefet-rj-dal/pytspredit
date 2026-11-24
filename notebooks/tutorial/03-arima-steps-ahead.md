@@ -31,6 +31,13 @@ pred = model.predict(samp.test.iloc[[0]], steps_ahead=5)
 model.evaluate(samp.test.to_numpy().ravel(), pred)["metrics"]
 ```
 
+Plot the 5-step forecast against the observed series:
+
+```python
+y_all = ts.datasets.tsd()["y"].to_numpy()
+ts.plot_ts_pred(y=y_all, yadj=y_all[:len(y_all) - len(pred)], ypred=pred)
+```
+
 > **What to observe.** A single multi-step forecast from the last training point.
 
 **References:** Box, Jenkins, Reinsel & Ljung (2015), *Time Series Analysis*, Wiley.
