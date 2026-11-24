@@ -78,7 +78,7 @@ from .tsdata import (
 )
 from .tune import TsIntegtune, TsTune
 
-__version__ = "0.11.0"
+__version__ = "0.11.1"
 
 __all__ = [
     "TsArima",
