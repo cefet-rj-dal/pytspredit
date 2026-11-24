@@ -1,0 +1,40 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .md
+      format_name: markdown
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+# No normalization (`TsNormNone`)
+
+**About the technique**
+
+* `TsNormNone` is the identity preprocessor: it leaves the windows unchanged. It is the
+  baseline against which the other normalizations are compared.
+
+**Didactic goal:** see the untouched windows that the other normalizers transform.
+
+```python
+import warnings
+warnings.filterwarnings("ignore")
+
+import pytspredit as ts
+
+y = ts.datasets.tsd()["y"]
+w = ts.ts_data(y, 5)
+```
+
+```python
+norm = ts.TsNormNone().fit(w)
+ts.ts_head(norm.transform(w))
+```
+
+> **What to observe.** The transformed windows equal the input; `TsNormNone` is a
+> pass-through used as the default/control.
+
+**References:** Salles et al. (2023), *TSPredIT*, LNCS 14160.
