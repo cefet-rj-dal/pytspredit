@@ -2,7 +2,8 @@ Retomada do pytspredit (c:\Git\dal\pytspredit). Leia primeiro a memória
 [[pytspredit-port]], develop/planejamento.md (§1c + §5.4/Maturidade), develop/historico.md,
 develop/mapeamento.md e develop/parity.md. Estamos na **reta de maturidade rumo à 1.0.0**,
 espelhando o pydaltoolbox 0.20→0.24, e o **último passo é um release BETA `1.0.0b1`**
-(rodar ~1 semana) — NÃO ir direto à 1.0.0.
+(rodar ~1 semana) — NÃO ir direto à 1.0.0. **O próximo passo é o M6** (auditoria de crédito
+Py+R); M5 já foi feito (branch `milestone-m5-parity-matrix`, aguardando revisão/merge).
 
 ESTADO ATUAL (2026-11-24)
 - **pytspredit 0.11.1 PUBLICADO no PyPI** (https://pypi.org/project/pytspredit/0.11.1/) e na
@@ -43,7 +44,11 @@ PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada u
   `Authors@R` do R — Eduardo corrigiu: NÃO espelhar o R cegamente; Rebecca com email INRIA) +
   **Development Status `3 - Alpha` → `4 - Beta`**. Publicado no 0.11.1 (antecipado a pedido do
   Eduardo; o beta `1.0.0b1` segue depois do M5+M6). Lista autoritativa: memória [[pytspredit-authors]].
-- **M5 — `parity.md`:** estudos de caso do M3 + matriz de paridade R↔Py completa.
+- **M5 ✓ FEITO** (branch `milestone-m5-parity-matrix`, pushed, dev-only, AGUARDANDO
+  revisão/merge do Eduardo): `parity.md` ganhou **§5 estudos de caso** (ts_norm_none,
+  ts_arimax xreg, ARIMA++/horizonte-CV, EMD degenerado, read-only numpy) + **§6 matriz de
+  paridade R↔Py completa e autoritativa** (invariante/veredito/evidência/guard por classe);
+  `mapeamento.md` aponta a §6. Doc-only, ruff limpo, sem mudança de código.
 - **M6 — Auditoria de crédito (espelha 0.24.0), Python + R:** zero frases proibidas; Teoria +
   `References:` + `Porting:` em toda classe de algoritmo; atribuição canônica das
   back-implementations/++ (EMD, wavelet, ARIMA++, `_RLinear`, ELM, `TsVar`); corrigir
@@ -75,6 +80,9 @@ GOTCHAS IMPORTANTES DESTA MÁQUINA
 - ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
   rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
 
-COMECE pelo **M5** (parity.md: estudos de caso do M3 + matriz de paridade R↔Py completa),
-numa branch própria — depois M6 (auditoria de crédito Py+R) e então o `1.0.0b1` beta.
-(M1–M4 ✓; 0.11.1 no PyPI; tspredit 2.0.747 na main do R aguardando o CRAN do Eduardo.)
+COMECE pelo **M6** (auditoria de crédito Py+R: Teoria + `References:` + `Porting:` em toda
+classe, zero frases proibidas, atribuição canônica das back-impls/++ EMD/wavelet/ARIMA++/
+`_RLinear`/ELM/`TsVar`, corrigir `Mirrors X.R` inexistentes; espelhar na roxygen do tspredit),
+numa branch própria — depois o `1.0.0b1` beta.
+(M1–M5 ✓; M5 na branch `milestone-m5-parity-matrix` aguardando merge; 0.11.1 no PyPI;
+tspredit 2.0.747 na main do R aguardando o CRAN do Eduardo.)
