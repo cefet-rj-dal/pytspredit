@@ -81,8 +81,26 @@ From 0.6.0, each release lands parity as **reproducible artifacts**, mirroring p
   stochastic/backend cases — tight enough to catch a collapse, loose enough to survive
   version drift.
 
-A **retroactive pass** will backfill `develop/parity/` + `tests/test_quality_*` for
-0.1→0.5 as one of the maturity releases before 1.0.0 (see `planejamento.md` §5.4/Maturidade).
+The **retroactive pass (M3) is DONE**: `develop/parity/` + `tests/test_quality_*` now
+cover 0.1→0.5 as committed, R-free guards, each with its runnable `*.R` generator and a
+frozen CSV input:
+
+| Family | Generator | Guard | Invariant / verdict |
+|---|---|---|---|
+| normalization | `normalization.R` | `test_quality_normalization.py` | transformed matrix ≤1e-9 (8 configs) |
+| lagmap | `lagmap.R` | `test_quality_lagmap.py` | selected lag SET exact (12 strategies) |
+| regressors | `regressors.R` | `test_quality_regressors.py` | 5-step vector: knn/elm ≤1e-9, svm/arima backend, rf/mlp corr≥0.8 |
+| model zoo | `modelzoo.R` | `test_quality_modelzoo.py` | periodic/persist + darima/warma ≤1e-9 (incl. degenerate rank-3 tsd) |
+| filters | `filters.R` | `test_quality_filters.py` | filtered series: 11 exact ≤1e-9, ses ~8e-5, qes/seas_adj/spline backend |
+| multivariate | `multivariate.R` | `test_quality_multivariate.py` | y 5-step: var/lm_mv/regsw_mv ≤1e-6, arimax backend |
+| datasets / EMD / wavelet | (0.6–0.8) | `test_quality_{datasets,emd,wavelet}.py` | already committed from their release |
+
+**Bug found & fixed by M3 (both-sides discipline, §7):** generating the multivariate
+reference crashed R `ts_arimax` with `object 'xreg' not found` — `stats::arima(xreg=)`
+stored the `xreg` *symbol* in its call and `predict.Arima` evaluated it out of scope
+(regression from the 2.0.737 `forecast` removal; `forecast::Arima` used to shield it).
+Fixed in R `arima_fit` by embedding the regressor matrix value in the call (tspredit
+2.0.747). Python/statsmodels was already correct — parity is agreement after both are right.
 
 ---
 
@@ -130,7 +148,8 @@ All on the shared `tsd` series unless noted. To be re-expressed as committed gua
 ---
 
 ## 6. Open items for the parity maturity pass
-- Backfill `develop/parity/` scripts + frozen CSVs + `tests/test_quality_*` for 0.1→0.5.
-- Build the full R↔Python **parity matrix** (goes into `mapeamento.md` / 1.0.0).
+- ~~Backfill `develop/parity/` scripts + frozen CSVs + `tests/test_quality_*` for 0.1→0.5.~~
+  **DONE (M3)** — see §4; six families committed as R-free guards, one R bug fixed.
+- Build the full R↔Python **parity matrix** (goes into `mapeamento.md` / 1.0.0, M5).
 - Re-run every documented "benign" verdict as a seeded/agreeing-regime check so each one
   is *evidenced*, not asserted (sibling §7, "approximate as a refuge").
