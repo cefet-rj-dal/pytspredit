@@ -192,19 +192,76 @@ maturidade no roadmap. A partir do **0.6.0** a paridade passa a ser **committada
 auditoria de crédito (Python + R) ficam como passadas finais perto da 1.0.0. Ver
 `planejamento.md` §1c e §5.4/Maturidade.
 
+### Publicações 0.6.0→0.10.0 e backports R (2026-11-23)
+- **0.6.0→0.10.0 PUBLICADOS no PyPI**; todas as milestone branches do Ciclo 2 ff-merjadas na
+  main. O Ciclo 2 inteiro fechou **sem nenhuma dep nova**.
+- **Backport R completo (tspredit)**, espelhando os nativos do Python e **removendo 3
+  dependências**: EMD/EEMD nativo (base R + `stats::splinefun`) → **dropa `hht`**; MODWT
+  nativo (base R) → **dropa `wavelets`**; ARIMA++ + seleção de ordem nativa (`stats::arima`,
+  KPSS/ACF/PACF próprios) + `findfrequency` nativo → **dropa `forecast`** (eram 4 usos:
+  ts_arima, ts_arimax, ts_warma, tslagutils). DESCRIPTION → **v2.0.737** (numeração Boeing).
+  Validado `R CMD INSTALL` limpo sem as 3 libs. Gotcha corrigido: `stats::arima(xreg=NULL)`
+  guardava símbolo `xreg` no call → omitir `xreg` quando NULL.
+
+### M1 — organização de docs (espelha pydaltoolbox 0.20) · M2 — exemplos 1:1 (2026-11-23)
+- **M1:** regenerar `examples/` sem `hht`/`wavelets`/`forecast`; R já usa notebooks/examples.
+- **M2 COMPLETO** (branch `milestone-m2-examples`, dev-only, depois **já ff-merjada na main**):
+  **~104 notebooks um-por-classe** em 11 famílias (tsdata/normalization/lagmapping/augment/
+  filter/prediction/tuning/multivariate/datasets/custom/tutorial), todos verdes; famílias torch
+  fora de escopo. Pacote 1 (núcleo) + Pacote 2 (datasets/custom/tutorial), espelhando o split
+  0.21/0.22 do pydaltoolbox. Gotchas: conversor aceita UM argumento; `TsNormDiff` perde 1
+  coluna (input_size < sw-1 ao diferenciar); `prediction/10-arima-plus` (auto="cv") é o lento.
+
+### 0.11.0 — `fit_arima` exportado + sentinela (0,0,0) (2026-11-24) **[PUBLICADO no PyPI]**
+A auto.arima nativa (sem `forecast`) virou função **pública/exportada** `fit_arima(series,
+auto="aicc"|"cv", ...)` nos **dois lados** (Python `pytspredit.fit_arima`; R `fit_arima()` com
+`@export`/NAMESPACE/Rd) — o substituto do `forecast::auto.arima`, reusável (ex.: harbinger).
+Gatilho de auto-fit **aditivo**: `TsArima(0,0,0)`/`ts_arima(0,0,0)` dispara auto, junto com
+`None`/`NULL` (default); só o (0,0,0) cheio é sentinela ((0,1,1) etc. seguem manuais; ARIMA(0,0,0)
+puro fica inacessível, documentado). Nome `fit_arima` e não `fit.arima` (o `.` é inválido em
+Python e colidiria com o método S3 `fit` da classe `arima` em R). pytspredit **0.11.0 publicado**;
+tspredit segue em v2.0.737. ff-merjado nas duas mains.
+
+### M3 — testes pareados R↔Python retroativos (2026-11-24) **[na main, dev-only]**
+Backfill do ritual de paridade committada para as famílias **0.1→0.5**: cada uma = um gerador
+`develop/parity/<fam>.R` (gera `<fam>_ref.json` do input congelado `tsd.csv`, + `logistic.csv`
+congelado p/ o zoo) + um guard R-free `tests/test_quality_<fam>.py`. **6 passadas:**
+(1) **normalização** — matriz transformada ≤1e-9 (8 configs, todos operadores do `an`);
+(2) **lagmap** — conjunto de lags exato (12 estratégias; comparar LAGS, não posições — R é
+1-based, Python 0-based); (3) **regressores** — vetor 5-step: knn/elm(purelin nhid==n_lags=OLS)
+≤1e-9, svm 2.5e-4 / arima 5.98e-4 backend, rf/mlp estocásticos via **correlação-com-actual ≥0.8**
+(sMAPE inútil — o seno cruza zero); (4) **model zoo** — periodic/persist + darima/warma ≤1e-9
+(inclui o caso degenerado rank-3 no tsd); (5) **filtros** — 11 exatos ≤1e-9, ses ~8e-5,
+qes/seas_adj/spline backend (tol por-filtro); (6) **multivariado** — var/lm_mv/regsw_mv ≤1e-6,
+arimax backend 1.37e-1. (datasets/emd/wavelet já tinham guard desde 0.6–0.8.) Consolidados os 3
+testes de paridade hard-coded do `test_multivariate.py` no guard committado. Suíte verde
+(~261 testes), ruff limpo. `parity.md` §4/§6 atualizado (tabela + item fechado).
+- **🐞 Bug REAL do R achado e corrigido** (objetivo do M3 — "corrigir bugs nos dois lados"):
+  o `ts_arimax` estava **quebrado** no predict — `object 'xreg' not found`. O `stats::arima(xreg=)`
+  guardava o *símbolo* `xreg` no `$call` e o `predict.Arima` o avaliava fora de escopo (regressão
+  da remoção do `forecast` em 2.0.737; o `forecast::Arima` mascarava). Fix em `arima_fit`:
+  `fit$call$xreg <- xreg` (embute o valor da matriz). **Python/statsmodels já estava correto** —
+  paridade é concordância depois dos dois certos. tspredit **v2.0.737→2.0.747**, ff-merjado na main.
+  **O alvo do CRAN passou a ser 2.0.747.**
+
 ---
 
 ## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.9.0** (PyPI). **0.10.0 implementado** na branch
-  `milestone-0.10.0-autoarima` (aguardando revisão/`twine` do Eduardo). **Ciclo 2 completo.**
-- Cobertura: todo o Ciclo 1 + **EMD (0.7.0)** + **MODWT/wavelet (0.8.0)** + **`loadfulldata`
-  (0.9.0)** + **ARIMA++ (0.10.0)**. **Todo o `tspredit` portado.** Falta só a **maturidade**
-  (exemplos 1:1, auditoria de crédito Py+R, matriz de paridade) e a **1.0.0**.
-- **Nota de dep:** o **Ciclo 2 inteiro não adicionou nenhuma dep** — EMD (numpy+scipy),
-  wavelet (numpy puro), `loadfulldata` (CSV.gz: pandas+stdlib), ARIMA++ (statsmodels-núcleo).
-  Extras `[emd]`/`[wavelet]`/`[bench]` **eliminados**. Três reduções-de-dep + um ++ algorítmico
-  (ARIMA++), todos do §1b.
-- Deps: núcleo `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` +
-  `pydaltoolbox`. Extras planejados: `[emd]`, `[wavelet]`, `[bench]`.
-- Próximo: **Ciclo 2** (0.7.0 EMD → 0.8.0 wavelet → 0.9.0 `loadfulldata`), depois as
-  passadas de maturidade e a **1.0.0**. Eduardo refina o Ciclo 2.
+- Última release publicada: **pytspredit 0.11.0** (PyPI, 2026-11-24). **Ciclo 2 completo** e
+  **todo o `tspredit` portado**; o ciclo inteiro **não adicionou nenhuma dep**.
+- Cobertura: todo o Ciclo 1 + EMD (0.7.0) + MODWT/wavelet (0.8.0) + `loadfulldata` (0.9.0) +
+  ARIMA++ (0.10.0) + `fit_arima` exportado (0.11.0). Extras `[emd]`/`[wavelet]`/`[bench]`
+  **eliminados** (back-implementation nativa). Deps: núcleo `numpy`/`pandas`/`scikit-learn`/
+  `statsmodels`/`scipy`/`matplotlib` + `pydaltoolbox`.
+- **tspredit R na main em v2.0.747** (EMD/wavelet/ARIMA++/`fit_arima` nativos; `hht`+`wavelets`+
+  `forecast` droppados; fix do `ts_arimax`). **Pendente externo: Eduardo submete 2.0.747 ao CRAN.**
+- **Maturidade (espelha pydaltoolbox 0.20→0.24, fecha com BETA `1.0.0b1`):** **M1 ✓** (docs),
+  **M2 ✓** (exemplos 1:1, ~104 notebooks, na main), **M3 ✓** (testes pareados R↔Python 0.1→0.5,
+  committados, na main — achou+corrigiu o bug do `ts_arimax`). **Falta: M4** (metadados do
+  `pyproject.toml` + Development Status `3-Alpha`→`4-Beta`) → **M5** (parity.md: estudos de caso
+  + matriz R↔Py completa) → **M6** (auditoria de crédito Py+R: Teoria+References+Porting, atribuição
+  das back-impls/++). **FECHO:** publicar `1.0.0b1` (beta ~1 semana) → promover a **1.0.0**; pós-1.0.0
+  pytspredit também adota numeração Boeing.
+- Branches já mescladas (podem ser deletadas): `milestone-m3-paired-tests` (pytspredit),
+  `arimax-xreg-fix` (tspredit). `main` é a única branch de código nos dois repos.
+- Próximo: **M4**. Depois M5, M6, e o beta `1.0.0b1`.
