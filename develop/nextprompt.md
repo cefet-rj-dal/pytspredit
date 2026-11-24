@@ -5,31 +5,27 @@ espelhando o pydaltoolbox 0.20→0.24, e o **último passo é um release BETA `1
 (rodar ~1 semana) — NÃO ir direto à 1.0.0.
 
 ESTADO ATUAL (2026-11-24)
-- **pytspredit 0.11.0 na main** (HEAD `1d0101d`, ff-merge de `fit-arima-export`) — **ainda
-  NÃO publicado no PyPI** (0.10.0 é o último no PyPI; `twine upload` do 0.11.0 aguarda o
-  "pode fazer"). **Ciclo 2 completo** — todo o `tspredit` portado, 0 dep nova.
+- **pytspredit 0.11.0 PUBLICADO no PyPI** (https://pypi.org/project/pytspredit/0.11.0/) e na
+  main (HEAD inclui `fit-arima-export` ff-mergeada). **Ciclo 2 completo** — todo o `tspredit`
+  portado, 0 dep nova.
 - **`fit_arima` exportado nos DOIS lados (0.11.0)**: a auto.arima nativa (sem `forecast`)
   virou função pública `fit_arima(series, auto="aicc"|"cv", ...)` (Python `pytspredit.fit_arima`
-  + R `fit_arima()` com `@export`/NAMESPACE/Rd). Novo gatilho ADITIVO: `TsArima(0,0,0)` /
+  + R `fit_arima()` com `@export`/NAMESPACE/Rd). Gatilho ADITIVO: `TsArima(0,0,0)` /
   `ts_arima(0,0,0)` dispara auto, junto com `None`/`NULL` (que continua default). Só o (0,0,0)
   cheio é sentinela; (0,1,1) etc. seguem manuais. Nome `fit_arima` (não `fit.arima`: `.` é
   inválido em Python e colidiria com S3 `fit` em R).
 - **Backport R MESCLADO NA MAIN** do `tspredit` (HEAD `130e7f3`, v2.0.737): EMD + wavelet +
   ARIMA++ nativos + `fit_arima`; **`hht`, `wavelets` e `forecast` droppados**. Falta só a
-  **submissão ao CRAN** (passo manual do Eduardo).
-- **M1 ✓ e M2 ✓ (exemplos 1:1)** na branch **`milestone-m2-examples`** (pushed, dev-only,
-  aguardando ff-merge): ~103 notebooks um-por-classe em 11 famílias, todos verdes
-  (torch fora de escopo; variantes stock-close adiadas).
-- Branches `fit-arima-export` (pytspredit) e `emd-native-backport` (tspredit) já absorvidas
-  na main — podem ser deletadas.
+  **submissão ao CRAN** (passo manual do Eduardo — ele mesmo faz).
+- **M1 ✓ e M2 ✓ (exemplos 1:1) JÁ NA MAIN**: 104 notebooks/exemplos um-por-classe em 11
+  famílias (tsdata/normalization/lagmapping/augment/filter/prediction/tuning/multivariate/
+  datasets/custom/tutorial), todos verdes (torch fora de escopo; stock-close adiadas). A
+  branch `milestone-m2-examples` já foi ff-mergeada e deletada em sessão anterior.
+- Branches de feature já absorvidas e DELETADAS (local+remoto): `fit-arima-export`,
+  `emd-native-backport`, `milestone-m2-examples`. `main` é a única branch de código nos dois.
 
-PENDÊNCIAS (Eduardo decide; eu executo quando ele pedir)
-1. **`twine upload` do pytspredit 0.11.0** (build + `twine check` posso rodar; o upload
-   aguarda o "pode fazer").
-2. ff-merge da `milestone-m2-examples` na main do pytspredit (dev-only, sem release PyPI —
-   como o 0.21/0.22 do pydaltoolbox). Depois deletar a branch.
-3. submissão ao CRAN do `tspredit` v2.0.737 (já na main do R).
-4. deletar as branches já mescladas (`fit-arima-export`, `emd-native-backport`), se quiser.
+PENDÊNCIA EXTERNA (Eduardo faz)
+- submissão ao CRAN do `tspredit` v2.0.737 (já na main do R).
 
 PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada um numa branch:
 - **M3 — Testes pareados R↔Python retroativos** (espelha o 0.23 + o ciclo de paridade do
@@ -72,5 +68,6 @@ GOTCHAS IMPORTANTES DESTA MÁQUINA
 - ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
   rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
 
-COMECE confirmando comigo: publicar o 0.11.0 no PyPI (twine) e/ou fazer o ff-merge do M2, e
-seguir para o M3 — ou priorizar outro passo.
+COMECE confirmando comigo: seguir para o **M3** (testes pareados R↔Python retroativos, numa
+branch própria) — ou priorizar outro passo da reta de maturidade (M4 metadados / M5 parity.md
+/ M6 auditoria de crédito) rumo ao `1.0.0b1` beta.
