@@ -251,13 +251,16 @@ testes de paridade hard-coded do `test_multivariate.py` no guard committado. Su�
 port Python tem um conjunto distinto e menor (Eduardo + Diego Carvalho, Eduardo Bezerra, Esther
 Pacitti, Fabio Porto [ctb]; Fernando Alexandrino, Rebecca Salles [aut; email INRIA]; CEFET/RJ
 [cph]). Excluídos vs R: Arthur Garcia, Cristiane Gea, Diogo Santos, Luciano Mello, Vitória
-Birindiba. Dev-only: versão segue 0.11.0; o classificador Beta + autores vão ao PyPI só no
-`1.0.0b1` (FECHO). `twine check` ok.
+Birindiba. **[PUBLICADO no PyPI como 0.11.1, 2026-11-24]** — release interino só de metadados
+(a pedido do Eduardo, antecipando o classificador Beta + autores corrigidos ao PyPI; sem
+mudança funcional desde 0.11.0). O beta `1.0.0b1` (FECHO) segue depois do M5+M6. Mesclado na
+main; branch deletada.
 
 ---
 
 ## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.11.0** (PyPI, 2026-11-24). **Ciclo 2 completo** e
+- Última release publicada: **pytspredit 0.11.1** (PyPI, 2026-11-24; interino de metadados —
+  autores do port + classificador 4-Beta). **Ciclo 2 completo** e
   **todo o `tspredit` portado**; o ciclo inteiro **não adicionou nenhuma dep**.
 - Cobertura: todo o Ciclo 1 + EMD (0.7.0) + MODWT/wavelet (0.8.0) + `loadfulldata` (0.9.0) +
   ARIMA++ (0.10.0) + `fit_arima` exportado (0.11.0). Extras `[emd]`/`[wavelet]`/`[bench]`

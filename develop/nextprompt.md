@@ -5,9 +5,10 @@ espelhando o pydaltoolbox 0.20→0.24, e o **último passo é um release BETA `1
 (rodar ~1 semana) — NÃO ir direto à 1.0.0.
 
 ESTADO ATUAL (2026-11-24)
-- **pytspredit 0.11.0 PUBLICADO no PyPI** (https://pypi.org/project/pytspredit/0.11.0/) e na
-  main (HEAD inclui `fit-arima-export` ff-mergeada). **Ciclo 2 completo** — todo o `tspredit`
-  portado, 0 dep nova.
+- **pytspredit 0.11.1 PUBLICADO no PyPI** (https://pypi.org/project/pytspredit/0.11.1/) e na
+  main (HEAD `3dd8c71`). 0.11.1 = release interino só de metadados do M4 (autores do port +
+  Development Status **4 - Beta**), sem mudança funcional desde 0.11.0. **Ciclo 2 completo** —
+  todo o `tspredit` portado, 0 dep nova.
 - **`fit_arima` exportado nos DOIS lados (0.11.0)**: a auto.arima nativa (sem `forecast`)
   virou função pública `fit_arima(series, auto="aicc"|"cv", ...)` (Python `pytspredit.fit_arima`
   + R `fit_arima()` com `@export`/NAMESPACE/Rd). Gatilho ADITIVO: `TsArima(0,0,0)` /
@@ -35,12 +36,13 @@ PENDÊNCIA EXTERNA (Eduardo faz)
 - submissão ao CRAN do `tspredit` **v2.0.747** (já na main do R; o alvo mudou de 2.0.737
   por causa do fix do ARIMAX achado no M3).
 
-PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada um numa branch:
-- **M4 ✓ FEITO** (branch `milestone-m4-metadata`, dev-only): `pyproject.toml` com
+PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada um numa branch;
+**o próximo é o M5**:
+- **M4 ✓ FEITO E MESCLADO NA MAIN** (branch deletada): `pyproject.toml` com
   `maintainers`/`authors` dos contribuidores do PORT Python (subconjunto distinto do
   `Authors@R` do R — Eduardo corrigiu: NÃO espelhar o R cegamente; Rebecca com email INRIA) +
-  **Development Status `3 - Alpha` → `4 - Beta`**. O classificador Beta só vai ao PyPI no
-  `1.0.0b1`. `twine check` ok.
+  **Development Status `3 - Alpha` → `4 - Beta`**. Publicado no 0.11.1 (antecipado a pedido do
+  Eduardo; o beta `1.0.0b1` segue depois do M5+M6). Lista autoritativa: memória [[pytspredit-authors]].
 - **M5 — `parity.md`:** estudos de caso do M3 + matriz de paridade R↔Py completa.
 - **M6 — Auditoria de crédito (espelha 0.24.0), Python + R:** zero frases proibidas; Teoria +
   `References:` + `Porting:` em toda classe de algoritmo; atribuição canônica das
@@ -73,6 +75,6 @@ GOTCHAS IMPORTANTES DESTA MÁQUINA
 - ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
   rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
 
-COMECE confirmando comigo: ff-merge do `milestone-m4-metadata` e seguir para o **M5**
-(parity.md: estudos de caso do M3 + matriz de paridade R↔Py completa) — ou priorizar o M6
-(auditoria de crédito Py+R) rumo ao `1.0.0b1` beta.
+COMECE pelo **M5** (parity.md: estudos de caso do M3 + matriz de paridade R↔Py completa),
+numa branch própria — depois M6 (auditoria de crédito Py+R) e então o `1.0.0b1` beta.
+(M1–M4 ✓; 0.11.1 no PyPI; tspredit 2.0.747 na main do R aguardando o CRAN do Eduardo.)
