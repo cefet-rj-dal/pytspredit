@@ -1,30 +1,95 @@
-"""Forecast plotting (matplotlib).
+"""Time-series plotting (matplotlib).
 
-Python counterpart of ``daltoolbox``'s ``plot_ts_pred`` (``grf_ts_pred.R``) and
-of ``tspredit``'s ``ts_plot_mv.R`` (``plot_ts_pred_mv``).
+The time-series plotting family for the toolkit: the raw-series line (:func:`plot_ts`),
+the multi-series line (:func:`plot_series`), the univariate forecast view
+(:func:`plot_ts_pred`), and the multivariate forecast view (:func:`plot_ts_pred_mv`).
+These are the canonical home of time-series plotting; the R counterparts are
+``tspredit``'s ``grf_ts.R`` / ``grf_series.R`` / ``grf_ts_pred.R`` / ``ts_plot_mv.R``.
 
-``pydaltoolbox`` does not ship the ggplot2-based ``plot_ts_pred``, so this module
-provides a small matplotlib equivalent: the observed series as a solid line with
-points, the in-sample adjusted values as a dashed segment, and the out-of-sample
-prediction as a second dashed segment. :func:`plot_ts_pred_mv` reuses it variable
-by variable for the multivariate workflow.
+Theory:
+    A time-series plot renders ordered observations as a connected line, the canonical
+    view for level, trend, seasonality and anomalies; overlaying several series on one
+    scale makes trends comparable; a forecast view draws the observed series solid with
+    the in-sample fit and out-of-sample forecast overlaid as dashed lines, so fit and
+    forecast are read against the ground truth.
 
 References:
-    - Hyndman RJ, Athanasopoulos G (2021). Forecasting: Principles and Practice,
+    - Cleveland, W. S. (1985). *The Elements of Graphing Data*. Wadsworth.
+    - Hyndman RJ, Athanasopoulos G (2021). *Forecasting: Principles and Practice*,
       3rd ed. OTexts. https://otexts.com/fpp3/ (forecast visualization).
+    - Wickham, H. (2016). *ggplot2*. Springer.
 
 Porting:
-    Mirrors ``grf_ts_pred.R`` (daltoolbox) and ``ts_plot_mv.R`` (tspredit).
-    Fidelity: adapted.
-    - Returns matplotlib ``Figure`` objects (R returned ``ggplot2`` objects); the
-      geometry (solid observed line + dashed adjust + dashed prediction, the
-      prediction segment starting at the last training index) matches R.
+    Mirrors ``grf_ts.R`` / ``grf_series.R`` / ``grf_ts_pred.R`` / ``ts_plot_mv.R``
+    (all in ``tspredit``). Fidelity: adapted -- returns matplotlib ``Figure`` objects
+    (R returns ``ggplot2`` objects); the geometry matches R (solid observed line +
+    dashed adjust + dashed prediction, the forecast segment starting at the last
+    training index).
 """
 from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["plot_ts_pred", "plot_ts_pred_mv"]
+__all__ = ["plot_series", "plot_ts", "plot_ts_pred", "plot_ts_pred_mv"]
+
+
+def plot_ts(x=None, y=None, label_x="", label_y="", color="black", ax=None):
+    """Plot a single time series (line + points) over a time index.
+
+    If ``x`` is ``None`` an integer index ``1..n`` is used. ``color`` applies to both
+    the line and the points. Returns the matplotlib :class:`~matplotlib.figure.Figure`.
+    """
+    import matplotlib.pyplot as plt
+
+    y = np.asarray(y, dtype=float).ravel()
+    if x is None:
+        x = np.arange(1, len(y) + 1)
+    x = np.asarray(x).ravel()
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+    else:
+        fig = ax.figure
+
+    ax.plot(x, y, color=color, marker="o", markersize=3, linewidth=1)
+    ax.set_xlabel(label_x)
+    ax.set_ylabel(label_y)
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    return fig
+
+
+def plot_series(data, label_x="", label_y="", colors=None, ax=None):
+    """Plot one or more series sharing a common x index (line + points).
+
+    ``data`` is a table whose **first column is the x index** and whose remaining
+    columns are numeric series, each drawn in its own colour. ``colors`` is an optional
+    list of colours (one per series). Returns the matplotlib
+    :class:`~matplotlib.figure.Figure`.
+    """
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    frame = pd.DataFrame(data)
+    x = pd.to_numeric(frame.iloc[:, 0], errors="coerce").to_numpy()
+    series_cols = list(frame.columns[1:])
+    if colors is None:
+        colors = [None] * len(series_cols)
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 3.5))
+    else:
+        fig = ax.figure
+
+    for col, color in zip(series_cols, colors):
+        yv = pd.to_numeric(frame[col], errors="coerce").to_numpy()
+        ax.plot(x, yv, color=color, marker="o", markersize=3, linewidth=1, label=str(col))
+    ax.set_xlabel(label_x)
+    ax.set_ylabel(label_y)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(loc="best", frameon=False, fontsize=8)
+    fig.tight_layout()
+    return fig
 
 
 def plot_ts_pred(x=None, y=None, yadj=None, ypred=None, label_x="", label_y="",

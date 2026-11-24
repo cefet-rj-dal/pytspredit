@@ -64,7 +64,7 @@ from .norm import (
     TsNormNone,
     TsNormSwminmax,
 )
-from .plot import plot_ts_pred, plot_ts_pred_mv
+from .plot import plot_series, plot_ts, plot_ts_pred, plot_ts_pred_mv
 from .regressors import TsElm, TsKnn, TsMlp, TsRf, TsSvm
 from .ts_reg import TsReg, TsRegSW, mse_ts, r2_ts, smape_ts
 from .tsdata import (
@@ -144,6 +144,8 @@ __all__ = [
     "datasets",
     "fit_arima",
     "mse_ts",
+    "plot_series",
+    "plot_ts",
     "plot_ts_pred",
     "plot_ts_pred_mv",
     "r2_ts",
