@@ -1,54 +1,65 @@
-Vamos implementar a 0.7.0 do pytspredit (c:\Git\dal\pytspredit). Leia primeiro a
-memória [[pytspredit-port]], develop/planejamento.md (§5.4, Ciclo 2, bloco 0.7.0) e
-develop/historico.md (0.6.0 fechou o Ciclo 1) — 0.1.0→0.6.0 já estão no PyPI e tudo
-ff-merged na main (só a branch main existe).
+Retomada do pytspredit (c:\Git\dal\pytspredit). Leia primeiro a memória
+[[pytspredit-port]], develop/planejamento.md (§1c + §5.4/Maturidade), develop/historico.md,
+develop/mapeamento.md e develop/parity.md. Estamos na **reta de maturidade rumo à 1.0.0**,
+espelhando o pydaltoolbox 0.20→0.24, e o **último passo é um release BETA `1.0.0b1`**
+(rodar ~1 semana) — NÃO ir direto à 1.0.0.
 
-ESCOPO 0.7.0 — "Filtros de decomposição (EMD)" — PRIMEIRA release do Ciclo 2:
-- `TsFilEmd` (porta `ts_fil_emd.R`): decompõe em IMFs e remove o 1º IMF como ruído
-  (`result = data - imf1`). Params `noise=0.1`, `trials=5`.
-- `TsFilRemd` (porta `ts_fil_remd.R`): roughness por IMF (1ª diferença normalizada) →
-  corte via `FitCurvatureMin` do pydaltoolbox sobre a roughness cumulativa, com cap
-  `max_imfs`; remove os IMFs de alta frequência selecionados.
-- Ambos em `filters.py`, sobre a série 1-D (DalTransform), no mesmo padrão dos 15
-  filtros existentes (References:/Porting:).
-- **Primeiro EXTRA opcional do pytspredit:** `[emd]` = **PyEMD** (`pip install
-  pytspredit[emd]`; pacote PyPI `EMD-signal`, import `PyEMD`). Import PREGUIÇOSO dentro
-  do método, com erro acionável nomeando o extra se faltar (padrão do pydaltoolbox).
-  PyEMD NÃO entra no núcleo.
+ESTADO ATUAL (2026-11-23)
+- **pytspredit 0.10.0 PUBLICADO** no PyPI. **Ciclo 2 completo** — todo o `tspredit` portado,
+  e o ciclo inteiro NÃO adicionou dep (EMD/wavelet/loadfulldata nativos 0-dep; ARIMA++ o
+  único ++ algorítmico). `main` é a única branch de código publicada.
+- **M1 ✓ e M2 ✓ (exemplos 1:1)** na branch **`milestone-m2-examples`** (pushed, dev-only,
+  aguardando ff-merge): ~103 notebooks um-por-classe em 11 famílias, todos verdes
+  (torch fora de escopo; variantes stock-close adiadas).
+- **Backport R** na branch **`emd-native-backport`** do `tspredit` (v2.0.737, pushed,
+  aguardando merge/CRAN do Eduardo): EMD + wavelet + ARIMA++ nativos; **dropa `hht`,
+  `wavelets` e `forecast`**.
 
-DECISÕES JÁ TOMADAS (2026-11-23, não reabrir sem motivo):
-- Embrulhar PyEMD (não back-implementar) + documentar tolerância. Mapear
-  `hht::CEEMD`(noise, trials) → PyEMD **EEMD** (`noise_width`, `trials`); `random_state`
-  para reprodutibilidade.
-- Paridade R vs Py = **tolerância de backend/estocástica** (EMD é ensemble; `hht` ≠
-  PyEMD). O invariante NÃO é valor-a-valor: usar forma/estrutura do reconstruído e R²
-  (ex.: o reconstruído explica bem a série; remove ruído sem distorcer a tendência).
-  Documentar a tolerância como em qes/seas_adj/spline (0.4.0).
+PENDÊNCIAS DE MERGE (Eduardo decide; eu executo quando ele pedir)
+1. ff-merge da `milestone-m2-examples` na main do pytspredit (dev-only, sem release PyPI —
+   como o 0.21/0.22 do pydaltoolbox). Depois deletar a branch.
+2. merge/CRAN da `emd-native-backport` no `tspredit` R.
 
-RITUAL OBRIGATÓRIO (igual às releases anteriores):
-- Branch por milestone (milestone-0.7.0-emd); exemplos sempre commitados; me passar os
-  links do GitHub ao final; ff-merge na main só quando eu pedir; o twine upload eu
-  autorizo/rodo.
-- **Paridade committada (ritual desde 0.6.0):** script em `develop/parity/` (ex.:
-  `filters_emd.R` gerando referência a partir do `tspredit` R com `hht`) + guarda em
-  `tests/test_quality_*.py` (tolerância frouxa para o estocástico — "não degenera",
-  "R² acima de baseline", "remove o IMF certo"). R 4.5.0 em /c/R/R-4.5.0, pacote R em
-  c:\Git\dal\tspredit (tem `ts_fil_emd`/`ts_fil_remd` via `hht`).
-- Convenção de doc (travada): toda classe nova com References: (do @references do R) +
-  Porting: (arquivo R + nível exact/approximate/adapted + adaptações).
-- Verde sempre: ruff check . + pytest + python notebooks/conversor.py; um notebook
-  didático (notebooks/filter/… ou notebooks/decomposition/…) + testes unitários; bump de
-  versão em pyproject.toml e src/pytspredit/__init__.py; declarar o extra `[emd]` em
-  [project.optional-dependencies]; atualizar README, planejamento.md, historico.md,
-  mapeamento.md (marcar TsFilEmd/TsFilRemd ✅ 0.7.0).
+PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada um numa branch:
+- **M3 — Testes pareados R↔Python retroativos** (espelha o 0.23 + o ciclo de paridade do
+  pydaltoolbox): consolidar `tests/test_quality_*.py` + scripts em `develop/parity/` cobrindo
+  0.1→0.5 (normalização = MATRIZ igual ≤1e-9; lagmap = conjuntos; regressores = R²/métricas;
+  deterministic/darima/warma; filtros; multivariado). Congelar input em CSV, comparar o
+  invariante da família, **achar e corrigir bugs nos dois lados**. Fix de código → release
+  pequeno; resto dev-only.
+- **M4 — Metadados:** `pyproject.toml` com contribuidores (espelhar o `Authors@R` do
+  `tspredit` R) e **Development Status `3 - Alpha` → `4 - Beta`**.
+- **M5 — `parity.md`:** estudos de caso do M3 + matriz de paridade R↔Py completa.
+- **M6 — Auditoria de crédito (espelha 0.24.0), Python + R:** zero frases proibidas; Teoria +
+  `References:` + `Porting:` em toda classe de algoritmo; atribuição canônica das
+  back-implementations/++ (EMD, wavelet, ARIMA++, `_RLinear`, ELM, `TsVar`); corrigir
+  `Mirrors X.R` a arquivos inexistentes. Espelhar na roxygen do `tspredit`.
+- **FECHO — `1.0.0b1` (BETA):** publicar a versão beta (PEP 440), rodar ~1 semana, coletar
+  feedback; depois promover a **1.0.0** estável. **Pós-1.0.0 o pytspredit também adota
+  numeração Boeing** (1.0.707, 1.0.717, …), como o `tspredit` R.
 
-COMECE decidindo comigo as sub-decisões em aberto antes de codar:
-(1) algoritmo PyEMD exato (EEMD vs CEEMDAN) e os defaults que melhor refletem
-    `hht::CEEMD`; (2) como expor `random_state` nos dois filtros; (3) o invariante
-    committado de paridade para o estocástico (qual métrica/tolerância). Proponha e
-    aguarde meu ok.
+RITUAL (igual às releases anteriores)
+- Branch por milestone; exemplos sempre committados; me passar os links do GitHub ao final;
+  ff-merge na main só quando eu pedir; **o `twine upload` eu autorizo** (nota: o classificador
+  do harness bloqueia o `twine upload` até eu dar o "pode fazer"; o build + `twine check`
+  podem rodar normalmente).
+- Verde sempre: `ruff check .` + `pytest` + `python notebooks/conversor.py` (o conversor
+  aceita UM argumento: uma família ou um arquivo).
+- Paridade committada a cada passo (`develop/parity/` + `tests/test_quality_*.py`); R 4.5.0 em
+  /c/R/R-4.5.0; pacote R em c:\Git\dal\tspredit.
+- Convenção de doc travada: `References:` (do @references do R) + `Porting:` em toda classe.
+- **Exemplos do roxygen (R) têm que rodar RÁPIDO** — ordens explícitas, nunca busca
+  automática/CV; documentar os modos lentos no `@details`.
 
-DEPOIS do 0.7.0 (Ciclo 2, já desenhado — ver planejamento §5.4): 0.8.0 wavelet
-`[wavelet]` (PyWavelets) → 0.9.0 `loadfulldata` `[bench]` (`rdata`) → 0.10.0 ++
-auto-seleção ARIMA/ETS nativa → passadas de maturidade (exemplos 1:1 + auditoria de
-crédito Py+R) → 1.0.0.
+GOTCHAS IMPORTANTES DESTA MÁQUINA
+- **`library(tspredit)` / `pkgload::load_all` dão SEGFAULT intermitente** (conflito de ABI
+  das libs nativas/BLAS, pré-existente, NÃO é o nosso código) — validar o R via
+  `R CMD INSTALL` + scripts standalone (eval do arquivo), não via load_all/library.
+- `roxygen2` é 8.1.1 (ok, >= 8.1.0 do pacote) → `roxygenise()` regenera NAMESPACE/Rd
+  corretamente.
+- `TsNormDiff` perde 1 coluna → em exemplos com diff, `input_size < sw-1`.
+- ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
+  rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
+
+COMECE confirmando comigo: fazer o ff-merge do M2 (e do R backport) e seguir para o M3, ou
+priorizar outro passo.
