@@ -36,8 +36,11 @@ PENDÊNCIA EXTERNA (Eduardo faz)
   por causa do fix do ARIMAX achado no M3).
 
 PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada um numa branch:
-- **M4 — Metadados:** `pyproject.toml` com contribuidores (espelhar o `Authors@R` do
-  `tspredit` R) e **Development Status `3 - Alpha` → `4 - Beta`**.
+- **M4 ✓ FEITO** (branch `milestone-m4-metadata`, dev-only): `pyproject.toml` com
+  `maintainers`/`authors` dos contribuidores do PORT Python (subconjunto distinto do
+  `Authors@R` do R — Eduardo corrigiu: NÃO espelhar o R cegamente; Rebecca com email INRIA) +
+  **Development Status `3 - Alpha` → `4 - Beta`**. O classificador Beta só vai ao PyPI no
+  `1.0.0b1`. `twine check` ok.
 - **M5 — `parity.md`:** estudos de caso do M3 + matriz de paridade R↔Py completa.
 - **M6 — Auditoria de crédito (espelha 0.24.0), Python + R:** zero frases proibidas; Teoria +
   `References:` + `Porting:` em toda classe de algoritmo; atribuição canônica das
@@ -70,6 +73,6 @@ GOTCHAS IMPORTANTES DESTA MÁQUINA
 - ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
   rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
 
-COMECE confirmando comigo: seguir para o **M4** (metadados / classificador Beta) — ou
-priorizar outro passo da reta de maturidade (M5 parity.md / M6 auditoria de crédito) rumo ao
-`1.0.0b1` beta. (M3 e o fix do ARIMAX já estão nas mains; branches mescladas podem ser deletadas.)
+COMECE confirmando comigo: ff-merge do `milestone-m4-metadata` e seguir para o **M5**
+(parity.md: estudos de caso do M3 + matriz de paridade R↔Py completa) — ou priorizar o M6
+(auditoria de crédito Py+R) rumo ao `1.0.0b1` beta.

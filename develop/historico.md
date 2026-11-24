@@ -244,6 +244,16 @@ testes de paridade hard-coded do `test_multivariate.py` no guard committado. Su�
   paridade é concordância depois dos dois certos. tspredit **v2.0.737→2.0.747**, ff-merjado na main.
   **O alvo do CRAN passou a ser 2.0.747.**
 
+### M4 — metadados + classificador Beta (2026-11-24) **[branch `milestone-m4-metadata`, dev-only]**
+`pyproject.toml`: `maintainers`/`authors` preenchidos com os **contribuidores do port Python**
+(papéis na convenção do R: cre=maintainer, aut, ths, ctb; cph=CEFET/RJ) e **Development Status
+`3 - Alpha` → `4 - Beta`**. **Não é espelho cego do `Authors@R` do R** — o Eduardo corrigiu: o
+port Python tem um conjunto distinto e menor (Eduardo + Diego Carvalho, Eduardo Bezerra, Esther
+Pacitti, Fabio Porto [ctb]; Fernando Alexandrino, Rebecca Salles [aut; email INRIA]; CEFET/RJ
+[cph]). Excluídos vs R: Arthur Garcia, Cristiane Gea, Diogo Santos, Luciano Mello, Vitória
+Birindiba. Dev-only: versão segue 0.11.0; o classificador Beta + autores vão ao PyPI só no
+`1.0.0b1` (FECHO). `twine check` ok.
+
 ---
 
 ## Estado atual (base para o `planejamento.md`)
@@ -257,10 +267,10 @@ testes de paridade hard-coded do `test_multivariate.py` no guard committado. Su�
   `forecast` droppados; fix do `ts_arimax`). **Pendente externo: Eduardo submete 2.0.747 ao CRAN.**
 - **Maturidade (espelha pydaltoolbox 0.20→0.24, fecha com BETA `1.0.0b1`):** **M1 ✓** (docs),
   **M2 ✓** (exemplos 1:1, ~104 notebooks, na main), **M3 ✓** (testes pareados R↔Python 0.1→0.5,
-  committados, na main — achou+corrigiu o bug do `ts_arimax`). **Falta: M4** (metadados do
-  `pyproject.toml` + Development Status `3-Alpha`→`4-Beta`) → **M5** (parity.md: estudos de caso
-  + matriz R↔Py completa) → **M6** (auditoria de crédito Py+R: Teoria+References+Porting, atribuição
-  das back-impls/++). **FECHO:** publicar `1.0.0b1` (beta ~1 semana) → promover a **1.0.0**; pós-1.0.0
+  committados, na main — achou+corrigiu o bug do `ts_arimax`), **M4 ✓** (metadados: autores do
+  port + Development Status `4-Beta`, branch `milestone-m4-metadata`, dev-only). **Falta: M5**
+  (parity.md: estudos de caso + matriz R↔Py completa) → **M6** (auditoria de crédito Py+R:
+  Teoria+References+Porting, atribuição das back-impls/++). **FECHO:** publicar `1.0.0b1` (beta ~1 semana) → promover a **1.0.0**; pós-1.0.0
   pytspredit também adota numeração Boeing.
 - Branches já mescladas (podem ser deletadas): `milestone-m3-paired-tests` (pytspredit),
   `arimax-xreg-fix` (tspredit). `main` é a única branch de código nos dois repos.
