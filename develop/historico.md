@@ -331,8 +331,16 @@ juntos, **só o núcleo** (daltoolboxdp/reproduce ficam p/ depois). Plano em `de
   TsRegswMv), datasets 1 (tsd), custom 1 (filter), tutorial 6 (arima 01-03 + mlp 04/06/08).
   `plot_ts` (série crua), `plot_ts_pred` (forecast/filtro), `plot_ts_pred_mv` (MV). Os 34 sem
   plot espelham o R (datasets accessors, tuning, custom extensions, MV build/split, prediction
-  concepts 00/09). Todos verdes pelo conversor (plots viram imagens). **Pendente:** revisão +
-  ff-merge do Eduardo; depois a release beta `0.x.0` leva os `plot_ts`/`plot_series` novos ao PyPI.
+  concepts 00/09). Todos verdes pelo conversor (plots viram imagens). **MESCLADA na main.**
+- **RELEASES (Eduardo "pode mesclar e colocar em produção", 2026-11-25):**
+  **pytspredit 0.12.0 PUBLICADO no PyPI** (https://pypi.org/project/pytspredit/0.12.0/) --
+  pytspredit vira o dono do plotting de TS (`plot_ts`+`plot_series` novos) + exemplos
+  enriquecidos; aditivo, sem remoção de API. **pydaltoolbox 0.25.0** já estava no PyPI.
+  **tspredit bumpado p/ 2.0.757** (Boeing) na main + README sincronizado, `R CMD INSTALL`
+  limpo -- **preparado p/ o teste de submissão ao CRAN do Eduardo** (ele publica os R).
+  daltoolbox 1.4.717 na main (CRAN = Eduardo). **Teste em curso:** rodando o conversor dos
+  notebooks R do tspredit (129 .Rmd) contra a 2.0.757 instalada localmente p/ validar os
+  exemplos pós-migração (log em tspredit/examples/logs/).
 
 ---
 

@@ -3,8 +3,9 @@ Retomada do pytspredit (c:\Git\dal\pytspredit). Leia primeiro a memória
 develop/mapeamento.md e develop/parity.md. Estamos na **reta de maturidade rumo à 1.0.0**,
 espelhando o pydaltoolbox 0.20→0.24. **MUDANÇA (Eduardo, 2026-11-24): o beta NÃO é `1.0.0b1`**
 — vamos **batizar de beta a próxima `0.x.0`** (a versão subsequente à última de qualidade),
-continuando na linha 0.x; roda ~1 semana → promove a 1.0.0. **M1–M6 ✓.** **ANTES DO BETA o
-Eduardo vai passar uma TAREFA EXTRA** — fazê-la primeiro, depois a release beta.
+continuando na linha 0.x; roda ~1 semana → promove a 1.0.0. **M1–M6 ✓.** **TAREFA EXTRA
+pré-beta (migração dos plots de TS) ✓ FEITA e PUBLICADA (pytspredit 0.12.0 no PyPI).**
+**PRÓXIMO = a release BETA `0.x.0`** (quando o Eduardo der o OK).
 
 ESTADO ATUAL (2026-11-24)
 - **pytspredit 0.11.1 PUBLICADO no PyPI** (https://pypi.org/project/pytspredit/0.11.1/) e na
@@ -56,7 +57,12 @@ PRÓXIMOS PASSOS DE MATURIDADE (ver §5.4/Maturidade) — faça na ordem, cada u
   `References:` + `Porting:` nas classes de algoritmo, atribuição canônica das back-impls/++
   (EMD/wavelet/ARIMA++/`_RLinear`/ELM/`TsVar`) com evidência, refs `Mirrors X.R` corrigidas.
   Python 261 testes verdes + ruff; R roxygenise+`R CMD INSTALL` limpos (2.0.747 mantida).
-- **TAREFA EXTRA do Eduardo (antes do beta):** aguardando ele passar — fazer primeiro.
+- **TAREFA EXTRA (migração dos plots de TS) ✓ FEITA + PUBLICADA (2026-11-25):** os plots de
+  série temporal (`plot_ts`/`plot_ts_pred`/`plot_ts_pred_mv`/`plot_series`) saíram do
+  daltoolbox/pydaltoolbox e viraram do pytspredit/tspredit (ver [[pytspredit-port]] +
+  develop/plano-plots.md). **pytspredit 0.12.0** e **pydaltoolbox 0.25.0** no PyPI;
+  **daltoolbox 1.4.717** e **tspredit 2.0.757** nas mains (CRAN = Eduardo). Exemplos Python
+  70/104 com plot. daltoolboxdp/reproduce ficaram de fora (migrar depois).
 - **FECHO — BETA = próxima `0.x.0`** (não `1.0.0b1`): publicar a próxima `0.x.0` como o beta,
   rodar ~1 semana, coletar feedback; depois promover a **1.0.0** estável. **Pós-1.0.0 o
   pytspredit também adota numeração Boeing** (1.0.707, 1.0.717, …), como o `tspredit` R.
@@ -84,9 +90,8 @@ GOTCHAS IMPORTANTES DESTA MÁQUINA
 - ARIMA++ (`TsArima(auto="cv")`) é lento (~15s) — manter fora de exemplos que precisam ser
   rápidos; o benchmark fica em `develop/parity/autoarima_benchmark.py`.
 
-COMECE pela **TAREFA EXTRA que o Eduardo vai passar** (ele disse que a passaria antes do beta).
-Depois dela, a **release beta = próxima `0.x.0`** (bump pyproject + `__init__`, build, twine
-check, upload com o "pode fazer" do Eduardo), roda ~1 semana → promove a 1.0.0.
-(M1–M6 ✓; M5 mesclado na main; M6 nas branches `milestone-m6-credit-audit` [pytspredit] e
-`m6-credit-audit` [tspredit] aguardando merge; 0.11.1 no PyPI; tspredit 2.0.747 na main do R
-+ branch M6 aguardando o merge/CRAN do Eduardo.)
+COMECE pela **release BETA = próxima `0.x.0`** (a tarefa extra dos plots já foi feita+publicada
+na 0.12.0). Bump pyproject + `__init__`, build, twine check, upload com o "pode fazer" do
+Eduardo, roda ~1 semana → promove a 1.0.0.
+(M1–M6 ✓, tudo na main; **pytspredit 0.12.0** e **pydaltoolbox 0.25.0** no PyPI; **daltoolbox
+1.4.717** e **tspredit 2.0.757** nas mains do R aguardando o teste/submissão ao CRAN do Eduardo.)
