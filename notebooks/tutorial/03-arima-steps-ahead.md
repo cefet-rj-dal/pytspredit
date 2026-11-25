@@ -34,8 +34,10 @@ model.evaluate(samp.test.to_numpy().ravel(), pred)["metrics"]
 Plot the 5-step forecast against the observed series:
 
 ```python
-y_all = ts.datasets.tsd()["y"].to_numpy()
-ts.plot_ts_pred(y=y_all, yadj=y_all[:len(y_all) - len(pred)], ypred=pred)
+import numpy as np
+adjust = np.asarray(model.predict(samp.train)).ravel()          # in-sample fit
+yvalues = np.concatenate([samp.train.to_numpy().ravel(), samp.test.to_numpy().ravel()])
+ts.plot_ts_pred(y=yvalues, yadj=adjust, ypred=pred)
 ```
 
 > **What to observe.** A single multi-step forecast from the last training point.

@@ -15,7 +15,11 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pytspredit as ts
 
-y = ts.datasets.tsd()["y"].to_numpy()
+_rng = np.random.default_rng(0)
+_base = ts.datasets.tsd()["y"].to_numpy()
+y = _base + _rng.normal(0, _base.std(ddof=1) / 10, len(_base))  # add noise
+_spike = _rng.normal(0, _base.std(ddof=1))
+y[[9, 19, 29]] += _spike                                        # inject a few spikes
 ```
 
 Visualize the raw series:
@@ -47,7 +51,7 @@ print('first values:', np.round(out[:6], 3))
 print('length:', len(out))
 ```
 
-    first values: [-0.074  0.244  0.472  0.671  0.828  0.934]
+    first values: [-0.093  0.252  0.493  0.676  0.818  0.959]
     length: 41
 
 

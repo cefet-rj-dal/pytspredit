@@ -49,6 +49,12 @@ ts.ts_head(t)
 ts.ts_head(norm.inverse_transform(t))
 ```
 
+Compare the original and normalized target (`t0`) columns (solid = original, dashed = normalized):
+
+```python
+ts.plot_ts_pred(y=w.iloc[:, -1].to_numpy(), yadj=t.iloc[:, -1].to_numpy())
+```
+
 > **What to observe.** The transformed windows hold differences; `inverse_transform`
 > integrates them back to the original level.
 

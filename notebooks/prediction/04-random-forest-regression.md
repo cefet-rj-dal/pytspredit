@@ -36,11 +36,13 @@ pred = model.predict(te.input.iloc[[0]], steps_ahead=5)
 model.evaluate(te.output.to_numpy().ravel(), pred)["metrics"]
 ```
 
-Plot the 5-step forecast against the observed series (solid = observed, dashed = forecast):
+Plot the actual target vs the in-sample fit (train) and the 5-step forecast (test) -- as in the R example:
 
 ```python
-y_all = ts.datasets.tsd()["y"].to_numpy()
-ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=pred)
+import numpy as np
+adjust = np.asarray(model.predict(tr.input)).ravel()          # in-sample fit
+yvalues = np.concatenate([tr.output.to_numpy().ravel(), te.output.to_numpy().ravel()])
+ts.plot_ts_pred(y=yvalues, yadj=adjust, ypred=pred)
 ```
 
 > **What to observe.** `fit` learns on the training windows; `predict(steps_ahead=5)` rolls forward from the first test window; `evaluate` reports MSE/sMAPE/R2.

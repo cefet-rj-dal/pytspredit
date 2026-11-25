@@ -26,7 +26,8 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pytspredit as ts
 
-y = ts.datasets.tsd()["y"].to_numpy()
+x = np.linspace(0, 4 * np.pi, 128)
+y = np.sin(x) + 0.25 * np.sin(12 * x)   # low-freq signal + high-freq component
 ```
 
 Visualize the raw series:

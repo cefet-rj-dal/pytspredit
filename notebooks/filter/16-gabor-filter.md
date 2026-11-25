@@ -26,7 +26,9 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pytspredit as ts
 
-y = ts.datasets.tsd()["y"].to_numpy()
+_rng = np.random.default_rng(0)
+x = np.linspace(0, 6 * np.pi, 120)
+y = np.sin(x) + 0.3 * np.sin(8 * x) + _rng.normal(0, 0.12, 120)   # noisy dual-frequency
 ```
 
 Visualize the raw series:
@@ -36,7 +38,7 @@ ts.plot_ts(y=y)
 ```
 
 ```python
-out = ts.TsFilGabor().fit(y).transform(y)
+out = ts.TsFilGabor(window_size=3, central_frequency=0.05).fit(y).transform(y)
 print('first values:', np.round(out[:6], 3))
 print('length:', len(out))
 ```

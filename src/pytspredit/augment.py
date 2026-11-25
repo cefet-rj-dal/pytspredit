@@ -48,6 +48,14 @@ def _frame(arr: np.ndarray) -> pd.DataFrame:
     return pd.DataFrame(arr, columns=cols)
 
 
+def _attach_idx(df: pd.DataFrame, idx) -> pd.DataFrame:
+    """Record, in ``df.attrs['idx']``, the 0-based source-window row that each output
+    row derives from (mirrors R's ``attr(xa, 'idx')``). Originals map to themselves;
+    augmented rows map to the window they were generated from."""
+    df.attrs["idx"] = np.asarray(idx, dtype=int)
+    return df
+
+
 def _rowmean(x: np.ndarray) -> np.ndarray:
     return x.mean(axis=1)
 
@@ -69,6 +77,8 @@ class TsAugNone(DalTransform):
         return self
 
     def transform(self, data, **kwargs):
+        if isinstance(data, pd.DataFrame):
+            data.attrs["idx"] = np.arange(data.shape[0])
         return data
 
 
@@ -86,8 +96,13 @@ class _AugStack(DalTransform):
     def transform(self, data, **kwargs) -> pd.DataFrame:
         x = _values(data)
         aug = self._augment(x)
-        out = np.vstack([x, aug]) if self.preserve_data else aug
-        return _frame(out)
+        if self.preserve_data:
+            out = np.vstack([x, aug])
+            idx = np.concatenate([np.arange(x.shape[0]), np.arange(aug.shape[0])])
+        else:
+            out = aug
+            idx = np.arange(aug.shape[0])
+        return _attach_idx(_frame(out), idx)
 
 
 class TsAugFlip(_AugStack):
@@ -241,7 +256,8 @@ class TsAugAwareness(DalTransform):
         sd = _sd_within(x)
         idx = self._recent_index(x.shape[0], rng)       # 1-based
         block = self._add_noise(x[idx - 1], sd, rng)
-        return _frame(np.vstack([x, block]))
+        out_idx = np.concatenate([np.arange(x.shape[0]), idx - 1])
+        return _attach_idx(_frame(np.vstack([x, block])), out_idx)
 
 
 def _fivenum(x: np.ndarray) -> np.ndarray:
@@ -300,4 +316,5 @@ class TsAugAwaresmooth(TsAugAwareness):
         sd = _sd_within(windows)
         idx = self._recent_index(windows.shape[0], rng)
         block = self._add_noise(windows[idx - 1], sd, rng)
-        return _frame(np.vstack([windows, block]))
+        out_idx = np.concatenate([np.arange(windows.shape[0]), idx - 1])
+        return _attach_idx(_frame(np.vstack([windows, block])), out_idx)

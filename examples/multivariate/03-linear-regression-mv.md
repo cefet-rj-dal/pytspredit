@@ -12,7 +12,6 @@
 ```python
 import warnings
 warnings.filterwarnings("ignore")
-import matplotlib; matplotlib.use("Agg")
 
 import numpy as np
 import pandas as pd
@@ -52,7 +51,15 @@ ts.plot_ts_pred_mv(samp.train, samp.test, pred, variable="y")
 
 
 
-    <Figure size 600x350 with 1 Axes>
+
+![png](fig/03-linear-regression-mv/output_4_0.png)
+
+
+
+
+
+
+![png](fig/03-linear-regression-mv/output_4_1.png)
 
 
 

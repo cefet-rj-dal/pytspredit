@@ -81,6 +81,28 @@ ts.ts_head(norm.inverse_transform(t))
 
 
 
+Compare the original and normalized target (`t0`) columns (solid = original, dashed = normalized):
+
+
+```python
+ts.plot_ts_pred(y=w.iloc[:, -1].to_numpy(), yadj=t.iloc[:, -1].to_numpy())
+```
+
+
+
+
+
+![png](fig/03-sliding-window-minmax-normalization/output_7_0.png)
+
+
+
+
+
+
+![png](fig/03-sliding-window-minmax-normalization/output_7_1.png)
+
+
+
 > **What to observe.** Each row is scaled by its own range (per-window `[0, 1]`); the
 > inverse restores the original windows using the stored per-row min/max.
 

@@ -80,6 +80,28 @@ ts.ts_head(norm.inverse_transform(t))
 
 
 
+Compare the original and normalized target (`t0`) columns (solid = original, dashed = normalized):
+
+
+```python
+ts.plot_ts_pred(y=w.iloc[:, -1].to_numpy(), yadj=t.iloc[:, -1].to_numpy())
+```
+
+
+
+
+
+![png](fig/06-adaptive-subtraction-normalization/output_7_0.png)
+
+
+
+
+
+
+![png](fig/06-adaptive-subtraction-normalization/output_7_1.png)
+
+
+
 > **What to observe.** Windows are mean-centered (no division), so the operator is robust
 > when the local average is close to zero.
 

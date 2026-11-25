@@ -50,6 +50,12 @@ The transform is invertible (recovers the original windows).
 ts.ts_head(norm.inverse_transform(t))
 ```
 
+Compare the original and normalized target (`t0`) columns (solid = original, dashed = normalized):
+
+```python
+ts.plot_ts_pred(y=w.iloc[:, -1].to_numpy(), yadj=t.iloc[:, -1].to_numpy())
+```
+
 > **What to observe.** All columns share one global `[0, 1]` scale; `inverse_transform`
 > returns the original values.
 

@@ -64,6 +64,46 @@ ts.ts_head(out, 3)
 
 
 
+Compare a few source windows with their augmented versions on the lag axis (original vs augmented):
+
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+nrow = len(windows)
+idx = out.attrs["idx"]
+sw = windows.shape[1]
+rows = list(range(nrow, min(out.shape[0], nrow + 6)))   # a few augmented windows
+fig, axes = plt.subplots(2, 3, figsize=(10, 5), squeeze=False)
+for ax, row_id in zip(axes.ravel(), rows):
+    src = int(idx[row_id])
+    lags = np.arange(1, sw + 1)
+    ax.plot(lags, windows.iloc[src].to_numpy(), "-o", ms=3, color="black", label="original")
+    ax.plot(lags, out.iloc[row_id].to_numpy(), "-o", ms=3, color="#2a78d6", label="augmented")
+    ax.set_title(f"window {src}", fontsize=9)
+    ax.legend(fontsize=7, frameon=False)
+for ax in axes.ravel()[len(rows):]:
+    ax.axis("off")
+fig.tight_layout()
+fig
+```
+
+
+
+
+
+![png](fig/04-stretch-augmentation/output_6_0.png)
+
+
+
+
+
+
+![png](fig/04-stretch-augmentation/output_6_1.png)
+
+
+
 > **What to observe.** The output stacks the original and the augmented windows (roughly double the rows); it plugs into `TsIntegtune`'s augmentation slot.
 
 **References:** Wen, Q. et al. (2021). *Time Series Data Augmentation for Deep Learning: A Survey.* IJCAI.

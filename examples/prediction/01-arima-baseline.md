@@ -34,12 +34,14 @@ model.evaluate(samp.test.to_numpy().ravel(), pred)["metrics"]
 
 
 
-Plot the 5-step forecast against the observed series (solid = observed, dashed = forecast):
+Plot the actual series vs the in-sample fit (train) and the 5-step forecast (test):
 
 
 ```python
-y_all = ts.datasets.tsd()["y"].to_numpy()
-ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=pred)
+import numpy as np
+adjust = np.asarray(model.predict(samp.train)).ravel()          # in-sample fit
+yvalues = np.concatenate([samp.train.to_numpy().ravel(), samp.test.to_numpy().ravel()])
+ts.plot_ts_pred(y=yvalues, yadj=adjust, ypred=pred)
 ```
 
 

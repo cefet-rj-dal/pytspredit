@@ -82,6 +82,28 @@ ts.ts_head(norm.inverse_transform(t))
 
 
 
+Compare the original and normalized target (`t0`) columns (solid = original, dashed = normalized):
+
+
+```python
+ts.plot_ts_pred(y=w.iloc[:, -1].to_numpy(), yadj=t.iloc[:, -1].to_numpy())
+```
+
+
+
+
+
+![png](fig/02-global-minmax-normalization/output_8_0.png)
+
+
+
+
+
+
+![png](fig/02-global-minmax-normalization/output_8_1.png)
+
+
+
 > **What to observe.** All columns share one global `[0, 1]` scale; `inverse_transform`
 > returns the original values.
 

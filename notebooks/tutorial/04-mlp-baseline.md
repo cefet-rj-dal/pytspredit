@@ -35,8 +35,11 @@ model.evaluate(out, model.predict(te.input.iloc[[0]], steps_ahead=5))["metrics"]
 Plot the 5-step forecast against the observed series:
 
 ```python
-y_all = ts.datasets.tsd()["y"].to_numpy()
-ts.plot_ts_pred(y=y_all, yadj=y_all[:-5], ypred=model.predict(te.input.iloc[[0]], steps_ahead=5))
+import numpy as np
+pred = model.predict(te.input.iloc[[0]], steps_ahead=5)
+adjust = np.asarray(model.predict(tr.input)).ravel()            # in-sample fit
+yvalues = np.concatenate([tr.output.to_numpy().ravel(), te.output.to_numpy().ravel()])
+ts.plot_ts_pred(y=yvalues, yadj=adjust, ypred=pred)
 ```
 
 > **What to observe.** A normalized MLP is a strong non-linear baseline.

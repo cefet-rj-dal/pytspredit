@@ -29,6 +29,7 @@ class MyClipFilter(DalTransform):
 
 ```python
 y = ts.datasets.tsd()["y"].to_numpy()
+y[[9, 19, 29]] += np.array([1.0, -1.2, 1.1])   # inject spikes the clip filter will tame
 f = MyClipFilter().fit(y)
 np.round(f.transform(y)[:6], 3)
 ```

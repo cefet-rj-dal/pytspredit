@@ -51,6 +51,12 @@ ts.ts_head(t)
 ts.ts_head(norm.inverse_transform(t))
 ```
 
+Compare the original and normalized target (`t0`) columns (solid = original, dashed = normalized):
+
+```python
+ts.plot_ts_pred(y=w.iloc[:, -1].to_numpy(), yadj=t.iloc[:, -1].to_numpy())
+```
+
 > **What to observe.** Each window is normalized by its own robust average; the other
 > operators (subtract / softdivide / asinh) are shown in the next examples.
 

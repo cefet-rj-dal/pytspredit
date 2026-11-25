@@ -15,7 +15,8 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import pytspredit as ts
 
-y = ts.datasets.tsd()["y"].to_numpy()
+x = np.linspace(0, 4 * np.pi, 128)
+y = np.sin(x) + 0.25 * np.sin(12 * x)   # low-freq signal + high-freq component
 ```
 
 Visualize the raw series:
@@ -47,8 +48,8 @@ print('first values:', np.round(out[:6], 3))
 print('length:', len(out))
 ```
 
-    first values: [0.093 0.282 0.46  0.618 0.748 0.842]
-    length: 41
+    first values: [0.028 0.126 0.223 0.317 0.408 0.495]
+    length: 128
 
 
 Compare the original series with the filtered one:
