@@ -338,33 +338,50 @@ juntos, **só o núcleo** (daltoolboxdp/reproduce ficam p/ depois). Plano em `de
   enriquecidos; aditivo, sem remoção de API. **pydaltoolbox 0.25.0** já estava no PyPI.
   **tspredit bumpado p/ 2.0.757** (Boeing) na main + README sincronizado, `R CMD INSTALL`
   limpo -- **preparado p/ o teste de submissão ao CRAN do Eduardo** (ele publica os R).
-  daltoolbox 1.4.717 na main (CRAN = Eduardo). **Teste em curso:** rodando o conversor dos
-  notebooks R do tspredit (129 .Rmd) contra a 2.0.757 instalada localmente p/ validar os
-  exemplos pós-migração (log em tspredit/examples/logs/).
+  daltoolbox 1.4.717 na main (CRAN = Eduardo).
+- **Teste dos exemplos R pós-migração (2026-11-25):** rodado o `conversor.R` dos notebooks do
+  tspredit contra a **2.0.757 instalada localmente**. Corrigido na migração um bug que teria
+  quebrado o `R CMD check`: `R/ts_plot_mv.R` chamava `daltoolbox::plot_ts_pred()` (não mais
+  exportado de lá) → passou a chamar o próprio `plot_ts_pred()` do pacote; `@example` do
+  `plot_ts_pred_mv` acelerado (8.8s→0.4s) p/ limpar a NOTE de exemplo lento. `R CMD check
+  --as-cran` da 2.0.757 = **0 ERROR / 0 WARNING / 1 NOTE benigno** (CRAN-ready). Restam só os
+  exemplos torch com erro (daltoolboxdp/torch indisponíveis — fora de escopo, pré-existente).
+
+### Auditoria de paridade dos exemplos + 0.12.1 (2026-11-25) **[na main; 0.12.1 no PyPI]**
+Eduardo revisou os exemplos renderizados e apontou que os plots **não estavam fiéis ao R**
+("onde clico vejo bug"). Auditoria geral família a família (commit `4861f21`):
+- **filter** — os exemplos usavam `tsd` cru (seno puro), fazendo gabor/EMD parecerem
+  quebrados. **Não era bug de código:** EMD em seno puro é **degenerado** (IMF1 = o sinal) e o
+  gabor no sinal do R tem corr 0.996 (bate ~5e-9). Corrigido trocando a **entrada** para
+  ruidosa (como o R: `tsd`+ruído+spikes; fft/gabor com seus sinais/params).
+- **normalization** — faltava o gráfico da série normalizada → adicionado o compare do `t0`
+  original vs normalizado.
+- **augment** — faltava a comparação visual das janelas (original×aumentada); exigiu **expor o
+  `idx`** na lib: `augment.py` passou a anexar `df.attrs["idx"]` (mapa 0-based da janela de
+  origem, espelhando `attr(xa,"idx")` do R) e os exemplos desenham o facet a partir dele.
+- **multivariate** — não plotavam no `.md` por causa de `matplotlib.use("Agg")` → removido.
+- **prediction/tutorial** — passaram a plotar o ajuste in-sample (fit no treino) + as saídas
+  das janelas, como o R.
+- **custom-filter** — injetados spikes para o filtro de clip ter efeito visível.
+- Verificação: varredura de `examples/**/*.md` **sem erros**; **70/104** notebooks plotam;
+  261 testes + ruff verdes. **pytspredit 0.12.1 PUBLICADO no PyPI**
+  (https://pypi.org/project/pytspredit/0.12.1/) — leva o `idx` do augment, de que os exemplos
+  de augment dependem (não estava na 0.12.0). `parity.md` ganhou a **§7 Release status**.
+
+### M6 mesclado + numeração do tspredit (2026-11-25)
+- **M6 na main** nos dois repos (commit `4cf48a3` no pytspredit; `m6-credit-audit` no tspredit).
+- **tspredit bumpado p/ 2.0.757** (Boeing) na main, CRAN-ready — este passou a ser o **alvo da
+  submissão ao CRAN do Eduardo** (o alvo anterior era 2.0.747).
 
 ---
 
-## Estado atual (base para o `planejamento.md`)
-- Última release publicada: **pytspredit 0.11.1** (PyPI, 2026-11-24; interino de metadados —
-  autores do port + classificador 4-Beta). **Ciclo 2 completo** e
-  **todo o `tspredit` portado**; o ciclo inteiro **não adicionou nenhuma dep**.
-- Cobertura: todo o Ciclo 1 + EMD (0.7.0) + MODWT/wavelet (0.8.0) + `loadfulldata` (0.9.0) +
-  ARIMA++ (0.10.0) + `fit_arima` exportado (0.11.0). Extras `[emd]`/`[wavelet]`/`[bench]`
-  **eliminados** (back-implementation nativa). Deps: núcleo `numpy`/`pandas`/`scikit-learn`/
-  `statsmodels`/`scipy`/`matplotlib` + `pydaltoolbox`.
-- **tspredit R na main em v2.0.747** (EMD/wavelet/ARIMA++/`fit_arima` nativos; `hht`+`wavelets`+
-  `forecast` droppados; fix do `ts_arimax`). **Pendente externo: Eduardo submete 2.0.747 ao CRAN.**
-- **Maturidade (espelha pydaltoolbox 0.20→0.24, fecha com BETA `1.0.0b1`):** **M1 ✓** (docs),
-  **M2 ✓** (exemplos 1:1, ~104 notebooks, na main), **M3 ✓** (testes pareados R↔Python 0.1→0.5,
-  committados, na main — achou+corrigiu o bug do `ts_arimax`), **M4 ✓** (metadados: autores do
-  port + Development Status `4-Beta`, branch `milestone-m4-metadata`, dev-only). **Falta: M5**
-  **M5 ✓** (parity.md §5+§6, mesclado na main), **M6 ✓** (auditoria de crédito Py+R:
-  frases proibidas=0, Theory+References+Porting, atribuição canônica das back-impls/++,
-  refs Mirrors corrigidas; pytspredit branch `milestone-m6-credit-audit`, tspredit branch
-  `m6-credit-audit`). **FECHO (renomeado):** o beta será a **próxima `0.x.0`** (não
-  `1.0.0b1`) — a versão subsequente à última de qualidade, batizada de beta (~1 semana) →
-  promover a **1.0.0**; pós-1.0.0 pytspredit também adota numeração Boeing.
-- **⏸️ ANTES DO BETA:** o Eduardo vai passar **outra tarefa** — fazê-la antes da release beta.
-- `main` é a única branch de código mesclada nos dois repos; as branches M6 aguardam
-  revisão/merge (tspredit: também a submissão ao CRAN do Eduardo).
-- Próximo: a **tarefa extra do Eduardo**, depois o **beta `0.x.0`**.
+## Estado atual (o resto está em `planejamento.md`)
+- Últimas releases: **pytspredit 0.12.1** (PyPI) · **pydaltoolbox 0.25.0** (PyPI, sem plots de
+  TS) · **tspredit 2.0.757** e **daltoolbox 1.4.717** nas mains R (CRAN = Eduardo).
+- **Ciclo 1 + Ciclo 2 completos** (todo o `tspredit` portado, **sem nenhuma dep nova** — extras
+  `[emd]`/`[wavelet]`/`[bench]` eliminados por back-implementation nativa). Deps de núcleo:
+  `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` + `pydaltoolbox`.
+- **Maturidade M1–M6 ✓** (todas na main) + **tarefa extra pré-beta (migração dos plots de TS +
+  exemplos) ✓**. `main` é a única branch de código nos dois repos.
+- **Próximo:** o **release beta** (a próxima `0.x.0`, batizada de beta, ~1 semana) → **1.0.0**
+  estável. Detalhes e pendências em `planejamento.md`.
