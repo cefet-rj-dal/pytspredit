@@ -19,16 +19,12 @@ Detalhe do caminho até aqui: `historico.md`.
 
 ## O que falta — roadmap até a 1.0.0
 
-### 1. ⬜ Release BETA — a próxima `0.x.0`
+### 1. ✅ Release BETA — `0.13.0`
 Decisão do Eduardo (2026-11-24): **não** vamos para `1.0.0b1`; batizamos de **beta a próxima
-`0.x.0`** (a versão subsequente à última de qualidade, continuando na linha `0.x.0`).
-
-- **Pré-requisitos — todos ✓:** M1–M6 e a tarefa extra (plots) fechados; API revisada;
-  `mapeamento.md`/`historico.md`/`parity.md` atualizados; matriz de paridade completa.
-- **Ação:** publicar a próxima `0.x.0` no PyPI **designada como o beta**. Confirmar com o
-  Eduardo se o beta é um bump novo (ex.: `0.13.0`) ou se a 0.12.1 já atual conta como o marco
-  inicial do beta — **decisão dele**.
-- **Rodar ~1 semana em beta**, coletar feedback de uso.
+`0.x.0`**. **Eduardo (2026-11-25): a 0.13.0 é o beta — publicada no PyPI.** Classificador
+`Development Status :: 4 - Beta`. Pré-requisitos (M1–M6 + tarefa extra dos plots) todos ✓.
+- **Em curso:** rodar **~1 mês** em beta (como no pydaltoolbox), coletar feedback de uso, antes
+  de promover a 1.0.0.
 
 ### 2. ⬜ Release `1.0.0` — estável
 Depois da semana de beta sem problemas: congela a API, sai de beta. **A partir da 1.0.0 o
