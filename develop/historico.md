@@ -373,15 +373,25 @@ Eduardo revisou os exemplos renderizados e apontou que os plots **não estavam f
 - **tspredit bumpado p/ 2.0.757** (Boeing) na main, CRAN-ready — este passou a ser o **alvo da
   submissão ao CRAN do Eduardo** (o alvo anterior era 2.0.747).
 
+### 0.13.0 — RELEASE BETA (2026-11-25) **[PUBLICADO no PyPI]**
+Eduardo confirmou: a **0.13.0 é o beta** (classificador `Development Status :: 4 - Beta`,
+já posto no M4). Fecha a passada de maturidade (M1–M6) + a tarefa extra pré-beta (migração
+dos plots de TS + auditoria de paridade dos exemplos). **Roda ~1 mês em beta** (cadência do
+pydaltoolbox) coletando feedback, depois promove a **1.0.0** estável (a partir da qual o
+pytspredit também adota numeração Boeing). Confirmado antes de publicar: sem pendência
+bloqueante; `examples/**` sem erro (fora torch), 70/104 notebooks plotam; EMD/gabor **não
+tinham bug de código** (o problema era a entrada seno-puro dos exemplos → trocada por ruidosa
+como no R; gabor corr 0.996, EMD reconstrói a 4e-16).
+
 ---
 
 ## Estado atual (o resto está em `planejamento.md`)
-- Últimas releases: **pytspredit 0.12.1** (PyPI) · **pydaltoolbox 0.25.0** (PyPI, sem plots de
+- Últimas releases: **pytspredit 0.13.0 (BETA)** (PyPI) · **pydaltoolbox 0.25.0** (PyPI, sem plots de
   TS) · **tspredit 2.0.757** e **daltoolbox 1.4.717** nas mains R (CRAN = Eduardo).
 - **Ciclo 1 + Ciclo 2 completos** (todo o `tspredit` portado, **sem nenhuma dep nova** — extras
   `[emd]`/`[wavelet]`/`[bench]` eliminados por back-implementation nativa). Deps de núcleo:
   `numpy`/`pandas`/`scikit-learn`/`statsmodels`/`scipy`/`matplotlib` + `pydaltoolbox`.
 - **Maturidade M1–M6 ✓** (todas na main) + **tarefa extra pré-beta (migração dos plots de TS +
   exemplos) ✓**. `main` é a única branch de código nos dois repos.
-- **Próximo:** o **release beta** (a próxima `0.x.0`, batizada de beta, ~1 semana) → **1.0.0**
-  estável. Detalhes e pendências em `planejamento.md`.
+- **Próximo:** rodar a **0.13.0 em beta ~1 mês** → **1.0.0** estável. Detalhes e pendências em
+  `planejamento.md`.
