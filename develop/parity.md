@@ -224,7 +224,7 @@ MLE/float path) · **backend** (benign-numeric: params match, solver differs) ·
 | `TsArima(auto="cv")` — **ARIMA++** | sMAPE vs auto.arima on NN5 | **++** | ~14% better (0.1352 vs 0.1565, 4/4); horizon-matched CV (§5.3) | `autoarima_benchmark.py` (manual) |
 | `fit_arima` (exported both sides) → `pytspredit.fit_arima` | selected order + fit | **exact/near** | delegates to the AICc/CV selectors above; `(0,0,0)` sentinel triggers auto | `test_quality_regressors.py` + unit tests |
 | `tspredbench.R` (doc only) → `TsPredBench` | — | **✨** | new interface; no R harness exists → `Porting: n/a` | `test_benchmark.py` |
-| `grf_ts_pred` (daltoolbox) → `plot_ts_pred`/`plot_ts_pred_mv` | — | **✨** | matplotlib port (not in pydaltoolbox) | `test_plot.py` |
+| `plot_ts`/`plot_series`/`grf_ts_pred` (ex-daltoolbox) → `plot_ts`/`plot_series`/`plot_ts_pred`/`plot_ts_pred_mv` | — | **✨ (ownership moved)** | TS plotting family relocated out of (py)daltoolbox into (py)tspredit — the package that uses them now owns them; matplotlib port mirrors the R ggplot2 family 1:1 | `test_plot.py` |
 
 ### Documented tolerances / fidelity notes
 - **Seasonal lag auto-estimation** (`seasonality=None`): periodogram estimate vs R
@@ -239,7 +239,26 @@ MLE/float path) · **backend** (benign-numeric: params match, solver differs) ·
 
 ---
 
-## 7. Open items for the parity maturity pass
+## 7. Release status
+
+| Side | Package | Version | State (2026-11-25) |
+|---|---|---|---|
+| Python | **pytspredit** | **0.12.1** | **Released to PyPI** (https://pypi.org/project/pytspredit/0.12.1/); `main` pushed. Adds the augment source-window map `df.attrs["idx"]` (mirrors R `attr(xa, "idx")`) that the augment examples use for the faceted original×augmented plot. |
+| Python | **pydaltoolbox** | 0.25.0 | Released to PyPI; TS plotting (`plot_series`/`plot_ts`/`plot_ts_pred`) **removed** — ownership moved to pytspredit. |
+| R | **tspredit** | 2.0.757 | On `main` (pushed); **CRAN-ready** (`R CMD check --as-cran`: 0 ERROR / 0 WARNING / 1 benign NOTE). Owns the TS plotting family (`grf_ts`/`grf_ts_pred`/`grf_series`), moved in from daltoolbox. **Eduardo submits to CRAN himself.** |
+| R | **daltoolbox** | 1.4.717 | On `main`; TS plot functions removed (ownership moved to tspredit). Eduardo publishes the R side. |
+
+**Plot-responsibility migration (sealed).** The time-series plotting family was moved out of
+(py)daltoolbox — a responsibility error, since the TS package is the consumer — into
+(py)tspredit, and uniformized R↔Python. Hard move (breaking), core packages only
+(daltoolbox/pydaltoolbox/tspredit/pytspredit); `daltoolboxdp` and `reproduce` are deferred.
+The example notebooks were re-audited for R↔Python plot parity (filters use noisy inputs so
+gabor/EMD are visible; normalization compares the `t0` column; augment draws the faceted
+window comparison via the new `idx`; multivariate dropped the `Agg` backend; prediction/
+tutorial plot the in-sample fit + windowed outputs). Full error scan of rendered
+`examples/**/*.md` is clean; 70/104 notebooks plot.
+
+## 8. Open items for the parity maturity pass
 - ~~Backfill `develop/parity/` scripts + frozen CSVs + `tests/test_quality_*` for 0.1→0.5.~~
   **DONE (M3)** — see §4; six families committed as R-free guards, one R bug fixed.
 - ~~Build the full R↔Python **parity matrix**.~~ **DONE (M5)** — §6, authoritative and keyed
